@@ -40,4 +40,22 @@ describe("TaskManager", function () {
       expect(task.completed).to.equal(true);
     });
   });
+
+  describe("listTasks", function () {
+    it("should list all tasks", async function () {
+      const { taskManager } = await loadFixture(deployTaskFixture);
+      await taskManager.createTask("Buy groceries");
+      await taskManager.createTask("Write report");
+      await taskManager.createTask("Exercise");
+
+      const tasks = await taskManager.listTasks();
+      expect(tasks.length).to.equal(3);
+      expect(tasks[0][0]).to.equal("Buy groceries");
+      expect(tasks[0][1]).to.equal("false");
+      expect(tasks[1][0]).to.equal("Write report");
+      expect(tasks[1][1]).to.equal("false");
+      expect(tasks[2][0]).to.equal("Exercise");
+      expect(tasks[2][1]).to.equal("false");
+    });
+  });
 });

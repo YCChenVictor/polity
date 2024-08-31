@@ -19,4 +19,16 @@ contract TaskManager {
         require(_index < tasks.length, "Task index out of bounds");
         tasks[_index].completed = true;
     }
+
+    function listTasks() public view returns (string[][] memory) {
+        string[][] memory taskList = new string[][](tasks.length);
+
+        for (uint i = 0; i < tasks.length; i++) {
+            taskList[i] = new string[](2);
+            taskList[i][0] = tasks[i].description;
+            taskList[i][1] = tasks[i].completed ? "true" : "false";
+        }
+
+        return taskList;
+    }
 }
