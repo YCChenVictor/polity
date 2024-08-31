@@ -8,6 +8,10 @@ contract TaskManager {
 
     Task[] public tasks;
 
+    function helloWorld() public pure returns (string memory) {
+        return "Hello, World!";
+    }
+
     function createTask(string memory _description) public {
         tasks.push(Task({
             description: _description,
