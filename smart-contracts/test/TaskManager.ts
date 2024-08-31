@@ -20,6 +20,14 @@ describe("TaskManager", function () {
     });
   });
 
+  describe("helloWorld", function () {
+    it("Should return 'Hello, World!'", async function () {
+      const { taskManager } = await loadFixture(deployTaskFixture);
+      const result = await taskManager.helloWorld();
+      expect(result).to.equal("Hello, World!");
+    });
+  });
+
   describe("createTask", function () {
     it("Should create a new task with the given description", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
