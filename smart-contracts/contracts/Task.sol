@@ -2,6 +2,7 @@ pragma solidity ^0.8.0;
 
 contract TaskManager {
     struct Task {
+        uint id;
         string description;
         bool completed;
     }
@@ -12,8 +13,9 @@ contract TaskManager {
         return "Hello, World!";
     }
 
-    function createTask(string memory _description) public {
+    function createTask(uint _id, string memory _description) public {
         tasks.push(Task({
+            id: _id,
             description: _description,
             completed: false
         }));
@@ -24,13 +26,11 @@ contract TaskManager {
         tasks[_index].completed = true;
     }
 
-    function listTasks() public view returns (string[][] memory) {
-        string[][] memory taskList = new string[][](tasks.length);
+    function listTasks() public view returns (Task[] memory) {
+        Task[] memory taskList = new Task[](tasks.length);
 
         for (uint i = 0; i < tasks.length; i++) {
-            taskList[i] = new string[](2);
-            taskList[i][0] = tasks[i].description;
-            taskList[i][1] = tasks[i].completed ? "true" : "false";
+            taskList[i] = tasks[i];
         }
 
         return taskList;
