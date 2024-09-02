@@ -14,7 +14,8 @@ describe("TaskManager", function () {
   describe("Deployment", function () {
     it("Should set taskCompleted to false initially", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
-      await taskManager.createTask("Initial Task");
+      const backendId = 1
+      await taskManager.createTask(backendId, "Initial Task");
       const task = await taskManager.tasks(0);
       expect(task.completed).to.equal(false);
     });
@@ -32,7 +33,8 @@ describe("TaskManager", function () {
     it("Should create a new task with the given description", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
       const description = "New Task Description";
-      await taskManager.createTask(description);
+      const backendId = 1
+      await taskManager.createTask(backendId, description);
       const createdTask = await taskManager.tasks(0);
       expect(createdTask.description).to.equal(description);
       expect(createdTask.completed).to.equal(false);
@@ -42,7 +44,8 @@ describe("TaskManager", function () {
   describe("markTaskCompleted", function () {
     it("Should set taskCompleted to true", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
-      await taskManager.createTask("Task to be completed");
+      const backendId = 1
+      await taskManager.createTask(backendId, "Task to be completed");
       await taskManager.markTaskCompleted(0);
       const task = await taskManager.tasks(0);
       expect(task.completed).to.equal(true);
@@ -52,18 +55,18 @@ describe("TaskManager", function () {
   describe("listTasks", function () {
     it("should list all tasks", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
-      await taskManager.createTask("Buy groceries");
-      await taskManager.createTask("Write report");
-      await taskManager.createTask("Exercise");
+      const backendIdOne = 1
+      const backendIdTwo = 2
+      const backendIdThree = 3
+      await taskManager.createTask(backendIdOne, "Buy groceries");
+      await taskManager.createTask(backendIdTwo, "Write report");
+      await taskManager.createTask(backendIdThree, "Exercise");
 
       const tasks = await taskManager.listTasks();
       expect(tasks.length).to.equal(3);
-      expect(tasks[0][0]).to.equal("Buy groceries");
-      expect(tasks[0][1]).to.equal("false");
-      expect(tasks[1][0]).to.equal("Write report");
-      expect(tasks[1][1]).to.equal("false");
-      expect(tasks[2][0]).to.equal("Exercise");
-      expect(tasks[2][1]).to.equal("false");
+      expect(Number(tasks[0][0])).to.equal(1);
+      expect(tasks[0][1]).to.equal("Buy groceries");
+      expect(tasks[0][2]).to.equal(false);
     });
   });
 });
