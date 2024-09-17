@@ -3,6 +3,8 @@ import { expect } from "chai";
 import hre from "hardhat";
 
 describe("TaskManager", function () {
+  const mockEthAddress = '0x1234567890abcdef1234567890abcdef12345678';
+
   // Fixture to deploy the TaskManager contract
   async function deployTaskFixture() {
     const [owner, otherAccount] = await hre.ethers.getSigners();
@@ -15,8 +17,8 @@ describe("TaskManager", function () {
     it("Should set taskCompleted to false initially", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
       const backendId = 1
-      await taskManager.createTask(backendId);
-      await taskManager.createTask(backendId);
+      await taskManager.createTask(backendId, mockEthAddress);
+      await taskManager.createTask(backendId, mockEthAddress);
       const task = await taskManager.getTask(backendId);
       expect(task.completed).to.equal(false);
     });
@@ -34,7 +36,7 @@ describe("TaskManager", function () {
     it("Should create a new task with the given description", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
       const backendId = 1
-      await taskManager.createTask(backendId);
+      await taskManager.createTask(backendId, mockEthAddress);
       const createdTask = await taskManager.getTask(backendId);
       expect(createdTask.completed).to.equal(false);
     });
@@ -44,7 +46,7 @@ describe("TaskManager", function () {
     it("Should set taskCompleted to true", async function () {
       const { taskManager } = await loadFixture(deployTaskFixture);
       const backendId = 1
-      await taskManager.createTask(backendId);
+      await taskManager.createTask(backendId, mockEthAddress);
       await taskManager.markTaskCompleted(backendId);
       const task = await taskManager.getTask(backendId);
       expect(task.completed).to.equal(true);
@@ -57,9 +59,9 @@ describe("TaskManager", function () {
       const backendIdOne = 1
       const backendIdTwo = 2
       const backendIdThree = 3
-      await taskManager.createTask(backendIdOne);
-      await taskManager.createTask(backendIdTwo);
-      await taskManager.createTask(backendIdThree);
+      await taskManager.createTask(backendIdOne, mockEthAddress);
+      await taskManager.createTask(backendIdTwo, mockEthAddress);
+      await taskManager.createTask(backendIdThree, mockEthAddress);
 
       const tasks = await taskManager.listTasks();
       expect(tasks.length).to.equal(3);
