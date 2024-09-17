@@ -4,6 +4,7 @@ contract TaskManager {
     struct Task {
         uint backendId;
         bool completed;
+        address payable workerAddress;
     }
 
     Task[] public tasks;
@@ -13,11 +14,11 @@ contract TaskManager {
         return "Hello, World!";
     }
 
-    function createTask(uint backendId) public {
+    function createTask(uint backendId, address payable workerAddress) public {
         // You need to find a good way to store backend id and the index of this array (like a mapping)
         // The input is the backend id and you also update the mapping
         // In getTask -> input backend id -> mapping -> get index -> return tasks[index]
-        tasks.push(Task(backendId, false));
+        tasks.push(Task(backendId, false, workerAddress));
         uint256 index = tasks.length - 1;
         backendIdToIndex[backendId] = index;
     }
