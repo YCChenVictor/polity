@@ -17,6 +17,11 @@
     "ethers": "^6.4.0",
     "hardhat": "^2.22.9",
     "hardhat-gas-reporter": "^1.0.8",
+    "prettier": "^3.3.3",
+    "prettier-plugin-solidity": "^1.4.1",
+    "solhint": "^5.0.3",
+    "solhint-community": "^4.0.0",
+    "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.1",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.0",
@@ -25,6 +30,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "start": "hardhat node"
+    "start": "hardhat node",
+    "lint:sol": "solhint 'contracts/**/*.sol'",
+    "lint:sol:fix": "solhint --fix 'contracts/**/*.sol'"
   }
 }
