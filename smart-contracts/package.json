@@ -1,6 +1,5 @@
 {
   "name": "hardhat-project",
-  "type": "module",
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",
@@ -36,6 +35,7 @@
     "test": "hardhat test",
     "start": "hardhat node",
     "eslint": "eslint",
+    "eslint:fix": "eslint --fix",
     "lint:sol": "solhint 'contracts/**/*.sol'",
     "lint:sol:fix": "solhint --fix 'contracts/**/*.sol'"
   }

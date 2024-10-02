@@ -6,9 +6,7 @@ import prettierPlugin from "eslint-plugin-prettier";
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/*.config.js",
-    ],
+    ignores: ["**/*.config.js"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strict,
