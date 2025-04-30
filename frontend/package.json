@@ -1,0 +1,32 @@
+{
+  "type": "module",
+  "name": "timocracy",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:YCChenVictor/timocracy.git",
+  "author": "Victor Chen <victor.chen@hoc-trade.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@chainsafe/libp2p-noise": "^16.1.3",
+    "@libp2p/tcp": "^10.1.10",
+    "libp2p": "^2.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "eslint": "^9.25.1",
+    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-json": "^4.0.1",
+    "eslint-plugin-prettier": "^5.2.6",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.15",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.1"
+  },
+  "scripts": {
+    "start": "yarn build && node dist/node.js --experimental-modules",
+    "build": "tsc && tsc-alias",
+    "eslint:fix": "eslint --fix",
+    "prettier": "yarn eslint:fix && yarn format:json"
+  }
+}
