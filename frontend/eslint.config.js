@@ -27,9 +27,9 @@ export default [
     ...jsonPlugin.configs.recommended,
   },
   {
-    // files: [],
-    // rules: {
-    //   "no-console": "off"
-    // }
+    files: ["src/node.ts"],
+    rules: {
+      "no-console": "off",
+    },
   },
 ];

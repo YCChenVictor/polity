@@ -1,9 +1,8 @@
-import { createLibp2p } from "libp2p";
-import { tcp } from "@libp2p/tcp";
-import { noise } from "@chainsafe/libp2p-noise";
+import { makeNode } from "./services/node";
 
-const node = await createLibp2p({
-  transports: [tcp()],
-  connectionEncrypters: [noise()],
-})
-console.log(node.getMultiaddrs())
+const args = process.argv;
+const port = Number(args[2]);
+const node = await makeNode(port);
+node.addEventListener("peer:discovery", (evt) => {
+  console.log("Discovered peer:", evt.detail.id.toString());
+});
