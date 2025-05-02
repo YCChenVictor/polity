@@ -30,8 +30,10 @@
     "typescript-eslint": "^8.31.1"
   },
   "scripts": {
+    "lint": "yarn eslint .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules yarn test --coverage --verbose",
+    "test:fix": "yarn test --bail",
+    "test:coverage": "yarn test --coverage --verbose",
     "start": "yarn build && node dist/node.js --experimental-modules",
     "build": "tsc && tsc-alias",
     "eslint:fix": "eslint --fix",
