@@ -1,0 +1,24 @@
+name: timocracy CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 23
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
+    - name: Lint Code
+      run: yarn lint
+    - name: Run tests
+      run: yarn test:fix
+    - name: Build Docker Image
+      run: docker build -t libp2p-node -f dockerfile .
+    - name: Run Container and Test
+      run: docker run -d -e LIBP2P_PORT=16000 libp2p-node
