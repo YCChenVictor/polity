@@ -11,9 +11,11 @@
     "@libp2p/mplex": "^11.0.35",
     "@libp2p/pubsub-peer-discovery": "^11.0.1",
     "@libp2p/tcp": "^10.1.10",
+    "dotenv": "^16.5.0",
     "libp2p": "^2.8.5"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.3",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.3",
     "eslint": "^9.25.1",
@@ -37,6 +39,6 @@
     "start": "yarn build && node dist/node.js --experimental-modules",
     "build": "tsc && tsc-alias",
     "eslint:fix": "eslint --fix",
-    "prettier": "yarn eslint:fix && yarn format:json"
+    "prettier": "yarn eslint:fix"
   }
 }
