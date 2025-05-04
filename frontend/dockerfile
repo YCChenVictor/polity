@@ -1,8 +1,9 @@
-# Run it
+# docker stop $(docker ps -q)
+# docker system prune
 # docker build -t libp2p-node .
 # docker run -d -e LIBP2P_PORT=15000 libp2p-node
+# docker logs -f container-id
 # docker run -d -e LIBP2P_PORT=16000 libp2p-node
-# Check the logs: docker logs -f container-id
 
 # Use a slim Node.js base image
 FROM node:23-alpine
