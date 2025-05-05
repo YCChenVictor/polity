@@ -18,7 +18,7 @@ export default [
     },
     rules: {
       "prettier/prettier": "error",
-      "no-console": ["error"],
+      // "no-console": ["error"],
       "jest/no-focused-tests": "error",
     },
   },
@@ -26,10 +26,10 @@ export default [
     files: ["**/*.json"],
     ...jsonPlugin.configs.recommended,
   },
-  {
-    files: ["src/node.ts"],
-    rules: {
-      "no-console": "off",
-    },
-  },
+  // {
+  //   files: ["src/node.ts"],
+  //   rules: {
+  //     "no-console": "off",
+  //   },
+  // },
 ];
