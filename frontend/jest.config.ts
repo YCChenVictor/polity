@@ -1,4 +1,6 @@
 export default {
+  detectOpenHandles: true,
+  forceExit: true,
   preset: "ts-jest/presets/default-esm",
   coverageThreshold: {
     global: {
