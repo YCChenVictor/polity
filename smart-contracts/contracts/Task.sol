@@ -1,7 +1,7 @@
-pragma solidity ^0.8.0;
+pragma solidity 0.8.24;
 
 contract TaskManager {
-    address owner;
+    address private owner;
 
     constructor() payable {
         owner = msg.sender;
