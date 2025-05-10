@@ -34,6 +34,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "start": "hardhat node",
+    "prettier": "yarn eslint:fix & yarn lint:sol:fix",
     "eslint": "eslint",
     "eslint:fix": "eslint --fix",
     "lint:sol": "solhint 'contracts/**/*.sol'",

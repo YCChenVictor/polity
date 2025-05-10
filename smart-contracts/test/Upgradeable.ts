@@ -1,5 +1,4 @@
 import { ethers, upgrades } from "hardhat";
-import { MyContractV1, MyContractV2 } from "../typechain-types";
 import { expect } from "chai";
 
 describe("MyToken Upgrade", function () {
