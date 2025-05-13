@@ -10,6 +10,7 @@
     "@libp2p/interface-connection": "^5.1.1",
     "@libp2p/interface-peer-id": "^2.0.2",
     "@libp2p/interface-registrar": "^2.0.12",
+    "@libp2p/interfaces": "^3.3.2",
     "@libp2p/mdns": "^11.0.35",
     "@libp2p/mplex": "^11.0.35",
     "@libp2p/pubsub-peer-discovery": "^11.0.1",

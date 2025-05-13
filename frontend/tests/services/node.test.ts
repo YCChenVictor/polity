@@ -20,7 +20,7 @@ describe("createAndStartNode (integration)", () => {
   //   expect(typeof node.peerId.toString()).toBe("string");
   //   expect(node.services.pubsub).toBeDefined();
   // });
-  it(" xvczxczcvzx", async () => {
+  it("xvczxczcvzx", async () => {
     const nodeA = await createAndStartNode(
       15001,
       "test-topic",
