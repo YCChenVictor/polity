@@ -9,7 +9,7 @@ export default [
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   {
-    ignores: ["tsconfig.json", "dist/"],
+    ignores: ["tsconfig.json", "dist/", "src/generated.ts"],
   },
   {
     plugins: {
