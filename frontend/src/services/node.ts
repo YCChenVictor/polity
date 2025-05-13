@@ -7,6 +7,7 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { gossipsub, GossipsubEvents } from "@chainsafe/libp2p-gossipsub";
 import { Identify, identify } from "@libp2p/identify";
 import { PubSub, PeerInfo, IncomingStreamData } from "@libp2p/interface";
+import { CustomEvent } from "@libp2p/interfaces/events";
 
 function createHandleIdentity(credential: string, acceptedPeers: Set<string>) {
   return async function handleIdentity({
