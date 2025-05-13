@@ -5,44 +5,55 @@
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^14.1.1",
     "@chainsafe/libp2p-noise": "^16.1.3",
-    "@libp2p/bootstrap": "^11.0.35",
     "@libp2p/identify": "^3.0.29",
-    "@libp2p/interface-connection": "^5.1.1",
-    "@libp2p/interface-peer-id": "^2.0.2",
-    "@libp2p/interface-registrar": "^2.0.12",
     "@libp2p/interfaces": "^3.3.2",
     "@libp2p/mdns": "^11.0.35",
     "@libp2p/mplex": "^11.0.35",
     "@libp2p/pubsub-peer-discovery": "^11.0.1",
     "@libp2p/tcp": "^10.1.10",
-    "dotenv": "^16.5.0",
-    "libp2p": "^2.8.5"
+    "@tanstack/react-query": "^5.75.7",
+    "@wagmi/core": "^2.17.1",
+    "libp2p": "^2.8.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-scripts": "^5.0.1",
+    "viem": "^2.29.2",
+    "wagmi": "^2.15.2"
   },
   "devDependencies": {
-    "@types/dotenv": "^8.2.3",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.15.3",
-    "eslint": "^9.25.1",
-    "eslint-plugin-jest": "^28.11.0",
+    "@types/react": "^19.1.3",
+    "@types/react-dom": "^19.1.3",
+    "@wagmi/cli": "^2.3.1",
     "eslint-plugin-json": "^4.0.1",
-    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-prettier": "^5.4.0",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "prettier": "^3.5.3",
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.15",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.1"
+    "typescript-eslint": "^8.32.0"
   },
   "scripts": {
+    "generate": "wagmi generate",
     "lint": "yarn eslint .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:fix": "yarn test --bail",
     "test:coverage": "yarn test --coverage --verbose",
-    "start": "yarn build && node dist/node.js --experimental-modules",
+    "start": "react-scripts start",
     "build": "tsc && tsc-alias",
     "eslint:fix": "eslint --fix",
     "prettier": "yarn eslint:fix"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
