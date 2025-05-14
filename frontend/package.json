@@ -41,7 +41,7 @@
     "test:coverage": "yarn test --coverage --verbose",
     "start": "react-scripts start",
     "build": "tsc && tsc-alias",
-    "eslint:fix": "eslint --fix",
+    "eslint:fix": "eslint . --fix",
     "prettier": "yarn eslint:fix"
   },
   "browserslist": {
