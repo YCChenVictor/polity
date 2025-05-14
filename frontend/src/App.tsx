@@ -5,6 +5,8 @@ import { injected } from "wagmi/connectors";
 import { defineChain } from "viem";
 import { upgradeable1Abi } from "./generated";
 import { createWalletClient } from "viem";
+import { useEffect } from "react";
+import { watchContractEvent } from "@wagmi/core";
 
 const queryClient = new QueryClient();
 
@@ -42,10 +44,25 @@ const walletClient = createWalletClient({
 });
 
 function ContractInteraction() {
+  useEffect(() => {
+    const unwatch = watchContractEvent(config, {
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      abi: upgradeable1Abi,
+      eventName: "AlreadyTriedJoin",
+      onLogs(logs) {
+        logs.forEach((log) =>
+          console.warn("⚠️ Already tried to join:", log.args.user),
+        );
+      },
+    });
+
+    return () => unwatch();
+  }, []);
+
   const handleJoin = async () => {
     try {
       const txHash = await walletClient.writeContract({
-        address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
         abi: upgradeable1Abi,
         functionName: "join",
         account: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
