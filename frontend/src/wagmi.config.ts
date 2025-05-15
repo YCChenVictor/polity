@@ -1,12 +1,10 @@
-// src/wagmi.config.ts
-import { createConfig, http } from "wagmi";
-import { hardhat } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
+import { http, createConfig } from "@wagmi/core";
+import { mainnet, sepolia } from "@wagmi/core/chains";
 
 export const config = createConfig({
-  chains: [hardhat],
+  chains: [mainnet, sepolia],
   transports: {
-    [hardhat.id]: http("http://127.0.0.1:8545"),
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
   },
-  connectors: [injected()],
 });
