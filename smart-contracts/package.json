@@ -24,7 +24,7 @@
     "solhint": "^5.0.3",
     "solhint-community": "^4.0.0",
     "solhint-plugin-prettier": "^0.1.0",
-    "solidity-coverage": "^0.8.1",
+    "solidity-coverage": "^0.8.16",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.0",
     "typescript": "^5.6.2",
@@ -33,6 +33,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
+    "coverage": "hardhat coverage",
     "start": "hardhat node",
     "format": "prettier --write 'contracts/**/*.sol' 'test/**/*.ts'",
     "format:check": "prettier --check 'contracts/**/*.sol' 'test/**/*.ts'"
