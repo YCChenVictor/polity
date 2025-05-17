@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Signer, Contract } from 'ethers';
 import { TimocracyNew } from '../typechain-types';
 
-describe('MyToken Upgrade', function () {
+describe('Timocracy', function () {
     let proxy: Contract;
     let proxyAddress: string;
     let owner: Signer;
@@ -42,6 +42,29 @@ describe('MyToken Upgrade', function () {
             await timocracyProxy.connect(addr1).join();
             const finalBalance = await timocracyProxy.balanceOf(await addr1.getAddress());
             expect(finalBalance).to.equal(initialBalance + 1n);
+        });
+    });
+
+    describe('leave', function () {
+        it('should return 1 token to the contract on leave', async function () {
+            const timocracyProxy = proxy as unknown as TimocracyNew;
+
+            await timocracyProxy.connect(addr1).join();
+
+            const userBalanceBefore = await timocracyProxy.balanceOf(await addr1.getAddress());
+            const contractBalanceBefore = await timocracyProxy.balanceOf(
+                timocracyProxy.getAddress(),
+            );
+
+            await timocracyProxy.connect(addr1).leave();
+
+            const userBalanceAfter = await timocracyProxy.balanceOf(await addr1.getAddress());
+            const contractBalanceAfter = await timocracyProxy.balanceOf(
+                timocracyProxy.getAddress(),
+            );
+
+            expect(userBalanceAfter).to.equal(userBalanceBefore - 1n);
+            expect(contractBalanceAfter).to.equal(contractBalanceBefore + 1n);
         });
     });
 });

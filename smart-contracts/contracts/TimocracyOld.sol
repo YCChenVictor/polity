@@ -19,4 +19,9 @@ contract TimocracyOld is Initializable, ERC20Upgradeable {
     function join() external {
         _mint(msg.sender, 1);
     }
+
+    function leave() external {
+        require(balanceOf(msg.sender) >= 1, 'Not enough token to leave');
+        _transfer(msg.sender, address(this), 1);
+    }
 }
