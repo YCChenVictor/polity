@@ -34,11 +34,8 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "start": "hardhat node",
-    "prettier": "yarn eslint:fix & yarn lint:sol:fix",
-    "eslint": "eslint",
-    "eslint:fix": "eslint --fix",
-    "lint:sol": "solhint 'contracts/**/*.sol'",
-    "lint:sol:fix": "solhint --fix 'contracts/**/*.sol'"
+    "format": "prettier --write 'contracts/**/*.sol' 'test/**/*.ts'",
+    "format:check": "prettier --check 'contracts/**/*.sol' 'test/**/*.ts'"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.3.0",
