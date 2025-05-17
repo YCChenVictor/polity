@@ -15,6 +15,6 @@ jobs:
     - name: Install dependencies
       run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
     - name: Lint Code
-      run: yarn prettier
+      run: yarn format:check
     - name: Run tests
       run: yarn test
