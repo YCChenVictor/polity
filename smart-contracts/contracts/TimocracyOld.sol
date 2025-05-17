@@ -4,7 +4,9 @@ pragma solidity 0.8.24;
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 
-contract Upgradeable1 is Initializable, ERC20Upgradeable {
+import 'hardhat/console.sol';
+
+contract TimocracyOld is Initializable, ERC20Upgradeable {
     function initialize(
         string memory name,
         string memory symbol,
@@ -12,5 +14,9 @@ contract Upgradeable1 is Initializable, ERC20Upgradeable {
     ) public initializer {
         __ERC20_init(name, symbol);
         _mint(msg.sender, initialSupply);
+    }
+
+    function join() external {
+        _mint(msg.sender, 1);
     }
 }
