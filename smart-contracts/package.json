@@ -32,6 +32,10 @@
   },
   "scripts": {
     "compile": "hardhat compile",
+    "test:all": "yarn run test && yarn run test:forge",
+    "test:all:coverage": "yarn test:coverage && yarn test:forge:coverage",
+    "test:forge": "forge test",
+    "test:forge:coverage": "forge coverage",
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
     "start": "hardhat node",
