@@ -1,20 +1,28 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {console} from "forge-std/console.sol";
-import "../contracts/PolityGovernment.sol";
+import "../contracts/polity/PolityGovernment.sol";
+
+contract MockUUPS is IUUPS {
+    address public currentImpl;
+
+    function upgradeTo(address newImplementation) external override {
+        currentImpl = newImplementation;
+    }
+}
 
 contract PolityGovernmentTest is Test {
-    PolityGovernment public polity;
-    address public signer1;
-    address public signer2;
-    address public signer3;
-    address public newImplementation;
-    address[] public signers;
+    PolityGovernment polity;
+    MockUUPS proxy;
+
+    address[] signers;
+    address signer1;
+    address signer2;
+    address signer3;
+    address newImpl;
 
     function setUp() public {
-        console.log("zxcvvzcxzvxc");
         signer1 = address(0x1);
         signer2 = address(0x2);
         signer3 = address(0x3);
@@ -23,11 +31,34 @@ contract PolityGovernmentTest is Test {
         signers.push(signer2);
         signers.push(signer3);
 
-        polity = new PolityGovernment(signers, 2);
-        newImplementation = address(0x4);
+        proxy = new MockUUPS();
+        newImpl = address(0x9999);
+
+        polity = new PolityGovernment(signers, 2, address(proxy));
     }
 
-    function testApproveUpgrade() public {
-        console.log("testing");
+    function testApproveAndTriggerUpgrade() public {
+        // Signer 1 approves
+        vm.prank(signer1);
+        polity.approveUpgrade(newImpl);
+
+        // Signer 2 approves
+        vm.prank(signer2);
+        polity.approveUpgrade(newImpl);
+
+        // Trigger upgrade
+        polity.triggerUpgrade();
+
+        // Assert upgrade happened
+        assertEq(proxy.currentImpl(), newImpl);
+
+        // Assert state reset
+        assertFalse(polity.upgradeApprovedA());
+        assertEq(polity.pendingImplA(), address(0));
+    }
+
+    function testTriggerRevertsIfNotApproved() public {
+        vm.expectRevert("Not approved");
+        polity.triggerUpgrade();
     }
 }
