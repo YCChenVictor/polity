@@ -8,7 +8,7 @@ interface IUUPS {
 }
 
 contract PolityGovernment {
-    address[] public signers;
+    address[] public governors;
     uint256 public requiredSignatures;
 
     mapping(address => bool) public hasSigned;
@@ -21,27 +21,32 @@ contract PolityGovernment {
     event UpgradeApproved(address indexed newImplementation);
     event UpgradeTriggered(address indexed newImplementation);
 
-    modifier onlySigner() {
-        require(isSigner(msg.sender), 'Not a signer');
+    modifier onlyGovernor() {
+        require(isGovernor(msg.sender), 'Not a governor');
         _;
     }
 
     // We now directly have a pre-defined proxy A. In the future, we need a mechanism to add list of contracts
-    constructor(address[] memory _signers, uint256 _requiredSignatures, address _proxyA) {
-        require(_signers.length >= _requiredSignatures, 'Too few signers');
-        signers = _signers;
+    constructor(address[] memory _governors, uint256 _requiredSignatures, address _proxyA) {
+        require(_governors.length >= _requiredSignatures, 'Too few governors');
+        governors = _governors;
         requiredSignatures = _requiredSignatures;
         proxyA = _proxyA;
     }
 
-    function isSigner(address _addr) public view returns (bool) {
-        for (uint i = 0; i < signers.length; i++) {
-            if (signers[i] == _addr) return true;
+    function addGovernor(address newGovernor) public onlyGovernor {
+        require(!isGovernor(newGovernor), 'Already a signer');
+        governors.push(newGovernor);
+    }
+
+    function isGovernor(address _addr) public view returns (bool) {
+        for (uint i = 0; i < governors.length; i++) {
+            if (governors[i] == _addr) return true;
         }
         return false;
     }
 
-    function approveUpgrade(address _newImpl) public onlySigner {
+    function approveUpgrade(address _newImpl) public onlyGovernor {
         require(!hasSigned[msg.sender], 'Already approved');
 
         hasSigned[msg.sender] = true;
@@ -64,8 +69,8 @@ contract PolityGovernment {
         upgradeApprovedA = false;
         pendingImplA = address(0);
         totalSignatures = 0;
-        for (uint i = 0; i < signers.length; i++) {
-            hasSigned[signers[i]] = false;
+        for (uint i = 0; i < governors.length; i++) {
+            hasSigned[governors[i]] = false;
         }
     }
 }

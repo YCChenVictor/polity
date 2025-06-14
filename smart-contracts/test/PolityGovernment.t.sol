@@ -16,43 +16,35 @@ contract PolityGovernmentTest is Test {
     PolityGovernment polity;
     MockUUPS proxy;
 
-    address[] signers;
-    address signer1;
-    address signer2;
-    address signer3;
+    address[] governors;
+    address initGovernor;
+    address newGovernor;
     address newImpl;
 
     function setUp() public {
-        signer1 = address(0x1);
-        signer2 = address(0x2);
-        signer3 = address(0x3);
-
-        signers.push(signer1);
-        signers.push(signer2);
-        signers.push(signer3);
+        initGovernor = address(0x1);
+        governors.push(initGovernor);
 
         proxy = new MockUUPS();
         newImpl = address(0x9999);
 
-        polity = new PolityGovernment(signers, 2, address(proxy));
+        polity = new PolityGovernment(governors, 1, address(proxy));
+    }
+
+    function testAddGovernor() public {
+        vm.prank(initGovernor);
+        polity.addGovernor(newGovernor);
+        assertTrue(polity.isGovernor(newGovernor));
     }
 
     function testApproveAndTriggerUpgrade() public {
-        // Signer 1 approves
-        vm.prank(signer1);
+        vm.prank(initGovernor);
         polity.approveUpgrade(newImpl);
 
-        // Signer 2 approves
-        vm.prank(signer2);
-        polity.approveUpgrade(newImpl);
-
-        // Trigger upgrade
         polity.triggerUpgrade();
 
-        // Assert upgrade happened
         assertEq(proxy.currentImpl(), newImpl);
 
-        // Assert state reset
         assertFalse(polity.upgradeApprovedA());
         assertEq(polity.pendingImplA(), address(0));
     }
