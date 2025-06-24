@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     hardhat({
       project: "../smart-contracts", // path to your Hardhat project
-      include: ["Upgradeable1.json"], // only generate this one
+      include: ["PolityGovernment.json"], // only generate this one
     }),
     react(), // generate hooks for React
   ],
