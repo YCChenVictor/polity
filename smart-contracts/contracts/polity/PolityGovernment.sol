@@ -34,9 +34,14 @@ contract PolityGovernment {
         proxyA = _proxyA;
     }
 
+    // CRUD of governors
     function addGovernor(address newGovernor) public onlyGovernor {
         require(!isGovernor(newGovernor), 'Already a signer');
         governors.push(newGovernor);
+    }
+
+    function getGovernors() public view returns (address[] memory) {
+        return governors;
     }
 
     function isGovernor(address _addr) public view returns (bool) {

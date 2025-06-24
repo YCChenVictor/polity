@@ -37,6 +37,13 @@ contract PolityGovernmentTest is Test {
         assertTrue(polity.isGovernor(newGovernor));
     }
 
+    function testListGovernorReturnsInitialGovernor() public {
+        address[] memory listed = polity.getGovernors();
+    
+        assertEq(listed.length, 1);
+        assertEq(listed[0], initGovernor);
+    }
+
     function testApproveAndTriggerUpgrade() public {
         vm.prank(initGovernor);
         polity.approveUpgrade(newImpl);

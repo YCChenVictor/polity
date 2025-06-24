@@ -1,4 +1,6 @@
 // scripts/deployPolityGov.js
+// npx hardhat run scripts/deploy/polity.ts --network localhost
+
 const hre = require("hardhat");
 
 async function main() {
