@@ -1,9 +1,11 @@
 import { polityGovernmentAbi } from "./generated";
-import { useContractRead } from "wagmi";
+import { useReadContract } from "wagmi";
+
+const CONTRACT_ADDRESS = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512"; // Double check whether it is the deployed contract's address
 
 export default function GovernorList() {
-  const { data: governors, isLoading } = useContractRead({
-    address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  const { data: governors, isLoading } = useReadContract({
+    address: CONTRACT_ADDRESS,
     abi: polityGovernmentAbi,
     functionName: "getGovernors",
   });
