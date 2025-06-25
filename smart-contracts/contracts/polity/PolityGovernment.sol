@@ -18,6 +18,8 @@ contract PolityGovernment {
     address public pendingImplA;
     bool public upgradeApprovedA;
 
+    event GovernorProposalCreated(uint256 indexed proposalId, address proposed);
+    event GovernorAdded(address indexed newGovernor);
     event UpgradeApproved(address indexed newImplementation);
     event UpgradeTriggered(address indexed newImplementation);
 
@@ -49,6 +51,42 @@ contract PolityGovernment {
             if (governors[i] == _addr) return true;
         }
         return false;
+    }
+
+    // ===== GOVERNOR PROPOSAL SYSTEM =====
+    struct AddGovernorProposal {
+        address proposed;
+        uint256 votes;
+        bool executed;
+        mapping(address => bool) hasVoted;
+    }
+
+    mapping(uint256 => AddGovernorProposal) public addGovernorProposals;
+    uint256 public addGovernorProposalCount;
+
+    function proposeAddGovernor(address newGovernor) public onlyGovernor {
+        uint256 id = addGovernorProposalCount++;
+        AddGovernorProposal storage prop = addGovernorProposals[id];
+        prop.proposed = newGovernor;
+        emit GovernorProposalCreated(id, newGovernor);
+    }
+
+    function listAddGovernorProposals()
+        external
+        view
+        returns (address[] memory proposeds, uint256[] memory votesArr, bool[] memory executedArr)
+    {
+        uint256 n = addGovernorProposalCount;
+        proposeds = new address[](n);
+        votesArr = new uint256[](n);
+        executedArr = new bool[](n);
+
+        for (uint256 i = 0; i < n; i++) {
+            AddGovernorProposal storage p = addGovernorProposals[i];
+            proposeds[i] = p.proposed;
+            votesArr[i] = p.votes;
+            executedArr[i] = p.executed;
+        }
     }
 
     function approveUpgrade(address _newImpl) public onlyGovernor {
