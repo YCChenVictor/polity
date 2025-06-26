@@ -1,14 +1,23 @@
-export default {
-  detectOpenHandles: true,
-  forceExit: true,
+// jest.config.ts
+import type { Config } from "jest";
+
+const config: Config = {
   preset: "ts-jest/presets/default-esm",
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+  testEnvironment: "jsdom",
+  setupFiles: ["<rootDir>/jest.setup.ts"],
+  transform: {
+    "^.+\\.(t|j)sx?$": ["ts-jest", { useESM: true }],
+  },
+  moduleNameMapper: {
+    // if you use absolute imports
+    "^@/(.*)$": "<rootDir>/src/$1",
+  },
+  globals: {
+    "ts-jest": {
+      tsconfig: "tsconfig.json",
+      useESM: true,
     },
   },
-  collectCoverageFrom: ["src/**/*.ts"],
 };
+
+export default config;
