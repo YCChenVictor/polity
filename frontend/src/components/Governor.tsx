@@ -1,16 +1,14 @@
 import { useReadContract } from "wagmi";
 import { polityGovernmentAbi } from "../generated";
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-
-export default function GovernorList() {
+export default function GovernorList({ address }: { address: `0x${string}` }) {
   // always call your hooks at top-level
   const {
     data: governors,
     isLoading,
     error,
   } = useReadContract({
-    address: CONTRACT_ADDRESS,
+    address,
     abi: polityGovernmentAbi,
     functionName: "getGovernors",
     // chainId: hardhat.id, // optional if you have multiple chains
