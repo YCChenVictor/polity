@@ -11,6 +11,8 @@ export default function App() {
     <>
       {isConnected ? (
         <>
+          <>Current account: </>
+          <>{CONTRACT_ADDRESS}</>
           <Governor address={CONTRACT_ADDRESS} />
           <ProposalList address={CONTRACT_ADDRESS} />
         </>
