@@ -20,7 +20,7 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
   } = useContractRead({
     address,
     abi: polityGovernmentAbi,
-    functionName: "listAddGovernorProposals",
+    functionName: "listGovernorProposals",
   });
 
   // Write transaction
@@ -52,7 +52,7 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
     writeContract({
       address,
       abi: polityGovernmentAbi,
-      functionName: "proposeAddGovernor",
+      functionName: "proposeGovernor",
       args: [newGovAddress as `0x${string}`],
     });
   }
