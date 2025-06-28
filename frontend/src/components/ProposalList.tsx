@@ -47,16 +47,6 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
     });
   }
 
-  function handleAddGovernor() {
-    // Cast newGovAddress to Address literal type
-    writeContract({
-      address,
-      abi: polityGovernmentAbi,
-      functionName: "proposeGovernor",
-      args: [newGovAddress as `0x${string}`],
-    });
-  }
-
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -76,6 +66,13 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
             <span className="font-medium">#{i}</span> – Proposed:{" "}
             <code>{p.proposed}</code>, Votes: {p.votes}, Executed:{" "}
             {p.executed ? "Yes" : "No"}
+            <button
+              onClick={() => {
+                handleClick(i);
+              }}
+            >
+              Click Me
+            </button>
           </li>
         ))}
       </ul>
@@ -123,4 +120,22 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
       )}
     </div>
   );
+
+  function handleClick(id: number) {
+    writeContract({
+      address,
+      abi: polityGovernmentAbi,
+      functionName: "voteGovernor",
+      args: [BigInt(id)],
+    });
+  }
+
+  function handleAddGovernor() {
+    writeContract({
+      address,
+      abi: polityGovernmentAbi,
+      functionName: "proposeGovernor",
+      args: [newGovAddress as `0x${string}`],
+    });
+  }
 }
