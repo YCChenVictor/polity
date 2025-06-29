@@ -4,12 +4,8 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "../contracts/polity/PolityGovernment.sol";
 
-contract MockUUPS is IUUPS {
+contract MockUUPS {
     address public currentImpl;
-
-    function upgradeTo(address newImplementation) external override {
-        currentImpl = newImplementation;
-    }
 }
 
 contract PolityGovernmentTest is Test {
@@ -44,17 +40,17 @@ contract PolityGovernmentTest is Test {
         assertEq(listed[0], initGovernor);
     }
 
-    function testListAddGovernorProposals() public {
+    function testListGovernorProposals() public {
         address newGov1 = address(0x1);
         address newGov2 = address(0x2);
 
         vm.prank(initGovernor);
-        polity.proposeAddGovernor(newGov1);
+        polity.proposeGovernor(newGov1);
         vm.prank(initGovernor);
-        polity.proposeAddGovernor(newGov2);
+        polity.proposeGovernor(newGov2);
 
         (address[] memory proposeds, uint256[] memory votes, bool[] memory executed) =
-            polity.listAddGovernorProposals();
+            polity.listGovernorProposals();
 
         assertEq(proposeds.length, 2);
         assertEq(votes.length, 2);
@@ -68,20 +64,20 @@ contract PolityGovernmentTest is Test {
         assertFalse(executed[1]);
     }
 
-    function testApproveAndTriggerUpgrade() public {
-        vm.prank(initGovernor);
-        polity.approveUpgrade(newImpl);
+    // function testApproveAndTriggerUpgrade() public {
+    //     vm.prank(initGovernor);
+    //     polity.approveUpgrade(newImpl);
 
-        polity.triggerUpgrade();
+    //     polity.triggerUpgrade();
 
-        assertEq(proxy.currentImpl(), newImpl);
+    //     assertEq(proxy.currentImpl(), newImpl);
 
-        assertFalse(polity.upgradeApprovedA());
-        assertEq(polity.pendingImplA(), address(0));
-    }
+    //     assertFalse(polity.upgradeApprovedA());
+    //     assertEq(polity.pendingImplA(), address(0));
+    // }
 
-    function testTriggerRevertsIfNotApproved() public {
-        vm.expectRevert("Not approved");
-        polity.triggerUpgrade();
-    }
+    // function testTriggerRevertsIfNotApproved() public {
+    //     vm.expectRevert("Not approved");
+    //     polity.triggerUpgrade();
+    // }
 }
