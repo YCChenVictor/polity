@@ -16,5 +16,9 @@ jobs:
       run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
     - name: Lint Code
       run: yarn format:check
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: stable
     - name: Run tests
-      run: yarn test
+      run: forge test -vvv

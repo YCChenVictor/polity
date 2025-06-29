@@ -31,13 +31,13 @@
     "typescript-eslint": "^8.8.0"
   },
   "scripts": {
-    "compile": "hardhat compile",
-    "test:all": "yarn run test && yarn run test:forge",
-    "test:all:coverage": "yarn test:coverage && yarn test:forge:coverage",
+    "test:all": "yarn run test:hardhat && yarn run test:forge",
+    "test:all:coverage": "yarn test:hardhat:coverage && yarn test:forge:coverage",
     "test:forge": "forge test",
     "test:forge:coverage": "forge coverage",
-    "test": "hardhat test",
-    "test:coverage": "hardhat coverage",
+    "compile:hardhat": "hardhat compile",
+    "test:hardhat": "hardhat test",
+    "test:hardhat:coverage": "hardhat coverage",
     "start": "hardhat node",
     "format": "prettier --write 'contracts/**/*.sol' 'test/**/*.ts'",
     "format:check": "prettier --check 'contracts/**/*.sol' 'test/**/*.ts'"
