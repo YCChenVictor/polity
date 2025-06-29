@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
 import "../contracts/polity/PolityGovernment.sol";
+import "forge-std/Test.sol";
 
 contract MockUUPS {
     address public currentImpl;
@@ -62,6 +62,15 @@ contract PolityGovernmentTest is Test {
         assertEq(votes[1], 0);
         assertFalse(executed[0]);
         assertFalse(executed[1]);
+    }
+
+    function listRuleProposals() public {
+        vm.prank(initGovernor);
+        polity.proposeRule(address(0x1));
+        PolityGovernment.Proposal[] memory all = polity.listRuleProposals();
+        assertEq(all.length, 1);
+        assertEq(all[0].proposed, address(0x1));
+        assertEq(all[0].votes,     0);
     }
 
     // function testApproveAndTriggerUpgrade() public {

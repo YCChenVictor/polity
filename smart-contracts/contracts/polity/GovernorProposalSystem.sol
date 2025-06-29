@@ -4,13 +4,7 @@ pragma solidity ^0.8.0;
 
 import './BaseGovernance.sol';
 
-contract GovernorProposalSystem is BaseGovernance {
-    constructor(
-        address[] memory _governors,
-        uint256 _requiredSignatures,
-        address _proxyA
-    ) BaseGovernance(_governors, _requiredSignatures, _proxyA) {}
-
+abstract contract GovernorProposalSystem is BaseGovernance {
     struct GovernorProposal {
         address proposed;
         uint256 votes;
@@ -25,6 +19,7 @@ contract GovernorProposalSystem is BaseGovernance {
     event VoteCast(uint256 indexed id, address indexed voter, uint256 votes);
     event GovernorAdded(address indexed newGovernor);
 
+    // Create
     function proposeGovernor(address newGovernor) external onlyGovernor {
         uint256 id = governorProposalCount++;
         GovernorProposal storage p = governorProposals[id];
@@ -32,6 +27,7 @@ contract GovernorProposalSystem is BaseGovernance {
         emit GovernorProposalCreated(id, newGovernor);
     }
 
+    // Read
     function listGovernorProposals()
         external
         view

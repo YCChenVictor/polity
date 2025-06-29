@@ -7,11 +7,6 @@ contract BaseGovernance {
     uint256 public requiredSignatures;
     address public proxyA;
 
-    modifier onlyGovernor() {
-        require(isGovernor(msg.sender), 'Not a governor');
-        _;
-    }
-
     constructor(address[] memory _governors, uint256 _requiredSignatures, address _proxyA) {
         require(_governors.length >= _requiredSignatures, 'Too few governors');
         governors = _governors;
@@ -19,13 +14,25 @@ contract BaseGovernance {
         proxyA = _proxyA;
     }
 
+    // Create
     function addGovernor(address newGovernor) public onlyGovernor {
         require(!isGovernor(newGovernor), 'Already a governor');
         governors.push(newGovernor);
     }
 
+    // Read
     function getGovernors() public view returns (address[] memory) {
         return governors;
+    }
+
+    // Update
+
+    // Delete
+
+    // hooks
+    modifier onlyGovernor() {
+        require(isGovernor(msg.sender), 'Not a governor');
+        _;
     }
 
     function isGovernor(address addr) public view returns (bool) {
