@@ -3,22 +3,14 @@
 pragma solidity ^0.8.0;
 
 import './GovernorProposalSystem.sol';
-// import "./IUUPS.sol"; // your UUPS interface
+import './RuleProposalSystem.sol';
 
-contract PolityGovernment is GovernorProposalSystem {
-    mapping(address => bool) public hasSigned;
-    uint256 public totalSignatures;
-    address public pendingImplA;
-    bool public upgradeApprovedA;
-
-    event UpgradeApproved(address indexed newImplementation);
-    event UpgradeTriggered(address indexed newImplementation);
-
+contract PolityGovernment is BaseGovernance, GovernorProposalSystem, RuleProposalSystem {
     constructor(
         address[] memory _governors,
         uint256 _requiredSignatures,
         address _proxyA
-    ) GovernorProposalSystem(_governors, _requiredSignatures, _proxyA) {}
+    ) BaseGovernance(_governors, _requiredSignatures, _proxyA) {}
 
     // function approveUpgrade(address _newImpl) external onlyGovernor {
     //     require(!hasSigned[msg.sender], "Already approved");

@@ -10,7 +10,7 @@ async function main() {
   const Polity = await hre.ethers.getContractFactory("PolityGovernment");
   const dao = await Polity.deploy(
     [deployer.address],               
-    1,                                                 
+    1,                                             
     "0x0000000000000000000000000000000000000000"   
   );
 
