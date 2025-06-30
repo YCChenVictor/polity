@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useContractRead, useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../generated";
+import { polityGovernmentAbi } from "../../generated";
 
 interface Proposal {
   proposed: string;
@@ -36,7 +36,6 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
 
   return (
     <>
-      <h2>contract proposals</h2>
       <div className="flex justify-between items-center mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"

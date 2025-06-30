@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useContractRead, useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../generated";
+import { polityGovernmentAbi } from "../../generated";
 
 interface Proposal {
   proposed: string;
@@ -8,7 +8,7 @@ interface Proposal {
   executed: boolean;
 }
 
-export default function ProposalList({ address }: { address: `0x${string}` }) {
+function ProposalList({ address }: { address: `0x${string}` }) {
   const [newGovAddress, setNewGovAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -48,9 +48,8 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
   }
 
   return (
-    <div className="p-4">
+    <>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Add Governor Proposals</h2>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"
           onClick={() => setModalOpen(true)}
@@ -118,7 +117,7 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 
   function handleClick(id: number) {
@@ -139,3 +138,5 @@ export default function ProposalList({ address }: { address: `0x${string}` }) {
     });
   }
 }
+
+export default ProposalList;

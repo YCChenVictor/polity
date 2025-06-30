@@ -3,23 +3,13 @@
   "name": "polity",
   "license": "MIT",
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^14.1.1",
-    "@chainsafe/libp2p-noise": "^16.1.3",
-    "@libp2p/identify": "^3.0.29",
-    "@libp2p/interfaces": "^3.3.2",
-    "@libp2p/mdns": "^11.0.35",
-    "@libp2p/mplex": "^11.0.35",
-    "@libp2p/pubsub-peer-discovery": "^11.0.1",
-    "@libp2p/tcp": "^10.1.10",
     "@rainbow-me/rainbowkit": "^2.2.8",
     "@tanstack/react-query": "^5.75.7",
-    "@wagmi/connectors": "^5.8.5",
-    "libp2p": "^2.8.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-scripts": "^5.0.1",
-    "viem": "^2.31.6",
-    "wagmi": "^2.15.6"
+    "viem": "^2.29.2",
+    "wagmi": "^2.15.2"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
