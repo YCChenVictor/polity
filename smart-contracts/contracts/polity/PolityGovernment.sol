@@ -6,11 +6,7 @@ import './GovernorProposalSystem.sol';
 import './RuleProposalSystem.sol';
 
 contract PolityGovernment is BaseGovernance, GovernorProposalSystem, RuleProposalSystem {
-    constructor(
-        address[] memory _governors,
-        uint256 _requiredSignatures,
-        address _proxyA
-    ) BaseGovernance(_governors, _requiredSignatures, _proxyA) {}
+    constructor(uint256 _requiredSignatures) BaseGovernance(_requiredSignatures) {}
 
     // function approveUpgrade(address _newImpl) external onlyGovernor {
     //     require(!hasSigned[msg.sender], "Already approved");

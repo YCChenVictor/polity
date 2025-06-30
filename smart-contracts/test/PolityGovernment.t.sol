@@ -19,12 +19,9 @@ contract PolityGovernmentTest is Test {
 
     function setUp() public {
         initGovernor = address(0x1);
-        governors.push(initGovernor);
-
         proxy = new MockUUPS();
-        newImpl = address(0x9999);
-
-        polity = new PolityGovernment(governors, 1, address(proxy));
+        vm.prank(initGovernor);
+        polity = new PolityGovernment(1);
     }
 
     function testAddGovernor() public {
@@ -35,7 +32,6 @@ contract PolityGovernmentTest is Test {
 
     function testListGovernorReturnsInitialGovernor() public {
         address[] memory listed = polity.getGovernors();
-    
         assertEq(listed.length, 1);
         assertEq(listed[0], initGovernor);
     }
