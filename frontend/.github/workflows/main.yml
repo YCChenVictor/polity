@@ -1,4 +1,4 @@
-name: timocracy CI
+name: polity CI
 
 on:
   pull_request:
