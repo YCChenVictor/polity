@@ -1,22 +1,34 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import config from "./config";
+
 import { WagmiConfig } from "wagmi";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import wagmiConfig from "./wagmiConfig";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Buffer } from "buffer";
+
+const address = process.env.REACT_APP_GOVERNMENT_ADDRESS as `0x${string}`;
+
+window.Buffer = Buffer;
+
+const queryClient = new QueryClient();
 
 const container = document.getElementById("root");
-if (!container) throw new Error("Root container missing");
-
+if (!container) {
+  throw new Error("Root container not found");
+}
 const root = createRoot(container);
-const queryClient = new QueryClient();
 
 root.render(
   <React.StrictMode>
-    <WagmiConfig config={config}>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </WagmiConfig>
+    <QueryClientProvider client={queryClient}>
+      <WagmiConfig config={wagmiConfig}>
+        <RainbowKitProvider>
+          <App address={address} />
+        </RainbowKitProvider>
+      </WagmiConfig>
+    </QueryClientProvider>
   </React.StrictMode>,
 );

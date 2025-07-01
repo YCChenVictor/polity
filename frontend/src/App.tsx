@@ -4,19 +4,17 @@ import Governor from "./components/Governor";
 import GovernorsProposalList from "./components/GovernorsProposalList";
 import ContractProposals from "./components/ContractProposals";
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-
-export default function App() {
+export default function App({ address }: { address: `0x${string}` }) {
   const { isConnected } = useAccount();
   return (
     <>
       {isConnected ? (
         <>
           <>Current account: </>
-          <>{CONTRACT_ADDRESS}</>
-          <Governor address={CONTRACT_ADDRESS} />
-          <GovernorsProposalList address={CONTRACT_ADDRESS} />
-          <ContractProposals address={CONTRACT_ADDRESS} />
+          <>{address}</>
+          <Governor address={address} />
+          <GovernorsProposalList address={address} />
+          <ContractProposals address={address} />
         </>
       ) : (
         <ConnectButton />
