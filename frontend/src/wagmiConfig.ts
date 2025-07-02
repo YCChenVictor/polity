@@ -1,20 +1,27 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { hardhat } from "wagmi/chains";
-import { http } from "wagmi";
+import { createConfig, http } from "wagmi";
+import { defineChain } from "viem";
+import { injected } from "@wagmi/connectors";
 
-const projectId = process.env.REACT_APP_PROJECT_ID;
-
-if (!projectId) {
-  throw "No project id";
-}
-
-const wagmiConfig = getDefaultConfig({
-  appName: "Local App",
-  projectId: projectId,
-  chains: [hardhat],
-  transports: {
-    [hardhat.id]: http("http://127.0.0.1:8545"),
+const hardhat1337 = defineChain({
+  id: 1337,
+  name: "Local 8545",
+  network: "hardhat-local",
+  nativeCurrency: {
+    name: "Ether",
+    symbol: "ETH",
+    decimals: 18,
   },
+  rpcUrls: {
+    default: { http: ["http://127.0.0.1:8545"] },
+  },
+} as const);
+
+const wagmiConfig = createConfig({
+  chains: [hardhat1337],
+  transports: {
+    [hardhat1337.id]: http("http://127.0.0.1:8545"),
+  },
+  connectors: [injected()],
 });
 
 export default wagmiConfig;
