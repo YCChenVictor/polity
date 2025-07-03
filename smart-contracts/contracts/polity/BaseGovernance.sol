@@ -5,13 +5,10 @@ pragma solidity ^0.8.0;
 contract BaseGovernance {
     address[] public governors;
     uint256 public requiredSignatures;
-    address public proxyA;
 
-    constructor(address[] memory _governors, uint256 _requiredSignatures, address _proxyA) {
-        require(_governors.length >= _requiredSignatures, 'Too few governors');
-        governors = _governors;
+    constructor(uint256 _requiredSignatures) {
+        if (!isGovernor(msg.sender)) governors.push(msg.sender);
         requiredSignatures = _requiredSignatures;
-        proxyA = _proxyA;
     }
 
     // Create

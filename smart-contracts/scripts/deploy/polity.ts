@@ -8,15 +8,9 @@ async function main() {
 
   const Polity = await hre.ethers.getContractFactory("PolityGovernment");
   const dao = await Polity.deploy(
-    [deployer.address],               
     1,                                             
-    "0x0000000000000000000000000000000000000000"   
   );
-
-  // wait for the deployment to be mined
   await dao.waitForDeployment();
-
-  // fetch the address
   const address = await dao.getAddress();
   console.log("PolityGovernment deployed to:", address);
 }
