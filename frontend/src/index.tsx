@@ -7,6 +7,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Buffer } from "buffer";
 
 const address = process.env.REACT_APP_GOVERNMENT_ADDRESS as `0x${string}`;
+if (!address) {
+  throw new Error("No REACT_APP_GOVERNMENT_ADDRESS");
+}
 
 window.Buffer = Buffer;
 
