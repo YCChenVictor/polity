@@ -59,19 +59,32 @@ function ProposalList({ address }: { address: `0x${string}` }) {
         </button>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-4">
         {proposals.map((p, i) => (
-          <li key={i} className="border rounded-2xl p-3 shadow">
-            <span className="font-medium">#{i}</span> – Proposed:{" "}
-            <code>{p.proposed}</code>, Votes: {p.votes}, Executed:{" "}
-            {p.executed ? "Yes" : "No"}
-            <button
-              onClick={() => {
-                handleClick(i);
-              }}
-            >
-              Click Me
-            </button>
+          <li
+            key={i}
+            className="border rounded-2xl p-4 shadow hover:shadow-md transition"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="text-sm text-gray-800">
+                <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
+                <code className="bg-gray-100 px-1 py-0.5 rounded">
+                  {p.proposed}
+                </code>{" "}
+                &bull; Votes: {p.votes} &bull; Executed:{" "}
+                <span
+                  className={p.executed ? "text-green-600" : "text-red-600"}
+                >
+                  {p.executed ? "Yes" : "No"}
+                </span>
+              </div>
+              <button
+                onClick={() => handleClick(i)}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Vote It
+              </button>
+            </div>
           </li>
         ))}
       </ul>

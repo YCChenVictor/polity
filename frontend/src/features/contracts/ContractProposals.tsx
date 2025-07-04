@@ -2,11 +2,6 @@ import { useState } from "react";
 import { useContractRead, useWriteContract } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
 
-interface Proposal {
-  proposed: string;
-  votes: bigint;
-}
-
 function ContractProposals({ address }: { address: `0x${string}` }) {
   const [newRuleAddress, setNewRuleAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,12 +22,6 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
   if (readLoading) return <p>Loading proposals...</p>;
   if (readError)
     return <p className="text-red-500">Error: {readError.message}</p>;
-
-  let proposals: Proposal[] = [];
-
-  if (Array.isArray(data)) {
-    proposals = data as Proposal[];
-  }
 
   return (
     <>
@@ -86,20 +75,36 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
         </div>
       )}
 
-      <div className="mt-6">
-        <h3 className="text-md font-semibold mb-2">Proposals</h3>
-        {proposals.length === 0 ? (
-          <p className="text-gray-500">No proposals yet.</p>
-        ) : (
-          <ul>
-            {proposals.map((p, i) => (
-              <li key={p.proposed}>
-                {i}. {p.proposed} – Votes: {p.votes.toString()}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <ul className="space-y-4">
+        {data &&
+          data.map((p, i) => (
+            <li
+              key={i}
+              className="border rounded-2xl p-4 shadow hover:shadow-md transition"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="text-sm text-gray-800">
+                  <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
+                  <code className="bg-gray-100 px-1 py-0.5 rounded">
+                    {p.proposed}
+                  </code>{" "}
+                  &bull; Votes: {p.votes} &bull; Executed:{" "}
+                  <span
+                    className={p.executed ? "text-green-600" : "text-red-600"}
+                  >
+                    {p.executed ? "Yes" : "No"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleClick(i)}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Vote It
+                </button>
+              </div>
+            </li>
+          ))}
+      </ul>
     </>
   );
 
@@ -109,6 +114,15 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
       abi: polityGovernmentAbi,
       functionName: "proposeRule",
       args: [newRuleAddress as `0x${string}`],
+    });
+  }
+
+  function handleClick(id: number) {
+    writeContract({
+      address,
+      abi: polityGovernmentAbi,
+      functionName: "voteRule",
+      args: [BigInt(id)],
     });
   }
 }
