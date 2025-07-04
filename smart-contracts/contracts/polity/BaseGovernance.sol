@@ -3,11 +3,13 @@
 pragma solidity ^0.8.0;
 
 contract BaseGovernance {
+    address public deployer;
     address[] public governors;
     uint256 public requiredSignatures;
 
     constructor(uint256 _requiredSignatures) {
-        if (!isGovernor(msg.sender)) governors.push(msg.sender);
+        deployer = msg.sender;
+        if (!isGovernor(deployer)) governors.push(deployer); // Set the first government deployer as the first governor
         requiredSignatures = _requiredSignatures;
     }
 

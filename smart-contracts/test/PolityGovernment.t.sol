@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "../contracts/polity/PolityGovernment.sol";
-import "forge-std/Test.sol";
+import '../contracts/polity/PolityGovernment.sol';
+import 'forge-std/Test.sol';
 
 contract MockUUPS {
     address public currentImpl;
@@ -12,10 +12,12 @@ contract PolityGovernmentTest is Test {
     PolityGovernment polity;
     MockUUPS proxy;
 
+    address public deployer;
     address[] governors;
     address initGovernor;
     address newGovernor;
     address newImpl;
+    address newRule;
 
     function setUp() public {
         initGovernor = address(0x1);
@@ -45,8 +47,8 @@ contract PolityGovernmentTest is Test {
         vm.prank(initGovernor);
         polity.proposeGovernor(newGov2);
 
-        (address[] memory proposeds, uint256[] memory votes, bool[] memory executed) =
-            polity.listGovernorProposals();
+        (address[] memory proposeds, uint256[] memory votes, bool[] memory executed) = polity
+            .listGovernorProposals();
 
         assertEq(proposeds.length, 2);
         assertEq(votes.length, 2);
@@ -60,13 +62,38 @@ contract PolityGovernmentTest is Test {
         assertFalse(executed[1]);
     }
 
-    function listRuleProposals() public {
+    function testListRuleProposals() public {
         vm.prank(initGovernor);
         polity.proposeRule(address(0x1));
-        PolityGovernment.Proposal[] memory all = polity.listRuleProposals();
-        assertEq(all.length, 1);
-        assertEq(all[0].proposed, address(0x1));
-        assertEq(all[0].votes,     0);
+
+        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listRuleProposals();
+
+        assertEq(proposals.length, 1);
+        assertEq(proposals[0].proposed, address(0x1));
+        assertEq(proposals[0].votes, 0);
+        assertFalse(proposals[0].executed);
+    }
+
+    function testVoteRuleWorksAndExecutesWhenThresholdMet() public {
+        address actualDeployer = polity.deployer();
+        vm.prank(actualDeployer);
+        newRule = address(0x10);
+        polity.proposeRule(newRule);
+
+        vm.prank(actualDeployer);
+        polity.voteRule(0);
+
+        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listRuleProposals();
+
+        for (uint256 i = 0; i < proposals.length; i++) {
+            console.log('--- Proposal %s ---', i);
+            console.log('Proposed: %s', proposals[i].proposed);
+            console.log('Votes: %s', proposals[i].votes);
+            console.log('Executed: %s', proposals[i].executed);
+        }
+
+        assertEq(proposals[0].votes, 1);
+        assertTrue(proposals[0].executed);
     }
 
     // function testApproveAndTriggerUpgrade() public {
