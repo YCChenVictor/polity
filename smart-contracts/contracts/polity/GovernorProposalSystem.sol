@@ -16,7 +16,7 @@ abstract contract GovernorProposalSystem is BaseGovernance {
     uint256 public governorProposalCount;
 
     event GovernorProposalCreated(uint256 indexed id, address indexed proposed);
-    event VoteCast(uint256 indexed id, address indexed voter, uint256 votes);
+    event GovernorVoteCast(uint256 indexed id, address indexed voter, uint256 votes);
     event GovernorAdded(address indexed newGovernor);
 
     // Create
@@ -45,13 +45,14 @@ abstract contract GovernorProposalSystem is BaseGovernance {
         }
     }
 
+    // Update
     function voteGovernor(uint256 id) external onlyGovernor {
         GovernorProposal storage p = governorProposals[id];
         require(!p.executed, 'Already executed');
         require(!p.hasVoted[msg.sender], 'Already voted');
         p.hasVoted[msg.sender] = true;
         p.votes += 1;
-        emit VoteCast(id, msg.sender, p.votes);
+        emit GovernorVoteCast(id, msg.sender, p.votes);
         if (p.votes >= requiredSignatures) {
             _executeAddGovernor(id);
         }
