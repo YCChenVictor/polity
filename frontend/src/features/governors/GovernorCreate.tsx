@@ -2,12 +2,6 @@ import { useState } from "react";
 import { useContractRead, useWriteContract } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
 
-interface Proposal {
-  proposed: string;
-  votes: number;
-  executed: boolean;
-}
-
 function ProposalList({ address }: { address: `0x${string}` }) {
   const [newGovAddress, setNewGovAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,25 +21,9 @@ function ProposalList({ address }: { address: `0x${string}` }) {
   const { writeContract, isPending, isError, isSuccess, error } =
     useWriteContract();
 
-  if (readLoading) return <p>Loading proposals...</p>;
+  if (readLoading) return <p>Loading governors...</p>;
   if (readError)
     return <p className="text-red-500">Error: {readError.message}</p>;
-
-  const proposals: Proposal[] = [];
-  if (data) {
-    const [proposedArr, votesArr, executedArr] = data as [
-      string[],
-      bigint[],
-      boolean[],
-    ];
-    proposedArr.forEach((addr, i) => {
-      proposals.push({
-        proposed: addr,
-        votes: Number(votesArr[i]),
-        executed: executedArr[i],
-      });
-    });
-  }
 
   return (
     <>
@@ -60,33 +38,34 @@ function ProposalList({ address }: { address: `0x${string}` }) {
       </div>
 
       <ul className="space-y-4">
-        {proposals.map((p, i) => (
-          <li
-            key={i}
-            className="border rounded-2xl p-4 shadow hover:shadow-md transition"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="text-sm text-gray-800">
-                <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
-                <code className="bg-gray-100 px-1 py-0.5 rounded">
-                  {p.proposed}
-                </code>{" "}
-                &bull; Votes: {p.votes} &bull; Executed:{" "}
-                <span
-                  className={p.executed ? "text-green-600" : "text-red-600"}
+        {data &&
+          data.map((p, i) => (
+            <li
+              key={i}
+              className="border rounded-2xl p-4 shadow hover:shadow-md transition"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="text-sm text-gray-800">
+                  <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
+                  <code className="bg-gray-100 px-1 py-0.5 rounded">
+                    {p.proposed}
+                  </code>{" "}
+                  &bull; Votes: {p.votes} &bull; Executed:{" "}
+                  <span
+                    className={p.executed ? "text-green-600" : "text-red-600"}
+                  >
+                    {p.executed ? "Yes" : "No"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleClick(i)}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  {p.executed ? "Yes" : "No"}
-                </span>
+                  Vote It
+                </button>
               </div>
-              <button
-                onClick={() => handleClick(i)}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Vote It
-              </button>
-            </div>
-          </li>
-        ))}
+            </li>
+          ))}
       </ul>
 
       {modalOpen && (
