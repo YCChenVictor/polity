@@ -20,16 +20,18 @@ function GovernorList({ address }: { address: `0x${string}` }) {
   if (error) return <p className="text-red-500">Error: {error.message}</p>;
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-2">Governors</h2>
-      <ul className="list-disc pl-5">
-        {governors?.map((addr, i) => (
-          <li key={i} className="mb-1">
-            {addr}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Governors</h2>
+        <ul className="list-disc pl-5">
+          {governors?.map((addr, i) => (
+            <li key={i} className="mb-1">
+              {addr}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
   );
 }
 
