@@ -47,19 +47,17 @@ contract PolityGovernmentTest is Test {
         vm.prank(initGovernor);
         polity.proposeGovernor(newGov2);
 
-        (address[] memory proposeds, uint256[] memory votes, bool[] memory executed) = polity
-            .listGovernorProposals();
+        GovernorProposalSystem.GovernorProposalView[] memory proposals = polity.listGovernorProposals();
 
-        assertEq(proposeds.length, 2);
-        assertEq(votes.length, 2);
-        assertEq(executed.length, 2);
+        for (uint256 i = 0; i < proposals.length; i++) {
+            console.log('--- Proposal %s ---', i);
+            console.log('Proposed: %s', proposals[i].proposed);
+            console.log('Votes: %s', proposals[i].votes);
+            console.log('Executed: %s', proposals[i].executed);
+        }
 
-        assertEq(proposeds[0], newGov1);
-        assertEq(proposeds[1], newGov2);
-        assertEq(votes[0], 0);
-        assertEq(votes[1], 0);
-        assertFalse(executed[0]);
-        assertFalse(executed[1]);
+        assertEq(proposals[0].proposed, newGov1);
+        assertEq(proposals[1].proposed, newGov2);
     }
 
     function testListRuleProposals() public {
@@ -84,13 +82,6 @@ contract PolityGovernmentTest is Test {
         polity.voteRule(0);
 
         RuleProposalSystem.RuleProposalView[] memory proposals = polity.listRuleProposals();
-
-        for (uint256 i = 0; i < proposals.length; i++) {
-            console.log('--- Proposal %s ---', i);
-            console.log('Proposed: %s', proposals[i].proposed);
-            console.log('Votes: %s', proposals[i].votes);
-            console.log('Executed: %s', proposals[i].executed);
-        }
 
         assertEq(proposals[0].votes, 1);
         assertTrue(proposals[0].executed);

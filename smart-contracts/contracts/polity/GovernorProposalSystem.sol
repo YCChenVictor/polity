@@ -12,6 +12,12 @@ abstract contract GovernorProposalSystem is BaseGovernance {
         mapping(address => bool) hasVoted;
     }
 
+    struct GovernorProposalView {
+        address proposed;
+        uint256 votes;
+        bool executed;
+    }
+
     mapping(uint256 => GovernorProposal) public governorProposals;
     uint256 public governorProposalCount;
 
@@ -28,20 +34,12 @@ abstract contract GovernorProposalSystem is BaseGovernance {
     }
 
     // Read
-    function listGovernorProposals()
-        external
-        view
-        returns (address[] memory proposed, uint256[] memory votesArr, bool[] memory executedArr)
-    {
+    function listGovernorProposals() public view returns (GovernorProposalView[] memory views) {
         uint256 n = governorProposalCount;
-        proposed = new address[](n);
-        votesArr = new uint256[](n);
-        executedArr = new bool[](n);
+        views = new GovernorProposalView[](n);
         for (uint256 i = 0; i < n; i++) {
             GovernorProposal storage p = governorProposals[i];
-            proposed[i] = p.proposed;
-            votesArr[i] = p.votes;
-            executedArr[i] = p.executed;
+            views[i] = GovernorProposalView(p.proposed, p.votes, p.executed);
         }
     }
 
