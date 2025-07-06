@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import '../../contracts/HelloWorld.sol';
 import 'forge-std/Test.sol';
-import '../contracts/HelloWorld.sol';
 
 contract HelloWorldTest is Test {
     HelloWorld public hello;

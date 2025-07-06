@@ -31,14 +31,13 @@
     "typescript-eslint": "^8.8.0"
   },
   "scripts": {
-    "test:all": "yarn run test:hardhat && yarn run test:forge",
-    "test:all:coverage": "yarn test:hardhat:coverage && yarn test:forge:coverage",
+    "start": "hardhat node",
+    "test": "yarn run test:hardhat && yarn run test:forge",
+    "test:coverage": "yarn test:hardhat:coverage && yarn test:forge:coverage",
     "test:forge": "forge test -vvv",
-    "test:forge:coverage": "forge coverage",
-    "compile:hardhat": "hardhat compile",
+    "test:forge:coverage": "clear && forge coverage --report lcov && genhtml --ignore-errors inconsistent,corrupt --branch-coverage -o report lcov.info",
     "test:hardhat": "hardhat test",
     "test:hardhat:coverage": "hardhat coverage",
-    "start": "hardhat node",
     "format": "prettier --write 'contracts/**/*' 'test/**/*'",
     "format:check": "prettier --check 'contracts/**/*.sol' 'test/**/*.ts'"
   },
