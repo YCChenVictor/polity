@@ -19,6 +19,7 @@ abstract contract GovernorProposalSystem is BaseGovernance {
     }
 
     mapping(uint256 => GovernorProposal) public governorProposals;
+    mapping(address => bool) public isGovernorProposed;
     uint256 public governorProposalCount;
 
     event GovernorProposalCreated(uint256 indexed id, address indexed proposed);
@@ -27,9 +28,11 @@ abstract contract GovernorProposalSystem is BaseGovernance {
 
     // Create
     function proposeGovernor(address newGovernor) external onlyGovernor {
+        require(!isGovernorProposed[newGovernor], 'Governor already proposed');
         uint256 id = governorProposalCount++;
         GovernorProposal storage p = governorProposals[id];
         p.proposed = newGovernor;
+        isGovernorProposed[newGovernor] = true;
         emit GovernorProposalCreated(id, newGovernor);
     }
 
