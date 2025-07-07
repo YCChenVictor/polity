@@ -35,7 +35,7 @@
     "test": "yarn run test:hardhat && yarn run test:forge",
     "test:coverage": "yarn test:hardhat:coverage && yarn test:forge:coverage",
     "test:forge": "forge test -vvv",
-    "test:forge:coverage": "clear && forge coverage --report lcov && genhtml --ignore-errors inconsistent,corrupt --branch-coverage -o report lcov.info",
+    "test:forge:coverage": "clear && forge coverage --report lcov && genhtml --ignore-errors inconsistent,corrupt --branch-coverage -o report lcov.info && open report/index.html",
     "test:hardhat": "hardhat test",
     "test:hardhat:coverage": "hardhat coverage",
     "format": "prettier --write 'contracts/**/*' 'test/**/*'",
