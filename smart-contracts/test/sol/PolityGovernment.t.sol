@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import '../contracts/polity/PolityGovernment.sol';
+import '../../contracts/polity/PolityGovernment.sol';
 import 'forge-std/Test.sol';
 
 contract MockUUPS {
@@ -47,7 +47,8 @@ contract PolityGovernmentTest is Test {
         vm.prank(initGovernor);
         polity.proposeGovernor(newGov2);
 
-        GovernorProposalSystem.GovernorProposalView[] memory proposals = polity.listGovernorProposals();
+        GovernorProposalSystem.GovernorProposalView[] memory proposals = polity
+            .listGovernorProposals();
 
         for (uint256 i = 0; i < proposals.length; i++) {
             console.log('--- Proposal %s ---', i);
@@ -58,6 +59,22 @@ contract PolityGovernmentTest is Test {
 
         assertEq(proposals[0].proposed, newGov1);
         assertEq(proposals[1].proposed, newGov2);
+    }
+
+    function testVoteGovernorWorksAndExecutesWhenThresholdMet() public {
+        address actualDeployer = polity.deployer();
+        vm.prank(actualDeployer);
+        address newGov3 = address(0x3);
+        polity.proposeGovernor(newGov3);
+
+        vm.prank(actualDeployer);
+        polity.voteGovernor(0);
+
+        GovernorProposalSystem.GovernorProposalView[] memory proposals = polity
+            .listGovernorProposals();
+
+        assertEq(proposals[0].votes, 1);
+        assertTrue(proposals[0].executed);
     }
 
     function testListRuleProposals() public {
