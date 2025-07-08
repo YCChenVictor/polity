@@ -6,8 +6,9 @@ import wagmiConfig from "./wagmiConfig";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Buffer } from "buffer";
 
-const address = process.env.REACT_APP_GOVERNMENT_ADDRESS as `0x${string}`;
-if (!address) {
+const governmentAddress = process.env
+  .REACT_APP_GOVERNMENT_ADDRESS as `0x${string}`;
+if (!governmentAddress) {
   throw new Error("No REACT_APP_GOVERNMENT_ADDRESS");
 }
 
@@ -24,7 +25,7 @@ const root = createRoot(container);
 root.render(
   <QueryClientProvider client={queryClient}>
     <WagmiProvider config={wagmiConfig}>
-      <App address={address} />
+      <App {...{ governmentAddress }} />
     </WagmiProvider>
   </QueryClientProvider>,
 );

@@ -16,7 +16,7 @@ function Tabs({ address }: { address: `0x${string}` }) {
               : "text-gray-600"
           }`}
         >
-          Governor
+          Governors
         </button>
         <button
           onClick={() => setTab("contract-proposals")}

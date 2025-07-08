@@ -2,10 +2,15 @@ import { useAccount } from "wagmi";
 import ConnectButton from "./features/ConnectButton";
 import Tabs from "./features/Tabs";
 
-function App({ address }: { address: `0x${string}` }) {
+function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
   const { isConnected } = useAccount();
 
-  return <>{isConnected ? <Tabs address={address} /> : <ConnectButton />}</>;
+  return (
+    <>
+      <ConnectButton />
+      {isConnected ? <Tabs address={governmentAddress} /> : <></>}
+    </>
+  );
 }
 
 export default App;
