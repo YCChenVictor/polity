@@ -1,32 +1,49 @@
 import { useState } from "react";
-import { useContractRead, useWriteContract } from "wagmi";
+import { useReadContracts, useWriteContract } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
 
 function ProposalList({ address }: { address: `0x${string}` }) {
   const [newGovAddress, setNewGovAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Read proposals
   const {
     data,
-    isLoading: readLoading,
+    isLoading,
     error: readError,
-  } = useContractRead({
-    address,
-    abi: polityGovernmentAbi,
-    functionName: "listGovernorProposals",
+  } = useReadContracts({
+    contracts: [
+      {
+        address,
+        abi: polityGovernmentAbi,
+        functionName: "listGovernorProposals",
+      },
+      {
+        address,
+        abi: polityGovernmentAbi,
+        functionName: "getRequiredSignatures",
+      },
+    ],
   });
 
-  // Write transaction
-  const { writeContract, isPending, isError, isSuccess, error } =
-    useWriteContract();
+  const proposals = data?.[0]?.result;
+  const threshold = data?.[1]?.result;
 
-  if (readLoading) return <p>Loading governors...</p>;
+  // Write transaction
+  const {
+    writeContract,
+    isPending,
+    isError,
+    isSuccess,
+    error: writeError,
+  } = useWriteContract();
+
+  if (isLoading) return <p>Loading governors...</p>;
   if (readError)
-    return <p className="text-red-500">Error: {readError.message}</p>;
+    return <p className="text-red-500">Read Error: {readError.message}</p>;
 
   return (
     <>
+      <>Passing Threshold: {threshold} Votes</>
       <div className="flex justify-between items-center mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"
@@ -38,8 +55,8 @@ function ProposalList({ address }: { address: `0x${string}` }) {
       </div>
 
       <ul className="space-y-4">
-        {data &&
-          data.map((p, i) => (
+        {proposals &&
+          proposals.map((p, i) => (
             <li
               key={i}
               className="border rounded-2xl p-4 shadow hover:shadow-md transition"
@@ -74,7 +91,7 @@ function ProposalList({ address }: { address: `0x${string}` }) {
             <h3 className="text-lg font-semibold mb-4">Add Governor</h3>
 
             {isError && (
-              <p className="text-red-500 mb-2">Error: {error?.message}</p>
+              <p className="text-red-500 mb-2">Error: {writeError?.message}</p>
             )}
 
             <input
