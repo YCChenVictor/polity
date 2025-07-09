@@ -54,7 +54,7 @@ abstract contract GovernorProposalSystem is BaseGovernance {
         p.hasVoted[msg.sender] = true;
         p.votes += 1;
         emit GovernorVoteCast(id, msg.sender, p.votes);
-        if (p.votes >= requiredSignatures) {
+        if (p.votes >= getRequiredSignatures()) {
             _executeAddGovernor(id);
         }
     }
@@ -62,7 +62,7 @@ abstract contract GovernorProposalSystem is BaseGovernance {
     function _executeAddGovernor(uint256 id) internal {
         GovernorProposal storage p = governorProposals[id];
         require(!p.executed, 'Already executed');
-        require(p.votes >= requiredSignatures, 'Not enough votes');
+        require(p.votes >= getRequiredSignatures(), 'Not enough votes');
         p.executed = true;
         governors.push(p.proposed);
         emit GovernorAdded(p.proposed);

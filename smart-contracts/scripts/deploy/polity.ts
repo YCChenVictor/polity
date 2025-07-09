@@ -2,13 +2,15 @@
 
 const hre = require("hardhat");
 
+const requiredPercentage = 60;
+
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying from:", deployer.address);
 
   const Polity = await hre.ethers.getContractFactory("PolityGovernment");
   const dao = await Polity.deploy(
-    1,                                             
+    requiredPercentage,
   );
   await dao.waitForDeployment();
   const address = await dao.getAddress();
