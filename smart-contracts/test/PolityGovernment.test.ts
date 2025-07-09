@@ -19,6 +19,6 @@ describe('PolityGovernment', function () {
         const { polity, owner } = await loadFixture(deployPolity);
         expect(await polity.governors(0)).to.equal(owner.address);
         expect(await polity.isGovernor(owner.address)).to.be.true;
-        expect(await polity.requiredSignatures()).to.equal(1);
+        expect(await polity.getRequiredSignatures()).to.equal(1);
     });
 });
