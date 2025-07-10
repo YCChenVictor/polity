@@ -1,26 +1,28 @@
-import { useEffect, useState } from "react";
+import ListImmigrates from "./immigrates/ListImmigrates";
+import CreateImmigrate from "./immigrates/CreateImmigrate";
+import { useReadContract } from "wagmi";
+import { baseGovernanceAbi } from "../generated";
 
-interface Immigrate {
-  name: string;
-}
-
-function Immigrates() {
-  const [data, setData] = useState<Immigrate[]>([]);
-
-  useEffect(() => {
-    fetch("http://localhost:5000/immigrates")
-      .then((res) => res.json())
-      .then(setData)
-      .catch(console.error);
-  }, []);
+function Immigrate({
+  contractAddress,
+  userAddress,
+}: {
+  contractAddress: `0x${string}`;
+  userAddress: `0x${string}`;
+}) {
+  const { data: isGovernor } = useReadContract({
+    address: contractAddress,
+    abi: baseGovernanceAbi,
+    functionName: "isGovernor",
+    args: [userAddress],
+  });
 
   return (
-    <ul>
-      {data.map((item, i) => (
-        <li key={i}>{item.name}</li>
-      ))}
-    </ul>
+    <>
+      {isGovernor && <CreateImmigrate />}
+      <ListImmigrates />
+    </>
   );
 }
 
-export default Immigrates;
+export default Immigrate;

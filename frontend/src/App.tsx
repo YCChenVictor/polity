@@ -1,14 +1,74 @@
 import { useAccount } from "wagmi";
 import ConnectButton from "./features/ConnectButton";
-import Tabs from "./features/Tabs";
+import React, { useState } from "react";
+import ContractProposals from "./features/contracts/ContractProposals";
+import Governors from "./features/Governors";
+import Immigrates from "./features/Immigrates";
 
-function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
+function App({
+  userAddress,
+  governmentAddress,
+}: {
+  userAddress: `0x${string}`;
+  governmentAddress: `0x${string}`;
+}) {
   const { isConnected } = useAccount();
+  const [tab, setTab] = useState("governor");
 
   return (
     <>
       <ConnectButton />
-      {isConnected ? <Tabs address={governmentAddress} /> : <></>}
+      {isConnected ? (
+        <div className="min-h-screen bg-gray-100">
+          <nav className="flex space-x-4 px-6 py-2 bg-white border-b">
+            <button
+              onClick={() => setTab("governor")}
+              className={`pb-2 ${
+                tab === "governor"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Governors
+            </button>
+            <button
+              onClick={() => setTab("contract-proposals")}
+              className={`pb-2 ${
+                tab === "contract-proposals"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Rules
+            </button>
+            <button
+              onClick={() => setTab("immigrates")}
+              className={`pb-2 ${
+                tab === "contract-proposals"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Immigrates
+            </button>
+          </nav>
+
+          <main className="p-6">
+            {tab === "governor" && <Governors address={governmentAddress} />}
+            {tab === "contract-proposals" && (
+              <ContractProposals address={governmentAddress} />
+            )}
+            {tab === "immigrates" && (
+              <Immigrates
+                contractAddress={governmentAddress}
+                userAddress={userAddress}
+              />
+            )}
+          </main>
+        </div>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
