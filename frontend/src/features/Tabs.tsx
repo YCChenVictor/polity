@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ContractProposals from "./contracts/ContractProposals";
 import Governors from "./Governors";
+import Immigrates from "./Immigrates";
 
 function Tabs({ address }: { address: `0x${string}` }) {
   const [tab, setTab] = useState("governor");
@@ -28,6 +29,16 @@ function Tabs({ address }: { address: `0x${string}` }) {
         >
           Rules
         </button>
+        <button
+          onClick={() => setTab("immigrates")}
+          className={`pb-2 ${
+            tab === "contract-proposals"
+              ? "border-b-2 border-blue-500 text-blue-600"
+              : "text-gray-600"
+          }`}
+        >
+          Immigrates
+        </button>
       </nav>
 
       <main className="p-6">
@@ -35,6 +46,7 @@ function Tabs({ address }: { address: `0x${string}` }) {
         {tab === "contract-proposals" && (
           <ContractProposals address={address} />
         )}
+        {tab === "immigrates" && <Immigrates />}
       </main>
     </div>
   );
