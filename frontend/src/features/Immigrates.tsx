@@ -1,5 +1,5 @@
 import ListImmigrates from "./immigrates/ListImmigrates";
-import CreateImmigrate from "./immigrates/CreateImmigrate";
+import Application from "./immigrates/Applications";
 import { useReadContract } from "wagmi";
 import { baseGovernanceAbi } from "../generated";
 
@@ -19,7 +19,7 @@ function Immigrate({
 
   return (
     <>
-      {isGovernor && <CreateImmigrate />}
+      {isGovernor && <Application />}
       <ListImmigrates />
     </>
   );
