@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import ContractProposals from "./features/contracts/ContractProposals";
 import Governors from "./features/Governors";
 import Immigrates from "./features/Immigrates";
+import Contribution from "./features/Contribution";
 
 function App({
   userAddress,
@@ -51,6 +52,16 @@ function App({
             >
               Immigrates
             </button>
+            <button
+              onClick={() => setTab("contributions")}
+              className={`pb-2 ${
+                tab === "contract-proposals"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Contribution
+            </button>
           </nav>
 
           <main className="p-6">
@@ -64,6 +75,7 @@ function App({
                 userAddress={userAddress}
               />
             )}
+            {tab === "contributions" && <Contribution />}
           </main>
         </div>
       ) : (
