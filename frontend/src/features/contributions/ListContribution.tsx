@@ -25,7 +25,7 @@ function ListContributions() {
       const res = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/contributions/validate`,
         {
-          method: "POST",
+          method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title: item.title }),
         },
@@ -55,7 +55,8 @@ function ListContributions() {
               <span className="font-semibold">Content:</span> {item.content}
             </p>
             <p>
-              <span className="font-semibold">Validated:</span> {item.validated}
+              <span className="font-semibold">Validated:</span>{" "}
+              {`${item.validated}`}
             </p>
             {isGov && (
               <button
