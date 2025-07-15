@@ -1,7 +1,7 @@
 import { useAccount } from "wagmi";
 import ConnectButton from "./features/ConnectButton";
 import React, { useState } from "react";
-import ContractProposals from "./features/contracts/ContractProposals";
+import Rules from "./features/Rules";
 import Governors from "./features/Governors";
 import Immigrates from "./features/Immigrates";
 import Contribution from "./features/Contribution";
@@ -33,7 +33,7 @@ function App({
               Governors
             </button>
             <button
-              onClick={() => setTab("contract-proposals")}
+              onClick={() => setTab("rules")}
               className={`pb-2 ${
                 tab === "contract-proposals"
                   ? "border-b-2 border-blue-500 text-blue-600"
@@ -45,7 +45,7 @@ function App({
             <button
               onClick={() => setTab("immigrates")}
               className={`pb-2 ${
-                tab === "contract-proposals"
+                tab === "immigrates"
                   ? "border-b-2 border-blue-500 text-blue-600"
                   : "text-gray-600"
               }`}
@@ -55,7 +55,7 @@ function App({
             <button
               onClick={() => setTab("contributions")}
               className={`pb-2 ${
-                tab === "contract-proposals"
+                tab === "contributions"
                   ? "border-b-2 border-blue-500 text-blue-600"
                   : "text-gray-600"
               }`}
@@ -66,9 +66,7 @@ function App({
 
           <main className="p-6">
             {tab === "governor" && <Governors address={governmentAddress} />}
-            {tab === "contract-proposals" && (
-              <ContractProposals address={governmentAddress} />
-            )}
+            {tab === "rules" && <Rules governmentAddress={governmentAddress} />}
             {tab === "immigrates" && (
               <Immigrates
                 contractAddress={governmentAddress}

@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { useContractRead, useWriteContract } from "wagmi";
+import { useReadContracts, useWriteContract } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
+import RuleShow from "./RuleShow";
 
-function ContractProposals({ address }: { address: `0x${string}` }) {
+function RuleProposals({ address }: { address: `0x${string}` }) {
   const [newRuleAddress, setNewRuleAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const [voteInProgress, setVoteInProgress] = useState(false); // Track vote status
+  const [showRule, setShowRule] = useState(false); // New state to hold selected rule data
 
   const { writeContract, isPending, isError, isSuccess, error } =
     useWriteContract();
@@ -13,15 +16,42 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
     data,
     isLoading: readLoading,
     error: readError,
-  } = useContractRead({
-    address,
-    abi: polityGovernmentAbi,
-    functionName: "listRuleProposals",
+  } = useReadContracts({
+    contracts: [
+      {
+        address,
+        abi: polityGovernmentAbi,
+        functionName: "listRuleProposals",
+      },
+    ],
   });
 
   if (readLoading) return <p>Loading proposals...</p>;
   if (readError)
     return <p className="text-red-500">Error: {readError.message}</p>;
+
+  const proposals = data?.[0]?.result;
+
+  const handleView = () => {
+    setShowRule(true);
+  };
+
+  const handleVote = async (id: number) => {
+    setVoteInProgress(true);
+    try {
+      await writeContract({
+        address,
+        abi: polityGovernmentAbi,
+        functionName: "voteRule",
+        args: [BigInt(id)],
+      });
+      console.log(`Voted on rule #${id}`);
+    } catch (error) {
+      console.error("Error voting:", error);
+    } finally {
+      setVoteInProgress(false);
+    }
+  };
 
   return (
     <>
@@ -76,8 +106,8 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
       )}
 
       <ul className="space-y-4">
-        {data &&
-          data.map((p, i) => (
+        {proposals &&
+          proposals.map((p, i) => (
             <li
               key={i}
               className="border rounded-2xl p-4 shadow hover:shadow-md transition"
@@ -96,35 +126,39 @@ function ContractProposals({ address }: { address: `0x${string}` }) {
                   </span>
                 </div>
                 <button
-                  onClick={() => handleClick(i)}
+                  onClick={() => handleView()} // Pass selected rule data
                   className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                 >
-                  Vote It
+                  View
+                </button>
+                <button
+                  onClick={() => handleVote(i)} // Vote on rule
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  disabled={voteInProgress} // Disable while voting is in progress
+                >
+                  {voteInProgress ? "Voting..." : "Vote It"}
                 </button>
               </div>
+              {showRule && <RuleShow contractAddress={p.proposed} />}
             </li>
           ))}
       </ul>
     </>
   );
 
-  function handleAddRule() {
-    writeContract({
-      address,
-      abi: polityGovernmentAbi,
-      functionName: "proposeRule",
-      args: [newRuleAddress as `0x${string}`],
-    });
-  }
-
-  function handleClick(id: number) {
-    writeContract({
-      address,
-      abi: polityGovernmentAbi,
-      functionName: "voteRule",
-      args: [BigInt(id)],
-    });
+  async function handleAddRule() {
+    try {
+      await writeContract({
+        address,
+        abi: polityGovernmentAbi,
+        functionName: "proposeRule",
+        args: [newRuleAddress as `0x${string}`],
+      });
+      console.log("Transaction sent. Waiting for confirmation...");
+    } catch (err) {
+      console.error("Error proposing rule:", err);
+    }
   }
 }
 
-export default ContractProposals;
+export default RuleProposals;
