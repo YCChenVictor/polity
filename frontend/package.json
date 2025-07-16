@@ -24,6 +24,7 @@
     "jest-environment-jsdom": "^30.0.2",
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.0"
   },
@@ -36,7 +37,8 @@
     "test:coverage": "yarn test --coverage --verbose",
     "build": "tsc && tsc-alias",
     "eslint:fix": "eslint . --fix",
-    "prettier": "yarn eslint:fix"
+    "prettier": "yarn eslint:fix",
+    "format:json": "yarn build && node dist/scripts/json-formatter.js"
   },
   "browserslist": {
     "production": [
