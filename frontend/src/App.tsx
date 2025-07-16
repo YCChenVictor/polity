@@ -5,6 +5,7 @@ import Rules from "./features/Rules";
 import Governors from "./features/Governors";
 import Immigrates from "./features/Immigrates";
 import Contribution from "./features/Contribution";
+import Citizens from "./features/Citizens";
 
 function App({
   userAddress,
@@ -23,6 +24,16 @@ function App({
         <div className="min-h-screen bg-gray-100">
           <nav className="flex space-x-4 px-6 py-2 bg-white border-b">
             <button
+              onClick={() => setTab("rules")}
+              className={`pb-2 ${
+                tab === "contract-proposals"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Rules
+            </button>
+            <button
               onClick={() => setTab("governor")}
               className={`pb-2 ${
                 tab === "governor"
@@ -33,14 +44,14 @@ function App({
               Governors
             </button>
             <button
-              onClick={() => setTab("rules")}
+              onClick={() => setTab("citizens")}
               className={`pb-2 ${
-                tab === "contract-proposals"
+                tab === "contributions"
                   ? "border-b-2 border-blue-500 text-blue-600"
                   : "text-gray-600"
               }`}
             >
-              Rules
+              Citizens
             </button>
             <button
               onClick={() => setTab("immigrates")}
@@ -67,6 +78,7 @@ function App({
           <main className="p-6">
             {tab === "governor" && <Governors address={governmentAddress} />}
             {tab === "rules" && <Rules governmentAddress={governmentAddress} />}
+            {tab === "citizens" && <Citizens />}
             {tab === "immigrates" && (
               <Immigrates
                 contractAddress={governmentAddress}
