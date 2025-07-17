@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Canada",
+    "content": "zxcvxzcv",
+    "validated": true
+  },
+  {
+    "title": "Germany",
+    "content": "",
+    "validated": true
+  },
+  {
+    "title": "Australia",
+    "content": "",
+    "validated": false
+  }
+]
