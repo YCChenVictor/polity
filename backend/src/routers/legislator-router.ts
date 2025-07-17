@@ -4,13 +4,8 @@ import legislators from '../data/legislators.json';
 
 const router = express.Router();
 
-const httpsAgent = new https.Agent({
-  rejectUnauthorized: false,
-});
-
 router.get("/", async (req, res) => {
   try {
-
     res.json(legislators);
     return;
   } catch (err) {
