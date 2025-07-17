@@ -1,4 +1,3 @@
-import React from "react";
 import { useAccount, useContractRead } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
 
@@ -6,7 +5,7 @@ function GovernorList({ address }: { address: `0x${string}` }) {
   const { isConnected } = useAccount();
 
   const {
-    data: governors,
+    data: governorsOnChain,
     error,
     isLoading,
   } = useContractRead({
@@ -22,9 +21,9 @@ function GovernorList({ address }: { address: `0x${string}` }) {
   return (
     <>
       <div>
-        <h2 className="text-xl font-semibold mb-2">Governors</h2>
+        <h2 className="text-xl font-semibold mb-2">On Chain Governors</h2>
         <ul className="list-disc pl-5">
-          {governors?.map((addr, i) => (
+          {governorsOnChain?.map((addr, i) => (
             <li key={i} className="mb-1">
               {addr}
             </li>
