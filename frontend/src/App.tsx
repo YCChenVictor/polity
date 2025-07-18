@@ -20,6 +20,7 @@ function App({
 
   return (
     <>
+      <h2 className="text-xl font-bold mt-4 mb-2">台灣民眾對提案的公開投票</h2>
       <ConnectButton />
       {isConnected ? (
         <div className="min-h-screen bg-gray-100">
