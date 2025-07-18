@@ -4,8 +4,14 @@ pragma solidity ^0.8.0;
 
 import './GovernorProposalSystem.sol';
 import './RuleProposalSystem.sol';
+import './OffChainRuleProposalSystem.sol';
 
-contract PolityGovernment is BaseGovernance, GovernorProposalSystem, RuleProposalSystem {
+contract PolityGovernment is
+    BaseGovernance,
+    GovernorProposalSystem,
+    RuleProposalSystem,
+    OffChainRuleProposalSystem
+{
     constructor(uint256 _requiredSignatures) BaseGovernance(_requiredSignatures) {}
 
     // function approveUpgrade(address _newImpl) external onlyGovernor {
