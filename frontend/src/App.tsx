@@ -90,7 +90,7 @@ function App({
           <main className="p-6">
             {tab === "governor" && <Governors address={governmentAddress} />}
             {tab === "rules" && <Rules governmentAddress={governmentAddress} />}
-            {tab === "bills" && <Bills />}
+            {tab === "bills" && <Bills governmentAddress={governmentAddress} />}
             {tab === "citizens" && <Citizens />}
             {tab === "immigrates" && (
               <Immigrates

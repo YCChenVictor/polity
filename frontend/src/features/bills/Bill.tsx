@@ -1,4 +1,7 @@
 import React, { useState } from "react";
+import { useWriteContract } from "wagmi";
+import { polityGovernmentAbi } from "../../generated";
+import { keccak256, toUtf8Bytes } from "ethers";
 
 interface Bill {
   屆: number;
@@ -26,8 +29,25 @@ interface Bill {
   url: string;
 }
 
-const BillComponent: React.FC<{ bill: Bill }> = ({ bill }) => {
+const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
+  govAddress,
+  bill,
+}) => {
+  const [addInProgress, setAddInProgress] = useState(false);
   const [voteInProgress, setVoteInProgress] = useState(false);
+
+  const generateBillId = (bill: object): string => {
+    const json = JSON.stringify(bill);
+    return keccak256(toUtf8Bytes(json));
+  };
+
+  const {
+    writeContract,
+    // isPending,
+    // isError,
+    // isSuccess,
+    // error: writeError,
+  } = useWriteContract();
 
   const handleVote = async () => {
     setVoteInProgress(true);
@@ -46,6 +66,24 @@ const BillComponent: React.FC<{ bill: Bill }> = ({ bill }) => {
     }
   };
 
+  const handleAddOnChain = async () => {
+    setAddInProgress(true);
+    try {
+      console.log(`Adding rule on chain`);
+      const uupsAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // Replace with actual UUPS address
+      const billId = generateBillId(bill);
+      writeContract({
+        address: govAddress,
+        abi: polityGovernmentAbi,
+        functionName: "proposeOffChainRule",
+        args: [uupsAddress, billId],
+      });
+    } catch (error) {
+      console.error("Error adding on chain:", error);
+    }
+    setAddInProgress(false);
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
       <button
@@ -54,6 +92,13 @@ const BillComponent: React.FC<{ bill: Bill }> = ({ bill }) => {
         disabled={voteInProgress} // Disable while voting is in progress
       >
         {voteInProgress ? "Voting..." : "Vote It"}
+      </button>
+      <button
+        onClick={() => handleAddOnChain()} // Vote on rule
+        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+        disabled={addInProgress} // Disable while voting is in progress
+      >
+        {addInProgress ? "Adding..." : "Add On Chain"}
       </button>
       <h2 className="text-xl font-semibold text-gray-800">{bill.議案名稱}</h2>
       <p className="text-gray-600 mt-2">

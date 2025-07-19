@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import BillComponent from "./bills/Bill";
+import Bill from "./bills/Bill";
 
-function Bills() {
+function Bills({ governmentAddress }: { governmentAddress: `0x${string}` }) {
   const [bills, setBills] = useState<[]>([]);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ function Bills() {
   return (
     <div>
       {bills.map((bill, index) => (
-        <BillComponent key={index} bill={bill} />
+        <Bill key={index} bill={bill} govAddress={governmentAddress} />
       ))}
     </div>
   );
