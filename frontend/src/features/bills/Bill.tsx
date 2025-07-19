@@ -33,8 +33,10 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
   govAddress,
   bill,
 }) => {
+  const [showModal, setShowModal] = useState(false);
   const [addInProgress, setAddInProgress] = useState(false);
   const [voteInProgress, setVoteInProgress] = useState(false);
+  const [ruleAddress, setRuleAddress] = useState("");
 
   const generateBillId = (bill: object): string => {
     const json = JSON.stringify(bill);
@@ -66,11 +68,11 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     }
   };
 
-  const handleAddOnChain = async () => {
+  const handleAddOnChain = async (uupsAddress: `0x${string}`) => {
     setAddInProgress(true);
     try {
       console.log(`Adding rule on chain`);
-      const uupsAddress = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"; // Replace with actual UUPS address
+
       const billId = generateBillId(bill);
       writeContract({
         address: govAddress,
@@ -86,6 +88,39 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+            <h2 className="text-lg font-bold mb-4">Submit Rule Address</h2>
+            <input
+              type="text"
+              placeholder="0x..."
+              value={ruleAddress}
+              onChange={(e) => setRuleAddress(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  handleAddOnChain(ruleAddress as `0x${string}`);
+                }}
+                disabled={!ruleAddress.startsWith("0x")}
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={() => handleVote()} // Vote on rule
         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -94,9 +129,9 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
         {voteInProgress ? "Voting..." : "Vote It"}
       </button>
       <button
-        onClick={() => handleAddOnChain()} // Vote on rule
+        onClick={() => setShowModal(true)}
         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-        disabled={addInProgress} // Disable while voting is in progress
+        disabled={addInProgress}
       >
         {addInProgress ? "Adding..." : "Add On Chain"}
       </button>
