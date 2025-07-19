@@ -77,6 +77,7 @@ contract PolityGovernmentTest is Test {
         assertTrue(proposals[0].executed);
     }
 
+    // On chain Rules
     function testListRuleProposals() public {
         vm.prank(initGovernor);
         polity.proposeRule(address(0x1));
@@ -102,6 +103,18 @@ contract PolityGovernmentTest is Test {
 
         assertEq(proposals[0].votes, 1);
         assertTrue(proposals[0].executed);
+    }
+
+    // Off Chain Rules
+    function testListOffChainRuleProposals() public {
+        vm.prank(initGovernor);
+        polity.proposeOffChainRule(address(0x1), 'Bill123');
+
+        OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
+            .listOffChainRuleProposals();
+
+        assertEq(proposals.length, 1);
+        assertEq(proposals[0].proposed, address(0x1));
     }
 
     // function testApproveAndTriggerUpgrade() public {
