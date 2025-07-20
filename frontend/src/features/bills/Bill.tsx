@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../../generated";
+import { useReadContracts, useWriteContract } from "wagmi";
+import { offChainAbi, polityGovernmentAbi } from "../../generated";
 import { keccak256, toUtf8Bytes } from "ethers";
 
 interface Bill {
@@ -43,6 +43,7 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     return keccak256(toUtf8Bytes(json));
   };
 
+  const billId = generateBillId(bill);
   const {
     writeContract,
     // isPending,
@@ -50,6 +51,22 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     // isSuccess,
     // error: writeError,
   } = useWriteContract();
+
+  const { data } = useReadContracts({
+    contracts: [
+      {
+        address: ruleAddress as `0x${string}`, // Contract address input by user
+        abi: offChainAbi, // ABI for OffChain contract
+        functionName: "bill", // Function to call (bill getter)
+      },
+    ],
+  });
+
+  if (data && data[0].result === billId) {
+    console.log("the contract is the same as the one in smart contract");
+  } else {
+    console.log("the contract is not the same as the one in smart contract");
+  }
 
   const handleVote = async () => {
     setVoteInProgress(true);
@@ -73,7 +90,6 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     try {
       console.log(`Adding rule on chain`);
 
-      const billId = generateBillId(bill);
       writeContract({
         address: govAddress,
         abi: polityGovernmentAbi,
@@ -84,6 +100,16 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
       console.error("Error adding on chain:", error);
     }
     setAddInProgress(false);
+  };
+
+  const handleFetchBill = () => {
+    if (ruleAddress && ruleAddress.startsWith("0x")) {
+      // This triggers the useReadContracts hook reactively
+      console.log("Fetching bill for address:", ruleAddress);
+      setRuleAddress(ruleAddress);
+    } else {
+      console.error("Invalid address");
+    }
   };
 
   return (
@@ -99,6 +125,13 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
               onChange={(e) => setRuleAddress(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mb-4"
             />
+            <button
+              onClick={handleFetchBill}
+              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              disabled={!ruleAddress.startsWith("0x")}
+            >
+              Fetch Bill
+            </button>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowModal(false)}
