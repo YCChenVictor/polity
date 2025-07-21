@@ -6,7 +6,8 @@ import Governors from "./features/Governors";
 import Immigrates from "./features/Immigrates";
 import Contribution from "./features/Contribution";
 import Citizens from "./features/Citizens";
-import Bills from "./features/Bills";
+import OffChainBills from "./features/OffChainBills";
+import OnChainBills from "./features/OnChainBills";
 
 function App({
   userAddress,
@@ -36,14 +37,24 @@ function App({
               Rules
             </button>
             <button
-              onClick={() => setTab("bills")}
+              onClick={() => setTab("on-chain-bills")}
               className={`pb-2 ${
                 tab === "contributions"
                   ? "border-b-2 border-blue-500 text-blue-600"
                   : "text-gray-600"
               }`}
             >
-              Bills
+              OnChainBills
+            </button>
+            <button
+              onClick={() => setTab("off-chain-bills")}
+              className={`pb-2 ${
+                tab === "contributions"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              OffChainBills
             </button>
             <button
               onClick={() => setTab("governor")}
@@ -90,7 +101,12 @@ function App({
           <main className="p-6">
             {tab === "governor" && <Governors address={governmentAddress} />}
             {tab === "rules" && <Rules governmentAddress={governmentAddress} />}
-            {tab === "bills" && <Bills governmentAddress={governmentAddress} />}
+            {tab === "on-chain-bills" && (
+              <OnChainBills governmentAddress={governmentAddress} />
+            )}
+            {tab === "off-chain-bills" && (
+              <OffChainBills governmentAddress={governmentAddress} />
+            )}
             {tab === "citizens" && <Citizens />}
             {tab === "immigrates" && (
               <Immigrates
