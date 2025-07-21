@@ -38,6 +38,9 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
   const [voteInProgress, setVoteInProgress] = useState(false);
   const [ruleAddress, setRuleAddress] = useState("");
 
+  const wordings =
+    "Please deploy your desired contract on chain with the exactly bill as content first. The concept of public goods requires us to pay the cost before accquiring benefits, avoiding frauds. There will be an API in backend to help you create such contract.";
+
   const generateBillId = (bill: object): string => {
     const json = JSON.stringify(bill);
     return keccak256(toUtf8Bytes(json));
@@ -118,6 +121,7 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
             <h2 className="text-lg font-bold mb-4">Submit Rule Address</h2>
+            <>{wordings}</>
             <input
               type="text"
               placeholder="0x..."
