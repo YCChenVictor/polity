@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useReadContracts, useWriteContract } from "wagmi";
-import { offChainAbi, polityGovernmentAbi } from "../../generated";
+import { offChainAbi, offChainRuleProposalSystemAbi } from "../../generated";
 import { keccak256, toUtf8Bytes } from "ethers";
 
 interface Bill {
@@ -34,12 +34,11 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
   bill,
 }) => {
   const [showModal, setShowModal] = useState(false);
-  const [addInProgress, setAddInProgress] = useState(false);
-  const [voteInProgress, setVoteInProgress] = useState(false);
   const [ruleAddress, setRuleAddress] = useState("");
+  const [isAddressValid, setIsAddressValid] = useState(false);
 
   const wordings =
-    "Please deploy your desired contract on chain with the exactly bill as content first. The concept of public goods requires us to pay the cost before accquiring benefits, avoiding frauds. There will be an API in backend to help you create such contract.";
+    "Please deploy your desired contract on chain with the exactly bill as content first. The concept of public goods requires us to pay the cost before acquiring benefits, avoiding frauds. There will be an API in the backend to help you create such contract.";
 
   const generateBillId = (bill: object): string => {
     const json = JSON.stringify(bill);
@@ -49,129 +48,126 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
   const billId = generateBillId(bill);
   const {
     writeContract,
-    // isPending,
-    // isError,
-    // isSuccess,
-    // error: writeError,
+    isPending,
+    isError,
+    isSuccess,
+    error: writeError,
   } = useWriteContract();
 
+  // Track whether the address is valid
+  useEffect(() => {
+    if (ruleAddress.startsWith("0x") && ruleAddress.length === 42) {
+      setIsAddressValid(true);
+    } else {
+      setIsAddressValid(false);
+    }
+  }, [ruleAddress]);
+
+  // Read contract only if the address is valid
   const { data } = useReadContracts({
-    contracts: [
-      {
-        address: ruleAddress as `0x${string}`, // Contract address input by user
-        abi: offChainAbi, // ABI for OffChain contract
-        functionName: "bill", // Function to call (bill getter)
-      },
-    ],
+    contracts: isAddressValid
+      ? [
+          {
+            address: ruleAddress as `0x${string}`,
+            abi: offChainAbi,
+            functionName: "bill",
+          },
+        ]
+      : [], // If the address is invalid, don't call the contract
   });
 
-  if (data && data[0].result === billId) {
-    console.log("the contract is the same as the one in smart contract");
-  } else {
-    console.log("the contract is not the same as the one in smart contract");
-  }
-
   const handleVote = async () => {
-    setVoteInProgress(true);
     try {
-      //   await writeContract({
-      //     address,
-      //     abi: polityGovernmentAbi,
-      //     functionName: "voteRule",
-      //     args: [BigInt(id)],
-      //   });
-      console.log(`Voted on rule}`);
+      console.log(`Voting on rule`);
     } catch (error) {
       console.error("Error voting:", error);
-    } finally {
-      setVoteInProgress(false);
     }
   };
 
-  const handleAddOnChain = async (uupsAddress: `0x${string}`) => {
-    setAddInProgress(true);
+  const handleAddOnChain = async () => {
     try {
-      console.log(`Adding rule on chain`);
-
-      writeContract({
+      await writeContract({
         address: govAddress,
-        abi: polityGovernmentAbi,
+        abi: offChainRuleProposalSystemAbi,
         functionName: "proposeOffChainRule",
-        args: [uupsAddress, billId],
+        args: [ruleAddress as `0x${string}`, billId],
       });
     } catch (error) {
       console.error("Error adding on chain:", error);
     }
-    setAddInProgress(false);
   };
 
-  const handleFetchBill = () => {
-    if (ruleAddress && ruleAddress.startsWith("0x")) {
-      // This triggers the useReadContracts hook reactively
-      console.log("Fetching bill for address:", ruleAddress);
-      setRuleAddress(ruleAddress);
-    } else {
-      console.error("Invalid address");
-    }
-  };
+  const isBillMatching = data && data[0]?.result === billId;
+  console.log(
+    isBillMatching
+      ? "The contract is the same as the one in the smart contract"
+      : "The contract is not the same as the one in the smart contract",
+  );
+
+  const renderModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+        <h2 className="text-lg font-bold mb-4">Submit Rule Address</h2>
+        <p>{wordings}</p>
+        <input
+          type="text"
+          placeholder="0x..."
+          value={ruleAddress}
+          onChange={(e) => setRuleAddress(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded mb-4"
+        />
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setShowModal(false)}
+            className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+          {isBillMatching ? (
+            <button
+              onClick={handleAddOnChain}
+              disabled={!isAddressValid}
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Confirm
+            </button>
+          ) : (
+            <></>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
-            <h2 className="text-lg font-bold mb-4">Submit Rule Address</h2>
-            <>{wordings}</>
-            <input
-              type="text"
-              placeholder="0x..."
-              value={ruleAddress}
-              onChange={(e) => setRuleAddress(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-            />
-            <button
-              onClick={handleFetchBill}
-              className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-              disabled={!ruleAddress.startsWith("0x")}
-            >
-              Fetch Bill
-            </button>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowModal(false);
-                  handleAddOnChain(ruleAddress as `0x${string}`);
-                }}
-                disabled={!ruleAddress.startsWith("0x")}
-                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {showModal && renderModal()}
       <button
-        onClick={() => handleVote()} // Vote on rule
+        onClick={handleVote}
         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-        disabled={voteInProgress} // Disable while voting is in progress
       >
-        {voteInProgress ? "Voting..." : "Vote It"}
+        Vote It
       </button>
       <button
         onClick={() => setShowModal(true)}
         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-        disabled={addInProgress}
+        disabled={isPending || isSuccess || isError}
       >
-        {addInProgress ? "Adding..." : "Add On Chain"}
+        {isPending
+          ? "Adding..."
+          : isSuccess
+            ? "Added"
+            : isError
+              ? "Error"
+              : "Add On Chain"}
       </button>
+
+      {isError && (
+        <div className="mt-2 text-red-500">
+          Error: {writeError?.message || "Unknown error occurred"}
+        </div>
+      )}
+
       <h2 className="text-xl font-semibold text-gray-800">{bill.議案名稱}</h2>
       <p className="text-gray-600 mt-2">
         <strong>議案編號:</strong> {bill.議案編號}
@@ -251,4 +247,5 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     </div>
   );
 };
+
 export default BillComponent;
