@@ -8,6 +8,7 @@ import Contribution from "./features/Contribution";
 import Citizens from "./features/Citizens";
 import OffChainBills from "./features/OffChainBills";
 import OnChainBills from "./features/OnChainBills";
+import axios from "axios";
 
 function App({
   userAddress,
@@ -19,12 +20,29 @@ function App({
   const { isConnected } = useAccount();
   const [tab, setTab] = useState("governor");
 
+  const handlePostRequest = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/bills`,
+      );
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <h2 className="text-xl font-bold mt-4 mb-2">台灣民眾對提案的公開投票</h2>
       <ConnectButton />
       {isConnected ? (
         <div className="min-h-screen bg-gray-100">
+          <button
+            onClick={handlePostRequest}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+          >
+            Refresh Bills
+          </button>
           <nav className="flex space-x-4 px-6 py-2 bg-white border-b">
             <button
               onClick={() => setTab("rules")}
