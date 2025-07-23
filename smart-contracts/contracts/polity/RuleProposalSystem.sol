@@ -4,6 +4,7 @@
 
 import './BaseGovernance.sol';
 
+// This is actually on chain rules
 abstract contract RuleProposalSystem is BaseGovernance {
     struct RuleProposal {
         address proposed;

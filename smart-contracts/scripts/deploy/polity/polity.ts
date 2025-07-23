@@ -1,4 +1,4 @@
-// npx hardhat run scripts/deploy/polity.ts --network localhost
+// npx hardhat run scripts/deploy/polity/polity.ts --network localhost
 
 const hre = require("hardhat");
 

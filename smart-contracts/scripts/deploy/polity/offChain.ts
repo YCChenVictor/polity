@@ -6,6 +6,7 @@
 
 import { keccak256, toUtf8Bytes } from "ethers";
 
+// Extract this part to backend or frontend POSt
 const generateBillId = (bill: object): string => {
     const json = JSON.stringify(bill);
     return keccak256(toUtf8Bytes(json));

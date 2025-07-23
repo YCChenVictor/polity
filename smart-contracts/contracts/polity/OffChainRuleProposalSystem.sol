@@ -6,12 +6,14 @@ import './BaseGovernance.sol';
 abstract contract OffChainRuleProposalSystem is BaseGovernance {
     struct OffChainRuleProposal {
         address proposed;
+        string billNumber;
         string billId; // Unique ID of the Bill from Taiwan Parliament
         uint256 updateTimestamp; // Timestamp of last update
     }
 
     struct OffChainRuleProposalView {
         address proposed;
+        string billNumber;
         string billId;
         uint256 updateTimestamp;
     }
@@ -23,11 +25,16 @@ abstract contract OffChainRuleProposalSystem is BaseGovernance {
     event Updated(uint256 id, string billId, uint256 updateTimestamp);
 
     // Create a new Rule Proposal
-    function proposeOffChainRule(address rule, string memory billId) external onlyGovernor {
+    function proposeOffChainRule(
+        address rule,
+        string memory billNumber,
+        string memory billId
+    ) external onlyGovernor {
         uint256 id = offChainRuleProposalCount;
         OffChainRuleProposal storage p = offChainRuleProposals[id];
         p.proposed = rule;
         p.billId = billId;
+        p.billNumber = billNumber;
         p.updateTimestamp = block.timestamp;
         offChainRuleProposalCount++;
         emit Created(id, rule, billId);
@@ -43,7 +50,12 @@ abstract contract OffChainRuleProposalSystem is BaseGovernance {
         views = new OffChainRuleProposalView[](n);
         for (uint256 i = 0; i < n; i++) {
             OffChainRuleProposal storage p = offChainRuleProposals[i];
-            views[i] = OffChainRuleProposalView(p.proposed, p.billId, p.updateTimestamp);
+            views[i] = OffChainRuleProposalView(
+                p.proposed,
+                p.billNumber,
+                p.billId,
+                p.updateTimestamp
+            );
         }
     }
 }
