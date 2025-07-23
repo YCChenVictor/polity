@@ -45,6 +45,7 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     return keccak256(toUtf8Bytes(json));
   };
 
+  const billNumber = bill["議案編號"];
   const billId = generateBillId(bill);
   const {
     writeContract,
@@ -63,7 +64,6 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
     }
   }, [ruleAddress]);
 
-  // Read contract only if the address is valid
   const { data } = useReadContracts({
     contracts: isAddressValid
       ? [
@@ -73,7 +73,7 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
             functionName: "bill",
           },
         ]
-      : [], // If the address is invalid, don't call the contract
+      : [],
   });
 
   const handleVote = async () => {
@@ -90,7 +90,7 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
         address: govAddress,
         abi: offChainRuleProposalSystemAbi,
         functionName: "proposeOffChainRule",
-        args: [ruleAddress as `0x${string}`, billId],
+        args: [ruleAddress as `0x${string}`, billNumber, billId],
       });
     } catch (error) {
       console.error("Error adding on chain:", error);

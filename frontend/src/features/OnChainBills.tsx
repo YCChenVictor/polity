@@ -70,6 +70,7 @@ function RuleProposals({
         <ul>
           {data[1].result.map((proposal, index) => (
             <li key={index}>
+              <>Id: {proposal.billNumber}</> <br />
               <strong>Proposed:</strong> {proposal.proposed} <br />
               <strong>Bill ID:</strong> {proposal.billId}
             </li>
