@@ -108,7 +108,7 @@ contract PolityGovernmentTest is Test {
     // Off Chain Rules
     function testListOffChainRuleProposals() public {
         vm.prank(initGovernor);
-        polity.proposeOffChainRule(address(0x1), 'Bill123');
+        polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
 
         OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
             .listOffChainRuleProposals();
