@@ -37,7 +37,7 @@ abstract contract RuleProposalSystem is BaseGovernance {
 
     // Read
     // By design of solidity, directly returning the arrays of the variables is still valid because there is no way to return struct.
-    function listRuleProposals() public view returns (RuleProposalView[] memory views) {
+    function listProposalsFromCode() public view returns (RuleProposalView[] memory views) {
         uint256 n = ruleProposalCount;
         views = new RuleProposalView[](n);
         for (uint256 i = 0; i < n; i++) {
@@ -47,24 +47,25 @@ abstract contract RuleProposalSystem is BaseGovernance {
     }
 
     // Update
-    function voteRule(uint256 id) external onlyGovernor {
+    function voteRuleFromCode(uint256 id) external onlyGovernor {
         RuleProposal storage p = ruleProposals[id];
         require(!p.executed, 'Already executed');
         require(!p.hasVoted[msg.sender], 'Already voted');
         p.hasVoted[msg.sender] = true;
         p.votes += 1;
         emit RuleVoteCast(id, msg.sender, p.votes);
-        if (p.votes >= getRequiredSignatures()) {
-            _executeAdd(id);
-        }
+        // if (p.votes >= getRequiredSignatures()) {
+        //     _executeAdd(id);
+        // }
     }
 
-    function _executeAdd(uint256 id) internal {
-        RuleProposal storage p = ruleProposals[id];
-        require(!p.executed, 'Already executed');
-        require(p.votes >= getRequiredSignatures(), 'Not enough votes');
-        p.executed = true;
-        governors.push(p.proposed);
-        emit Added(p.proposed);
-    }
+    // This one was wrong, it adds governors
+    // function _executeAdd(uint256 id) internal {
+    //     RuleProposal storage p = ruleProposals[id];
+    //     require(!p.executed, 'Already executed');
+    //     require(p.votes >= getRequiredSignatures(), 'Not enough votes');
+    //     p.executed = true;
+    //     governors.push(p.proposed);
+    //     emit Added(p.proposed);
+    // }
 }
