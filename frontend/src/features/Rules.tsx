@@ -1,5 +1,4 @@
 import LawShow from "./rules/LawShow";
-import RuleProposals from "./rules/RuleProposals";
 
 import RawLaw from "../laws/ChLaw.json";
 
@@ -27,13 +26,12 @@ interface LawJson {
   Laws: Law[];
 }
 
-function Rules({ governmentAddress }: { governmentAddress: `0x${string}` }) {
+function Rules() {
   const laws = (RawLaw as unknown as LawJson).Laws;
 
   return (
     <>
       <LawShow laws={laws} />
-      <RuleProposals address={governmentAddress} />
     </>
   );
 }

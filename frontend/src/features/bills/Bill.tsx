@@ -76,14 +76,6 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
       : [],
   });
 
-  const handleVote = async () => {
-    try {
-      console.log(`Voting on rule`);
-    } catch (error) {
-      console.error("Error voting:", error);
-    }
-  };
-
   const handleAddOnChain = async () => {
     try {
       await writeContract({
@@ -142,12 +134,6 @@ const BillComponent: React.FC<{ govAddress: `0x${string}`; bill: Bill }> = ({
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
       {showModal && renderModal()}
-      <button
-        onClick={handleVote}
-        className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Vote It
-      </button>
       <button
         onClick={() => setShowModal(true)}
         className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
