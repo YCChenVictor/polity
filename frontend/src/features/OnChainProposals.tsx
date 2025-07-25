@@ -1,13 +1,30 @@
 import { useState } from "react";
 import { useReadContracts, useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../../generated";
-import RuleShow from "./RuleShow";
+import { polityGovernmentAbi } from "../generated";
 
-function RuleProposals({ address }: { address: `0x${string}` }) {
+interface RuleProposalView {
+  proposed: `0x${string}`;
+  votes: bigint;
+  executed: boolean;
+}
+
+interface OffChainRuleProposalView {
+  proposed: `0x${string}`;
+  billNumber: string;
+  billId: string;
+  votes: bigint;
+  updateTimestamp: bigint;
+}
+
+function RuleProposals({
+  governmentAddress,
+}: {
+  governmentAddress: `0x${string}`;
+}) {
   const [newRuleAddress, setNewRuleAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [voteInProgress, setVoteInProgress] = useState(false); // Track vote status
-  const [showRule, setShowRule] = useState(false); // New state to hold selected rule data
+  const [, setShowRule] = useState(false); // New state to hold selected rule data
 
   const { writeContract, isPending, isError, isSuccess, error } =
     useWriteContract();
@@ -19,9 +36,14 @@ function RuleProposals({ address }: { address: `0x${string}` }) {
   } = useReadContracts({
     contracts: [
       {
-        address,
+        address: governmentAddress,
         abi: polityGovernmentAbi,
-        functionName: "listRuleProposals",
+        functionName: "listProposalsFromCode",
+      },
+      {
+        address: governmentAddress,
+        abi: polityGovernmentAbi,
+        functionName: "listProposalsFromBill",
       },
     ],
   });
@@ -30,19 +52,42 @@ function RuleProposals({ address }: { address: `0x${string}` }) {
   if (readError)
     return <p className="text-red-500">Error: {readError.message}</p>;
 
-  const proposals = data?.[0]?.result;
+  const [codeProposals = [], billProposals = []] =
+    (data?.map((d) => d.result) as [
+      RuleProposalView[],
+      OffChainRuleProposalView[],
+    ]) || [];
 
   const handleView = () => {
     setShowRule(true);
   };
 
-  const handleVote = async (id: number) => {
+  const handleVoteOnCodeContract = async (id: number) => {
+    console.log("zxcv");
     setVoteInProgress(true);
     try {
       await writeContract({
-        address,
+        address: governmentAddress,
         abi: polityGovernmentAbi,
-        functionName: "voteRule",
+        functionName: "voteRuleFromCode",
+        args: [BigInt(id)],
+      });
+      console.log(`Voted on rule #${id}`);
+    } catch (error) {
+      console.error("Error voting:", error);
+    } finally {
+      setVoteInProgress(false);
+    }
+  };
+
+  const handleVoteOnBillContract = async (id: number) => {
+    console.log("zxcv");
+    setVoteInProgress(true);
+    try {
+      await writeContract({
+        address: governmentAddress,
+        abi: polityGovernmentAbi,
+        functionName: "voteRuleFromBill",
         args: [BigInt(id)],
       });
       console.log(`Voted on rule #${id}`);
@@ -55,13 +100,39 @@ function RuleProposals({ address }: { address: `0x${string}` }) {
 
   return (
     <>
+      <div>
+        <h3>Proposals</h3>
+        <ul>
+          {billProposals &&
+            billProposals.map((p, i) => (
+              <li key={i}>
+                <div>Id: {p.billNumber}</div>
+                <div>
+                  <strong>Proposed :</strong> {p.proposed}
+                </div>
+                <div>
+                  <strong>Bill ID:</strong> {p.billId}
+                </div>
+                <div>
+                  <strong>Votes</strong> {p.votes}
+                </div>
+                <button
+                  onClick={() => handleVoteOnBillContract(i)}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Vote It
+                </button>
+              </li>
+            ))}
+        </ul>
+      </div>
       <div className="flex justify-between items-center mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"
           onClick={() => setModalOpen(true)}
           disabled={isPending}
         >
-          + Add Rule
+          + Add Smart Contract Proposal
         </button>
       </div>
 
@@ -106,8 +177,8 @@ function RuleProposals({ address }: { address: `0x${string}` }) {
       )}
 
       <ul className="space-y-4">
-        {proposals &&
-          proposals.map((p, i) => (
+        {codeProposals &&
+          codeProposals.map((p, i) => (
             <li
               key={i}
               className="border rounded-2xl p-4 shadow hover:shadow-md transition"
@@ -132,14 +203,13 @@ function RuleProposals({ address }: { address: `0x${string}` }) {
                   View
                 </button>
                 <button
-                  onClick={() => handleVote(i)} // Vote on rule
+                  onClick={() => handleVoteOnCodeContract(i)} // Vote on rule
                   className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                   disabled={voteInProgress} // Disable while voting is in progress
                 >
                   {voteInProgress ? "Voting..." : "Vote It"}
                 </button>
               </div>
-              {showRule && <RuleShow contractAddress={p.proposed} />}
             </li>
           ))}
       </ul>
@@ -149,7 +219,7 @@ function RuleProposals({ address }: { address: `0x${string}` }) {
   async function handleAddRule() {
     try {
       await writeContract({
-        address,
+        address: governmentAddress,
         abi: polityGovernmentAbi,
         functionName: "proposeRule",
         args: [newRuleAddress as `0x${string}`],

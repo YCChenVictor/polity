@@ -7,7 +7,7 @@ import Immigrates from "./features/Immigrates";
 import Contribution from "./features/Contribution";
 import Citizens from "./features/Citizens";
 import OffChainBills from "./features/OffChainBills";
-import OnChainBills from "./features/OnChainBills";
+import OnChainProposals from "./features/OnChainProposals";
 import axios from "axios";
 
 function App({
@@ -62,7 +62,7 @@ function App({
                   : "text-gray-600"
               }`}
             >
-              OnChainBills
+              OnChainProposals
             </button>
             <button
               onClick={() => setTab("off-chain-bills")}
@@ -118,9 +118,9 @@ function App({
 
           <main className="p-6">
             {tab === "governor" && <Governors address={governmentAddress} />}
-            {tab === "rules" && <Rules governmentAddress={governmentAddress} />}
+            {tab === "rules" && <Rules />}
             {tab === "on-chain-bills" && (
-              <OnChainBills governmentAddress={governmentAddress} />
+              <OnChainProposals governmentAddress={governmentAddress} />
             )}
             {tab === "off-chain-bills" && (
               <OffChainBills governmentAddress={governmentAddress} />
