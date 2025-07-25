@@ -3,8 +3,8 @@
 pragma solidity ^0.8.0;
 
 import './GovernorProposalSystem.sol';
-import './RuleProposalSystem.sol';
-import './OffChainRuleProposalSystem.sol';
+import './BillProposalSystem.sol';
+import './CodeProposalSystem.sol';
 
 contract PolityGovernment is
     BaseGovernance,

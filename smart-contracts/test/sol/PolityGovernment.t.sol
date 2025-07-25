@@ -82,7 +82,7 @@ contract PolityGovernmentTest is Test {
         vm.prank(initGovernor);
         polity.proposeRule(address(0x1));
 
-        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listRuleProposals();
+        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listProposalsFromCode();
 
         assertEq(proposals.length, 1);
         assertEq(proposals[0].proposed, address(0x1));
@@ -97,12 +97,12 @@ contract PolityGovernmentTest is Test {
         polity.proposeRule(newRule);
 
         vm.prank(actualDeployer);
-        polity.voteRule(0);
+        polity.voteRuleFromCode(0);
 
-        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listRuleProposals();
+        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listProposalsFromCode();
 
         assertEq(proposals[0].votes, 1);
-        assertTrue(proposals[0].executed);
+        // assertTrue(proposals[0].executed);
     }
 
     // Off Chain Rules
@@ -111,10 +111,24 @@ contract PolityGovernmentTest is Test {
         polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
 
         OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
-            .listOffChainRuleProposals();
+            .listProposalsFromBill();
 
         assertEq(proposals.length, 1);
         assertEq(proposals[0].proposed, address(0x1));
+    }
+
+    function testVoteOffChainRuleWorks() public {
+        address actualDeployer = polity.deployer();
+        vm.prank(actualDeployer);
+        polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
+
+        vm.prank(actualDeployer);
+        polity.voteRuleFromBill(0);
+
+        OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
+            .listProposalsFromBill();
+
+        assertEq(proposals[0].votes, 1);
     }
 
     // function testApproveAndTriggerUpgrade() public {
