@@ -131,6 +131,21 @@ contract PolityGovernmentTest is Test {
         assertEq(proposals[0].votes, 1);
     }
 
+    function testAddLawLevel() public {
+        vm.prank(initGovernor);
+        polity.addLawLevel('constitution');
+
+        string memory level = polity.lawLevels(0);
+        bool exists = polity.isLawLevel('constitution');
+
+        assertEq(level, 'constitution');
+        assertTrue(exists);
+
+        string[] memory levels = polity.getLawLevels();
+        assertEq(levels.length, 1);
+        assertEq(levels[0], 'constitution');
+    }
+
     // function testApproveAndTriggerUpgrade() public {
     //     vm.prank(initGovernor);
     //     polity.approveUpgrade(newImpl);
