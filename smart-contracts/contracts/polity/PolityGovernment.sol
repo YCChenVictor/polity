@@ -14,6 +14,21 @@ contract PolityGovernment is
 {
     constructor(uint256 _requiredSignatures) BaseGovernance(_requiredSignatures) {}
 
+    string[] public lawLevels;
+    mapping(string => bool) public isLawLevel;
+    event LawLevelAdded(string level);
+
+    function addLawLevel(string memory level) external onlyGovernor {
+        require(!isLawLevel[level], 'Exists');
+        lawLevels.push(level);
+        isLawLevel[level] = true;
+        emit LawLevelAdded(level);
+    }
+
+    function getLawLevels() external view returns (string[] memory) {
+        return lawLevels;
+    }
+
     // function approveUpgrade(address _newImpl) external onlyGovernor {
     //     require(!hasSigned[msg.sender], "Already approved");
     //     hasSigned[msg.sender] = true;
