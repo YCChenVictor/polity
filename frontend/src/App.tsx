@@ -118,7 +118,7 @@ function App({
 
           <main className="p-6">
             {tab === "governor" && <Governors address={governmentAddress} />}
-            {tab === "rules" && <Rules />}
+            {tab === "rules" && <Rules govAddress={governmentAddress} />}
             {tab === "on-chain-bills" && (
               <OnChainProposals governmentAddress={governmentAddress} />
             )}
