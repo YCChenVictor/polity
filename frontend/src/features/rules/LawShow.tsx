@@ -1,33 +1,10 @@
 import React from "react";
+import { LawJson } from "../../models/law";
 
-interface Article {
-  ArticleNo: string;
-  ArticleContent: string;
-}
-
-export interface Law {
-  LawLevel: string;
-  LawName: string;
-  LawURL: string;
-  LawCategory: string;
-  LawModifiedDate: string;
-  LawEffectiveDate: string;
-  LawEffectiveNote: string;
-  LawAbandonNote: string;
-  LawHasVersion: string;
-  LawPublishDate: string;
-  LawID: string;
-  LawArticles: Article[];
-}
-
-interface Props {
-  laws: Law[];
-}
-
-const LawList: React.FC<Props> = ({ laws }) => {
+const LawList: React.FC<LawJson> = ({ Laws }) => {
   return (
     <div className="space-y-6">
-      {laws.map((law, idx) => (
+      {Laws.map((law, idx) => (
         <div key={idx} className="border rounded-xl p-4 shadow">
           <a
             href={law.LawURL}
