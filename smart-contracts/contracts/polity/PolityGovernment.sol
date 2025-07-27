@@ -1,10 +1,14 @@
-// File: PolityGovernment.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.24;
 
 import './GovernorProposalSystem.sol';
 import './BillProposalSystem.sol';
 import './CodeProposalSystem.sol';
+
+interface ICitizenRegistry {
+    function createCitizen(address wallet) external;
+    function isCitizen(address wallet) external view returns (bool);
+}
 
 contract PolityGovernment is
     BaseGovernance,
@@ -13,6 +17,36 @@ contract PolityGovernment is
     OffChainRuleProposalSystem
 {
     constructor(uint256 _requiredSignatures) BaseGovernance(_requiredSignatures) {}
+
+    // ─────────────────────── Struct ───────────────────────
+
+    struct GovernanceModuleView {
+        bytes32 name;
+        address moduleAddress;
+    }
+
+    // ─────────────────────── Modules ───────────────────────
+
+    address public citizenRegistry;
+
+    function setCitizenRegistry(address _addr) external onlyGovernor {
+        citizenRegistry = _addr;
+    }
+
+    function registerCitizen(address wallet) external onlyGovernor {
+        require(citizenRegistry != address(0), 'Module not set');
+        ICitizenRegistry(citizenRegistry).createCitizen(wallet);
+    }
+
+    function listGovernanceModules() external view returns (GovernanceModuleView[] memory views) {
+        views = new GovernanceModuleView[](1);
+        views[0] = GovernanceModuleView({
+            name: 'CitizenRegistry',
+            moduleAddress: citizenRegistry
+        });
+        return views;
+    }
+    // ─────────────────────── Law Level ───────────────────────
 
     string[] public lawLevels;
     mapping(string => bool) public isLawLevel;
@@ -28,28 +62,4 @@ contract PolityGovernment is
     function getLawLevels() external view returns (string[] memory) {
         return lawLevels;
     }
-
-    // function approveUpgrade(address _newImpl) external onlyGovernor {
-    //     require(!hasSigned[msg.sender], "Already approved");
-    //     hasSigned[msg.sender] = true;
-    //     totalSignatures++;
-    //     if (totalSignatures >= requiredSignatures) {
-    //         upgradeApprovedA = true;
-    //         pendingImplA      = _newImpl;
-    //         emit UpgradeApproved(_newImpl);
-    //     }
-    // }
-
-    // function triggerUpgrade() external {
-    //     require(upgradeApprovedA, "Not approved");
-    //     IUUPS(proxyA).upgradeTo(pendingImplA);
-    //     emit UpgradeTriggered(pendingImplA);
-    //     // reset
-    //     upgradeApprovedA = false;
-    //     pendingImplA     = address(0);
-    //     totalSignatures  = 0;
-    //     for (uint256 i; i < governors.length; i++) {
-    //         hasSigned[governors[i]] = false;
-    //     }
-    // }
 }

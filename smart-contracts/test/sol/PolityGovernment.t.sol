@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '../../contracts/polity/PolityGovernment.sol';
+import '../../contracts/polity/CitizenRegistry.sol';
 import 'forge-std/Test.sol';
 
 contract MockUUPS {
@@ -9,6 +10,7 @@ contract MockUUPS {
 }
 
 contract PolityGovernmentTest is Test {
+    CitizenRegistry registry;
     PolityGovernment polity;
     MockUUPS proxy;
 
@@ -20,10 +22,15 @@ contract PolityGovernmentTest is Test {
     address newRule;
 
     function setUp() public {
+        registry = new CitizenRegistry();
+
         initGovernor = address(0x1);
         proxy = new MockUUPS();
         vm.prank(initGovernor);
         polity = new PolityGovernment(1);
+
+        vm.prank(initGovernor);
+        polity.setCitizenRegistry(address(registry));
     }
 
     function testAddGovernor() public {
@@ -144,6 +151,15 @@ contract PolityGovernmentTest is Test {
         string[] memory levels = polity.getLawLevels();
         assertEq(levels.length, 1);
         assertEq(levels[0], 'constitution');
+    }
+
+    function testListGovernanceModules() public {
+        // call the view function
+        PolityGovernment.GovernanceModuleView[] memory modules = polity.listGovernanceModules();
+
+        assertEq(modules.length, 1);
+        assertEq(modules[0].moduleAddress, address(registry));
+        assertEq(modules[0].name, 'CitizenRegistry');
     }
 
     // function testApproveAndTriggerUpgrade() public {
