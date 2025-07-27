@@ -1,28 +1,31 @@
 import ListImmigrates from "./immigrates/ListImmigrates";
 import Application from "./immigrates/Applications";
 import { useReadContract } from "wagmi";
-import { baseGovernanceAbi } from "../generated";
+import { polityGovernmentAbi } from "../generated";
 
-function Immigrate({
-  contractAddress,
+function Immigrates({
+  govAddress,
   userAddress,
 }: {
-  contractAddress: `0x${string}`;
+  govAddress: `0x${string}`;
   userAddress: `0x${string}`;
 }) {
   const { data: isGovernor } = useReadContract({
-    address: contractAddress,
-    abi: baseGovernanceAbi,
+    address: govAddress,
+    abi: polityGovernmentAbi,
     functionName: "isGovernor",
     args: [userAddress],
   });
 
+  console.log("zxcvzxcv");
+  console.log(isGovernor);
+
   return (
     <>
       {isGovernor && <Application />}
-      <ListImmigrates />
+      <ListImmigrates govAddress={govAddress} />
     </>
   );
 }
 
-export default Immigrate;
+export default Immigrates;
