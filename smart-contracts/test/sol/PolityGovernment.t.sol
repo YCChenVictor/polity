@@ -21,6 +21,8 @@ contract PolityGovernmentTest is Test {
     address newImpl;
     address newRule;
 
+    address citizen;
+
     function setUp() public {
         registry = new CitizenRegistry();
 
@@ -160,6 +162,15 @@ contract PolityGovernmentTest is Test {
         assertEq(modules.length, 1);
         assertEq(modules[0].moduleAddress, address(registry));
         assertEq(modules[0].name, 'CitizenRegistry');
+    }
+
+    function testGetCitizens() public {
+        vm.prank(initGovernor);
+        polity.registerCitizen(citizen);
+
+        vm.prank(initGovernor);
+        ICitizenRegistry.Citizen[] memory list = polity.getCitizens();
+        assertEq(list[0].wallet, citizen);
     }
 
     // function testApproveAndTriggerUpgrade() public {
