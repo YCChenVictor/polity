@@ -36,14 +36,15 @@
     "test:coverage": "yarn test:hardhat:coverage && yarn test:forge:coverage",
     "test:forge": "forge test -vvv",
     "test:forge:coverage": "clear && forge coverage --report lcov && genhtml --ignore-errors inconsistent,corrupt --branch-coverage -o report lcov.info && open report/index.html",
-    "test:hardhat": "hardhat test",
-    "test:hardhat:coverage": "hardhat coverage",
+    "test:hardhat": "NODE_ENV=test hardhat test",
+    "test:hardhat:coverage": "NODE_ENV=test hardhat coverage",
     "format": "prettier --write 'contracts/**/*' 'test/**/*'",
     "format:check": "prettier --check 'contracts/**/*.sol' 'test/**/*.ts'"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.3.0",
     "@openzeppelin/contracts-upgradeable": "^5.3.0",
-    "@openzeppelin/hardhat-upgrades": "^3.9.0"
+    "@openzeppelin/hardhat-upgrades": "^3.9.0",
+    "dotenv": "^17.2.1"
   }
 }
