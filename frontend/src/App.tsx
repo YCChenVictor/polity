@@ -1,6 +1,7 @@
 import { useAccount } from "wagmi";
 import ConnectButton from "./features/ConnectButton";
 import React, { useState } from "react";
+import Governance from "./features/Governance";
 import Rules from "./features/Rules";
 import Governors from "./features/Governors";
 import Immigrates from "./features/Immigrates";
@@ -44,6 +45,16 @@ function App({
             Refresh Bills
           </button>
           <nav className="flex space-x-4 px-6 py-2 bg-white border-b">
+            <button
+              onClick={() => setTab("governance")}
+              className={`pb-2 ${
+                tab === "governance"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600"
+              }`}
+            >
+              Governance
+            </button>
             <button
               onClick={() => setTab("rules")}
               className={`pb-2 ${
@@ -117,6 +128,9 @@ function App({
           </nav>
 
           <main className="p-6">
+            {tab === "governance" && (
+              <Governance govAddress={governmentAddress} />
+            )}
             {tab === "governor" && <Governors address={governmentAddress} />}
             {tab === "rules" && <Rules govAddress={governmentAddress} />}
             {tab === "on-chain-bills" && (
@@ -128,7 +142,7 @@ function App({
             {tab === "citizens" && <Citizens />}
             {tab === "immigrates" && (
               <Immigrates
-                contractAddress={governmentAddress}
+                govAddress={governmentAddress}
                 userAddress={userAddress}
               />
             )}
