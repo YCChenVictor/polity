@@ -1,6 +1,7 @@
 import { useReadContract, useWriteContract } from "wagmi";
 import { polityGovernmentAbi } from "../generated";
 import { useState } from "react";
+import CheckContractDeployment from "./governance/Government";
 
 interface GovernanceModuleView {
   name: string;
@@ -37,6 +38,8 @@ function Governance({ govAddress }: { govAddress: `0x${string}` }) {
 
   return (
     <div className="p-4 space-y-4">
+      <h2 className="text-xl font-bold">Government Address</h2>
+      <CheckContractDeployment />
       <h2 className="text-xl font-bold">Governance Modules</h2>
 
       {readLoading && <p>Loading...</p>}
