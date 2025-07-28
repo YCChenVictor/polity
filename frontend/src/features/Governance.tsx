@@ -10,10 +10,16 @@ interface GovernanceModuleView {
 
 function Governance({ govAddress }: { govAddress: `0x${string}` }) {
   const [newAddress, setNewAddress] = useState<`0x${string}`>("0x");
+  const { data: isGovernor } = useReadContract({
+    address: govAddress,
+    abi: polityGovernmentAbi,
+    functionName: "isGovernor",
+    args: [process.env.REACT_APP_GOVERNOR_ADDRESS as `0x${string}`],
+  });
   const {
     data: modules,
-    isLoading: readLoading,
-    error: readError,
+    isLoading: loadingModules,
+    error: errorModules,
   } = useReadContract({
     address: govAddress,
     abi: polityGovernmentAbi,
@@ -40,10 +46,13 @@ function Governance({ govAddress }: { govAddress: `0x${string}` }) {
     <div className="p-4 space-y-4">
       <h2 className="text-xl font-bold">Government Address</h2>
       <CheckContractDeployment />
+      <h2 className="text-xl font-bold">
+        {isGovernor ? "You are a Governor" : "You are NOT a Governor"}
+      </h2>
       <h2 className="text-xl font-bold">Governance Modules</h2>
 
-      {readLoading && <p>Loading...</p>}
-      {readError && <p className="text-red-500">Error loading modules</p>}
+      {loadingModules && <p>Loading...</p>}
+      {errorModules && <p className="text-red-500">Error loading modules</p>}
       {modules && (
         <ul className="space-y-2">
           {(modules as GovernanceModuleView[])?.map((m, i) => (
