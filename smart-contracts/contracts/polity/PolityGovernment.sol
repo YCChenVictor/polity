@@ -6,8 +6,13 @@ import './BillProposalSystem.sol';
 import './CodeProposalSystem.sol';
 
 interface ICitizenRegistry {
+    struct Citizen {
+        address wallet;
+    }
+
     function createCitizen(address wallet) external;
     function isCitizen(address wallet) external view returns (bool);
+    function readCitizens() external view returns (Citizen[] memory);
 }
 
 contract PolityGovernment is
@@ -36,6 +41,11 @@ contract PolityGovernment is
     function registerCitizen(address wallet) external onlyGovernor {
         require(citizenRegistry != address(0), 'Module not set');
         ICitizenRegistry(citizenRegistry).createCitizen(wallet);
+    }
+
+    function getCitizens() external view onlyGovernor returns (ICitizenRegistry.Citizen[] memory) {
+        require(citizenRegistry != address(0), 'Module not set');
+        return ICitizenRegistry(citizenRegistry).readCitizens();
     }
 
     function listGovernanceModules() external view returns (GovernanceModuleView[] memory views) {

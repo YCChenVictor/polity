@@ -22,11 +22,11 @@ contract CitizenRegistry {
     //     return citizens[wallet].wallet != address(0);
     // }
 
-    // function getAllCitizens() external view returns (Citizen[] memory) {
-    //     Citizen[] memory list = new Citizen[](citizenList.length);
-    //     for (uint i = 0; i < citizenList.length; i++) {
-    //         list[i] = citizens[citizenList[i]];
-    //     }
-    //     return list;
-    // }
+    function readCitizens() external view returns (Citizen[] memory) {
+        Citizen[] memory list = new Citizen[](citizenList.length);
+        for (uint i = 0; i < citizenList.length; i++) {
+            list[i] = citizens[citizenList[i]];
+        }
+        return list;
+    }
 }
