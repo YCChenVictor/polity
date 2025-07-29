@@ -6,7 +6,7 @@ function CheckContractDeployment() {
   const publicClient = usePublicClient();
 
   const contractAddress = process.env
-    .REACT_APP_GOVERNOR_ADDRESS as `0x${string}`;
+    .REACT_APP_GOVERNMENT_ADDRESS as `0x${string}`;
 
   if (!contractAddress) {
     throw new Error("No REACT_APP_GOVERNMENT_ADDRESS");
@@ -14,7 +14,6 @@ function CheckContractDeployment() {
 
   useEffect(() => {
     const checkDeployment = async () => {
-      // Ensure publicClient is defined
       if (!publicClient) {
         console.error("Public client is not available.");
         return;
@@ -22,7 +21,7 @@ function CheckContractDeployment() {
 
       try {
         const code = await publicClient.getCode({ address: contractAddress });
-        setIsDeployed(code !== "0x");
+        setIsDeployed(code !== undefined && code !== "0x");
       } catch (error) {
         console.error("Error checking deployment:", error);
         setIsDeployed(false);
