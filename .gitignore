@@ -1,3 +1,17 @@
+node_modules/
+dist/
+.env
+
+dist/
+
+.env
+
+coverage/
+
+generated.ts
+
+tmp/
+
 node_modules
 .env
 
@@ -17,3 +31,11 @@ lcov.info
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+
+smart-contracts/lib/
+
+smart-contracts/artifacts/
+smart-contracts/cache/
+smart-contracts/coverage.json
+smart-contracts/typechain-types/
+
