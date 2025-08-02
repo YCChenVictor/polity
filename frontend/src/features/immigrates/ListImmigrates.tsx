@@ -23,7 +23,7 @@ function ListImmigrates({ govAddress }: { govAddress: `0x${string}` }) {
       await writeContractAsync({
         address: govAddress,
         abi: polityGovernmentAbi,
-        functionName: "registerCitizen",
+        functionName: "createCitizen",
         args: [wallet],
       });
       alert("Created as citizen");

@@ -16,7 +16,7 @@ function ListCitizens({ govAddress }: { govAddress: `0x${string}` }) {
   } = useReadContract({
     address: govAddress,
     abi: polityGovernmentAbi,
-    functionName: "getCitizens",
+    functionName: "readCitizens",
   });
 
   useEffect(() => {

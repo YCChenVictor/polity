@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import './BaseGovernance.sol';
 
-abstract contract GovernorProposalSystem is BaseGovernance {
+contract GovernorProposalSystem {
     struct GovernorProposal {
         address proposed;
         uint256 votes;
@@ -27,7 +27,7 @@ abstract contract GovernorProposalSystem is BaseGovernance {
     event GovernorAdded(address indexed newGovernor);
 
     // Create
-    function proposeGovernor(address newGovernor) external onlyGovernor {
+    function proposeGovernor(address newGovernor) external {
         require(!isGovernorProposed[newGovernor], 'Governor already proposed');
         uint256 id = governorProposalCount++;
         GovernorProposal storage p = governorProposals[id];
@@ -47,24 +47,24 @@ abstract contract GovernorProposalSystem is BaseGovernance {
     }
 
     // Update
-    function voteGovernor(uint256 id) external onlyGovernor {
-        GovernorProposal storage p = governorProposals[id];
-        require(!p.executed, 'Already executed');
-        require(!p.hasVoted[msg.sender], 'Already voted');
-        p.hasVoted[msg.sender] = true;
-        p.votes += 1;
-        emit GovernorVoteCast(id, msg.sender, p.votes);
-        if (p.votes >= getRequiredSignatures()) {
-            _executeAddGovernor(id);
-        }
-    }
+    // function voteGovernor(uint256 id) external {
+    //     GovernorProposal storage p = governorProposals[id];
+    //     require(!p.executed, 'Already executed');
+    //     require(!p.hasVoted[msg.sender], 'Already voted');
+    //     p.hasVoted[msg.sender] = true;
+    //     p.votes += 1;
+    //     emit GovernorVoteCast(id, msg.sender, p.votes);
+    //     if (p.votes >= getRequiredSignatures()) {
+    //         _executeAddGovernor(id);
+    //     }
+    // }
 
-    function _executeAddGovernor(uint256 id) internal {
-        GovernorProposal storage p = governorProposals[id];
-        require(!p.executed, 'Already executed');
-        require(p.votes >= getRequiredSignatures(), 'Not enough votes');
-        p.executed = true;
-        governors.push(p.proposed);
-        emit GovernorAdded(p.proposed);
-    }
+    // function _executeAddGovernor(uint256 id) internal {
+    //     GovernorProposal storage p = governorProposals[id];
+    //     require(!p.executed, 'Already executed');
+    //     require(p.votes >= getRequiredSignatures(), 'Not enough votes');
+    //     p.executed = true;
+    //     governors.push(p.proposed);
+    //     emit GovernorAdded(p.proposed);
+    // }
 }
