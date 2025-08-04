@@ -1,7 +1,8 @@
-import { useReadContract, useWriteContract } from "wagmi";
+import { useReadContract } from "wagmi";
 import { polityGovernmentAbi } from "../generated";
-import { useState } from "react";
 import CheckContractDeployment from "./governance/Government";
+import SetCitizenRegistry from "./governance/SetCitizenRegistry";
+import SetGovernorProposalSystem from "./governance/SetGovernorProposalSystem";
 
 interface GovernanceModuleView {
   name: string;
@@ -9,13 +10,13 @@ interface GovernanceModuleView {
 }
 
 function Governance({ govAddress }: { govAddress: `0x${string}` }) {
-  const [newAddress, setNewAddress] = useState<`0x${string}`>("0x");
   const { data: isGovernor } = useReadContract({
     address: govAddress,
     abi: polityGovernmentAbi,
     functionName: "isGovernor",
     args: [process.env.REACT_APP_GOVERNOR_ADDRESS as `0x${string}`],
   });
+
   const {
     data: modules,
     isLoading: loadingModules,
@@ -25,22 +26,6 @@ function Governance({ govAddress }: { govAddress: `0x${string}` }) {
     abi: polityGovernmentAbi,
     functionName: "listGovernanceModules",
   });
-
-  const {
-    writeContract,
-    isPending,
-    error: writeError,
-    isSuccess,
-  } = useWriteContract();
-
-  const handleSet = () => {
-    writeContract({
-      address: govAddress,
-      abi: polityGovernmentAbi,
-      functionName: "setCitizenRegistry",
-      args: [newAddress],
-    });
-  };
 
   return (
     <div className="p-4 space-y-4">
@@ -63,23 +48,8 @@ function Governance({ govAddress }: { govAddress: `0x${string}` }) {
         </ul>
       )}
 
-      <div className="pt-4">
-        <input
-          value={newAddress}
-          onChange={(e) => setNewAddress(e.target.value as `0x${string}`)}
-          placeholder="New CitizenRegistry address"
-          className="p-2 border rounded w-full mb-2"
-        />
-        <button
-          onClick={handleSet}
-          disabled={isPending}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          {isPending ? "Setting..." : "Set Citizen Registry"}
-        </button>
-        {isSuccess && <p className="text-green-500">Set successfully.</p>}
-        {writeError && <p className="text-red-500">Transaction failed.</p>}
-      </div>
+      <SetCitizenRegistry govAddress={govAddress} />
+      <SetGovernorProposalSystem govAddress={govAddress} />
     </div>
   );
 }

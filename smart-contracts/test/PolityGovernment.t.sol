@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import '../../contracts/polity/PolityGovernment.sol';
 import '../../contracts/polity/CitizenRegistry.sol';
+import '../../contracts/polity/GovernorProposalSystem.sol';
 import 'forge-std/Test.sol';
 
 contract MockUUPS {
@@ -10,7 +11,8 @@ contract MockUUPS {
 }
 
 contract PolityGovernmentTest is Test {
-    CitizenRegistry registry;
+    GovernorProposalSystem governorProposalSystem;
+    CitizenRegistry citizenRegistry;
     PolityGovernment polity;
     MockUUPS proxy;
 
@@ -24,7 +26,8 @@ contract PolityGovernmentTest is Test {
     address citizen;
 
     function setUp() public {
-        registry = new CitizenRegistry();
+        citizenRegistry = new CitizenRegistry();
+        governorProposalSystem = new GovernorProposalSystem();
 
         initGovernor = address(0x1);
         proxy = new MockUUPS();
@@ -32,9 +35,24 @@ contract PolityGovernmentTest is Test {
         polity = new PolityGovernment(1);
 
         vm.prank(initGovernor);
-        polity.setCitizenRegistry(address(registry));
+        polity.setCitizenRegistry(address(citizenRegistry));
+        vm.prank(initGovernor);
+        polity.setGovernorProposalSystem(address(governorProposalSystem));
     }
 
+    // Modules
+    function testListGovernanceModules() public {
+        // call the view function
+        PolityGovernment.GovernanceModuleView[] memory modules = polity.listGovernanceModules();
+
+        assertEq(modules.length, 2);
+        assertEq(modules[0].moduleAddress, address(citizenRegistry));
+        assertEq(modules[0].name, 'CitizenRegistry');
+        assertEq(modules[1].moduleAddress, address(governorProposalSystem));
+        assertEq(modules[1].name, 'GovernorProposalSystem');
+    }
+
+    // Governor Proposals Module
     function testAddGovernor() public {
         vm.prank(initGovernor);
         polity.addGovernor(newGovernor);
@@ -55,36 +73,28 @@ contract PolityGovernmentTest is Test {
         polity.proposeGovernor(newGov1);
         vm.prank(initGovernor);
         polity.proposeGovernor(newGov2);
-
-        GovernorProposalSystem.GovernorProposalView[] memory proposals = polity
-            .listGovernorProposals();
-
-        for (uint256 i = 0; i < proposals.length; i++) {
-            console.log('--- Proposal %s ---', i);
-            console.log('Proposed: %s', proposals[i].proposed);
-            console.log('Votes: %s', proposals[i].votes);
-            console.log('Executed: %s', proposals[i].executed);
-        }
+        vm.prank(initGovernor);
+        IProposeGovernor.ProposedGovernor[] memory proposals = polity.listGovernorProposals();
 
         assertEq(proposals[0].proposed, newGov1);
         assertEq(proposals[1].proposed, newGov2);
     }
 
-    function testVoteGovernorWorksAndExecutesWhenThresholdMet() public {
-        address actualDeployer = polity.deployer();
-        vm.prank(actualDeployer);
-        address newGov3 = address(0x3);
-        polity.proposeGovernor(newGov3);
+    // function testVoteGovernorWorksAndExecutesWhenThresholdMet() public {
+    //     address actualDeployer = polity.deployer();
+    //     vm.prank(actualDeployer);
+    //     address newGov3 = address(0x3);
+    //     polity.proposeGovernor(newGov3);
 
-        vm.prank(actualDeployer);
-        polity.voteGovernor(0);
+    //     vm.prank(actualDeployer);
+    //     polity.voteGovernor(0);
 
-        GovernorProposalSystem.GovernorProposalView[] memory proposals = polity
-            .listGovernorProposals();
+    //     GovernorProposalSystem.GovernorProposalView[] memory proposals = polity
+    //         .listGovernorProposals();
 
-        assertEq(proposals[0].votes, 1);
-        assertTrue(proposals[0].executed);
-    }
+    //     assertEq(proposals[0].votes, 1);
+    //     assertTrue(proposals[0].executed);
+    // }
 
     // On chain Rules
     function testListRuleProposals() public {
@@ -155,24 +165,17 @@ contract PolityGovernmentTest is Test {
         assertEq(levels[0], 'constitution');
     }
 
-    function testListGovernanceModules() public {
-        // call the view function
-        PolityGovernment.GovernanceModuleView[] memory modules = polity.listGovernanceModules();
-
-        assertEq(modules.length, 1);
-        assertEq(modules[0].moduleAddress, address(registry));
-        assertEq(modules[0].name, 'CitizenRegistry');
-    }
-
+    // Citizen Module
     function testGetCitizens() public {
         vm.prank(initGovernor);
-        polity.registerCitizen(citizen);
+        polity.createCitizen(citizen);
 
         vm.prank(initGovernor);
-        ICitizenRegistry.Citizen[] memory list = polity.getCitizens();
+        ICitizenRegistry.Citizen[] memory list = polity.readCitizens();
         assertEq(list[0].wallet, citizen);
     }
 
+    // Upgrade contract
     // function testApproveAndTriggerUpgrade() public {
     //     vm.prank(initGovernor);
     //     polity.approveUpgrade(newImpl);

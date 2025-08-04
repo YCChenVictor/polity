@@ -129,13 +129,13 @@ function ProposalList({ address }: { address: `0x${string}` }) {
     </>
   );
 
-  function handleClick(id: number) {
-    writeContract({
-      address,
-      abi: polityGovernmentAbi,
-      functionName: "voteGovernor",
-      args: [BigInt(id)],
-    });
+  function handleClick() {
+    // writeContract({
+    //   address,
+    //   abi: polityGovernmentAbi,
+    //   functionName: "voteGovernor",
+    //   args: [BigInt(id)],
+    // });
   }
 
   function handleAddGovernor() {
