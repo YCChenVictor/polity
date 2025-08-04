@@ -6,10 +6,11 @@ import './CodeProposalSystem.sol';
 
 interface ICitizenRegistry {
     struct Citizen {
+        uint8 reasonCode;
         address wallet;
     }
 
-    function createCitizen(address wallet) external;
+    function createCitizen(address wallet, uint8 reasonCode) external;
     function isCitizen(address wallet) external view returns (bool);
     function readCitizens() external view returns (Citizen[] memory);
 }
@@ -56,9 +57,9 @@ contract PolityGovernment is BaseGovernance, RuleProposalSystem, OffChainRulePro
         citizenRegistry = _addr;
     }
 
-    function createCitizen(address wallet) external onlyGovernor {
+    function createCitizen(address wallet, uint8 reasonCode) external onlyGovernor {
         require(citizenRegistry != address(0), 'Citizen Registry Module not set');
-        ICitizenRegistry(citizenRegistry).createCitizen(wallet);
+        ICitizenRegistry(citizenRegistry).createCitizen(wallet, reasonCode);
     }
 
     function readCitizens() external view onlyGovernor returns (ICitizenRegistry.Citizen[] memory) {

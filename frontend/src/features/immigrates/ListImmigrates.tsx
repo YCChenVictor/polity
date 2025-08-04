@@ -18,13 +18,13 @@ function ListImmigrates({ govAddress }: { govAddress: `0x${string}` }) {
       .catch(console.error);
   }, []);
 
-  const handleCreate = async (wallet: `0x${string}`) => {
+  const handleCreate = async (wallet: `0x${string}`, reason: number) => {
     try {
       await writeContractAsync({
         address: govAddress,
         abi: polityGovernmentAbi,
         functionName: "createCitizen",
-        args: [wallet],
+        args: [wallet, reason],
       });
       alert("Created as citizen");
     } catch (err) {
@@ -47,7 +47,7 @@ function ListImmigrates({ govAddress }: { govAddress: `0x${string}` }) {
             </p>
             <button
               disabled={isPending}
-              onClick={() => handleCreate(item.wallet_address)}
+              onClick={() => handleCreate(item.wallet_address, 1)} // Fix the reason numbering
               className="mt-2 px-3 py-1 bg-green-600 text-white rounded"
             >
               {isPending ? "Submitting..." : "Create as Citizen"}
