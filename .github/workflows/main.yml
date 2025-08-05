@@ -22,6 +22,21 @@ jobs:
     - name: Run tests
       run: yarn test:fix
 
+  backend:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Install dependencies
+      run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
+    - name: Lint Code
+      run: yarn lint
+
   smart-contracts:
     runs-on: ubuntu-24.04
     defaults:
