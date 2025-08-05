@@ -23,7 +23,7 @@ contract PolityGovernmentTest is Test {
     address newImpl;
     address newRule;
 
-    address citizen;
+    address citizen = address(0x22);
 
     function setUp() public {
         citizenRegistry = new CitizenRegistry();
@@ -168,11 +168,14 @@ contract PolityGovernmentTest is Test {
     // Citizen Module
     function testGetCitizens() public {
         vm.prank(initGovernor);
-        polity.createCitizen(citizen);
+        polity.createCitizen(citizen, 1);
 
         vm.prank(initGovernor);
         ICitizenRegistry.Citizen[] memory list = polity.readCitizens();
+
+        assertEq(list.length, 1);
         assertEq(list[0].wallet, citizen);
+        assertEq(list[0].reasonCode, 1);
     }
 
     // Upgrade contract

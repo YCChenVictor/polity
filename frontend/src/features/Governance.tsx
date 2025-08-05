@@ -3,13 +3,20 @@ import { polityGovernmentAbi } from "../generated";
 import CheckContractDeployment from "./governance/Government";
 import SetCitizenRegistry from "./governance/SetCitizenRegistry";
 import SetGovernorProposalSystem from "./governance/SetGovernorProposalSystem";
+import { useEffect } from "react";
 
 interface GovernanceModuleView {
   name: string;
   moduleAddress: `0x${string}`;
 }
 
-function Governance({ govAddress }: { govAddress: `0x${string}` }) {
+function Governance({
+  govAddress,
+  onSetupComplete,
+}: {
+  govAddress: `0x${string}`;
+  onSetupComplete: () => void;
+}) {
   const { data: isGovernor } = useReadContract({
     address: govAddress,
     abi: polityGovernmentAbi,
@@ -26,6 +33,12 @@ function Governance({ govAddress }: { govAddress: `0x${string}` }) {
     abi: polityGovernmentAbi,
     functionName: "listGovernanceModules",
   });
+
+  useEffect(() => {
+    if (modules && !loadingModules && !errorModules) {
+      onSetupComplete();
+    }
+  }, [modules, loadingModules, errorModules, onSetupComplete]);
 
   return (
     <div className="p-4 space-y-4">

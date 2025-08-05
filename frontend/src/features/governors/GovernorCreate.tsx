@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useReadContracts, useWriteContract } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
 
-function ProposalList({ address }: { address: `0x${string}` }) {
+function CreateGovernor({ address }: { address: `0x${string}` }) {
   const [newGovAddress, setNewGovAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -12,6 +12,11 @@ function ProposalList({ address }: { address: `0x${string}` }) {
     error: readError,
   } = useReadContracts({
     contracts: [
+      {
+        address,
+        abi: polityGovernmentAbi,
+        functionName: "readCitizens",
+      },
       {
         address,
         abi: polityGovernmentAbi,
@@ -25,10 +30,6 @@ function ProposalList({ address }: { address: `0x${string}` }) {
     ],
   });
 
-  const proposals = data?.[0]?.result;
-  const threshold = data?.[1]?.result;
-
-  // Write transaction
   const {
     writeContract,
     isPending,
@@ -37,13 +38,21 @@ function ProposalList({ address }: { address: `0x${string}` }) {
     error: writeError,
   } = useWriteContract();
 
-  if (isLoading) return <p>Loading governors...</p>;
-  if (readError)
+  // const citizens = data?.[0]?.result;
+  const proposals = data?.[1]?.result;
+  const signatureThreshold = data?.[2]?.result;
+
+  if (isLoading) {
+    return <p>Loading governors...</p>;
+  }
+
+  if (readError) {
     return <p className="text-red-500">Read Error: {readError.message}</p>;
+  }
 
   return (
     <>
-      <>Passing Threshold: {threshold} Votes</>
+      <>Passing Threshold: {signatureThreshold} Votes</>
       <div className="flex justify-between items-center mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"
@@ -55,34 +64,33 @@ function ProposalList({ address }: { address: `0x${string}` }) {
       </div>
 
       <ul className="space-y-4">
-        {proposals &&
-          proposals.map((p, i) => (
-            <li
-              key={i}
-              className="border rounded-2xl p-4 shadow hover:shadow-md transition"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div className="text-sm text-gray-800">
-                  <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
-                  <code className="bg-gray-100 px-1 py-0.5 rounded">
-                    {p.proposed}
-                  </code>{" "}
-                  &bull; Votes: {p.votes} &bull; Executed:{" "}
-                  <span
-                    className={p.executed ? "text-green-600" : "text-red-600"}
-                  >
-                    {p.executed ? "Yes" : "No"}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleClick(i)}
-                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+        {proposals?.map((p, i) => (
+          <li
+            key={i}
+            className="border rounded-2xl p-4 shadow hover:shadow-md transition"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="text-sm text-gray-800">
+                <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
+                <code className="bg-gray-100 px-1 py-0.5 rounded">
+                  {p.proposed}
+                </code>{" "}
+                &bull; Votes: {p.votes} &bull; Executed:{" "}
+                <span
+                  className={p.executed ? "text-green-600" : "text-red-600"}
                 >
-                  Vote It
-                </button>
+                  {p.executed ? "Yes" : "No"}
+                </span>
               </div>
-            </li>
-          ))}
+              <button
+                onClick={() => handleVote(i)}
+                className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Vote It
+              </button>
+            </div>
+          </li>
+        ))}
       </ul>
 
       {modalOpen && (
@@ -129,7 +137,7 @@ function ProposalList({ address }: { address: `0x${string}` }) {
     </>
   );
 
-  function handleClick() {
+  function handleVote() {
     // writeContract({
     //   address,
     //   abi: polityGovernmentAbi,
@@ -148,4 +156,4 @@ function ProposalList({ address }: { address: `0x${string}` }) {
   }
 }
 
-export default ProposalList;
+export default CreateGovernor;

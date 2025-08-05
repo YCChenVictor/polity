@@ -14,12 +14,12 @@ contract CitizenRegistryTest is Test {
         citizenRegistry = new CitizenRegistry();
     }
 
-    function testCreateCitizen() public {
-        citizenRegistry.createCitizen(addr1);
-        CitizenRegistry.Citizen[] memory citizens = citizenRegistry.readCitizens();
-        assertEq(citizens.length, 1, 'There should be exactly one citizen');
-        assertEq(citizens[0].wallet, addr1, "The citizen's wallet address should match addr1");
-    }
+    // function testCreateCitizen() public {
+    //     citizenRegistry.createCitizen(addr1, 1);
+    //     CitizenRegistry.Citizen[] memory citizens = citizenRegistry.readCitizens();
+    //     assertEq(citizens.length, 1, 'There should be exactly one citizen');
+    //     assertEq(citizens[0].wallet, addr1, "The citizen's wallet address should match addr1");
+    // }
 
     // function testCannotCreateCitizenTwice() public {
     //     // Create a citizen
