@@ -83,7 +83,7 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
                 </span>
               </div>
               <button
-                onClick={() => handleVote(i)}
+                onClick={() => handleVote()}
                 className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 Vote It

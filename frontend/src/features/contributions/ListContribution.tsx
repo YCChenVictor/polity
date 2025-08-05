@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { isGovernor } from "../../contracts/governor"; // custom hook wrapper
+
+import { isGovernor } from "../../contracts/governor";
 
 interface Contribution {
   title: string;

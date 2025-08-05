@@ -1,9 +1,13 @@
 import { useReadContract } from "wagmi";
+import { useEffect } from "react";
+
 import { polityGovernmentAbi } from "../generated";
+
 import CheckContractDeployment from "./governance/Government";
 import SetCitizenRegistry from "./governance/SetCitizenRegistry";
 import SetGovernorProposalSystem from "./governance/SetGovernorProposalSystem";
-import { useEffect } from "react";
+
+import { isGovernor } from "../contracts/governor";
 
 interface GovernanceModuleView {
   name: string;
@@ -50,7 +54,11 @@ function Governance({
       <h2 className="text-xl font-bold">Governance Modules</h2>
 
       {loadingModules && <p>Loading...</p>}
-      {errorModules && <p className="text-red-500">Error loading modules</p>}
+      {errorModules && (
+        <p className="text-red-500">
+          Error loading modules: {errorModules.message}
+        </p>
+      )}
       {modules && (
         <ul className="space-y-2">
           {(modules as GovernanceModuleView[])?.map((m, i) => (
@@ -61,8 +69,12 @@ function Governance({
         </ul>
       )}
 
-      <SetCitizenRegistry govAddress={govAddress} />
-      <SetGovernorProposalSystem govAddress={govAddress} />
+      {isGovernor && (
+  <>
+    <SetCitizenRegistry govAddress={govAddress} />
+    <SetGovernorProposalSystem govAddress={govAddress} />
+  </>
+)}
     </div>
   );
 }
