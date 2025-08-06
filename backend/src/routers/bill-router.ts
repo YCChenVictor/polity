@@ -1,5 +1,6 @@
+import axios from "axios";
 import express from "express";
-import bills from '../data/bills.json';
+// import bills from '../data/bills.json';
 // import axios from "axios"
 
 const billRouter = express.Router();
@@ -20,7 +21,8 @@ const billsJSON: { [key: string]: Bill } = {};
 // source https://v2.ly.govapi.tw/bills`
 billRouter.get("/", async (req, res) => {
   try {
-    res.json(bills);
+    const response = await axios.get('https://v2.ly.govapi.tw/bills');
+    res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: `Failed to fetch legislator data: ${err}` });
   }
@@ -33,7 +35,7 @@ billRouter.post("/", async (req, res) => {
     // const response = await axios.get<{ bills: any[] }>('https://v2.ly.govapi.tw/bills');
     // const bills = response.data.bills; // The actual bills array
 
-    console.log(bills); // Log the bills array to the console for debugging
+    console.log({}); // Log the bills array to the console for debugging
 
     // Process each bill and store it in the in-memory JSON object
     // bills.forEach((bill) => {
