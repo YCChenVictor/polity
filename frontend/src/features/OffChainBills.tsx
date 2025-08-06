@@ -4,8 +4,10 @@ import Bill from "./bills/Bill";
 function Bills({ governmentAddress }: { governmentAddress: `0x${string}` }) {
   const [bills, setBills] = useState<[]>([]);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}/bills`)
+    fetch(`${backendUrl}/bills`)
       .then((res) => res.json())
       .then((data) => setBills(data.bills))
       .catch((err) => console.error("Fetch error:", err));

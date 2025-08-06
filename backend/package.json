@@ -23,7 +23,10 @@
   "scripts": {
     "build": "tsc && tsc-alias",
     "lint": "yarn eslint .",
-    "dev": "ts-node-dev --respawn src/index.ts",
+    "dev": "NODE_ENV=dev yarn start:debug",
+    "db:migrate:dev": "NODE_ENV=dev yarn db:migrate",
+    "db:migrate": "sequelize db:migrate",
+    "start:debug": "yarn build && node --inspect=0.0.0.0 dist/server.js --experimental-modules",
     "format:json": "yarn build && node dist/scripts/json-formatter.js"
   }
 }
