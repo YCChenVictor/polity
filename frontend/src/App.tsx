@@ -1,5 +1,6 @@
 import { useAccount } from "wagmi";
 import React, { useState } from "react";
+
 import ConnectButton from "./features/ConnectButton";
 import Governance from "./features/Governance";
 import Rules from "./features/Rules";
@@ -8,9 +9,11 @@ import Immigrates from "./features/Immigrates";
 import Contribution from "./features/Contribution";
 import Citizens from "./features/Citizens";
 import OffChainBills from "./features/OffChainBills";
+import Events from "./features/Events";
 import OnChainProposals from "./features/OnChainProposals";
 
 const steps = [
+  { key: "events", label: "Events" },
   { key: "governance", label: "Governance" },
   { key: "governor", label: "Governors", dependsOn: "governance" },
   { key: "immigrates", label: "Immigrates", dependsOn: "governor" },
@@ -108,6 +111,7 @@ function App({
             {tab === "off-chain-bills" && (
               <OffChainBills governmentAddress={governmentAddress} />
             )}
+            {tab === "events" && <Events />}
             {tab === "contributions" && <Contribution />}
           </main>
         </div>

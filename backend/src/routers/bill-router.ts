@@ -15,7 +15,7 @@ interface Bill {
 }
 
 
-const billsJSON: { [key: string]: Bill } = {};
+const billsJSON: Record<string, Bill> = {};
 
 // Let's do the MVP first
 // source https://v2.ly.govapi.tw/bills`
