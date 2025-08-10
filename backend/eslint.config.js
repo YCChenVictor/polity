@@ -1,5 +1,6 @@
 import eslint from '@eslint/js';
 import tseslint from "typescript-eslint";
+import prettierPlugin from "eslint-plugin-prettier";
 
 export default [
   eslint.configs.recommended,
@@ -15,5 +16,10 @@ export default [
       'tsconfig.json',
       "**/patch/**",
     ],
+  },
+  {
+    plugins: {
+      prettier: prettierPlugin,
+    },
   },
 ]

@@ -38,8 +38,7 @@
     "test:fix": "yarn test --bail",
     "test:coverage": "yarn test --coverage --verbose",
     "build": "tsc && tsc-alias",
-    "eslint:fix": "eslint . --fix",
-    "format": "yarn eslint:fix",
+    "format": "yarn eslint . --fix",
     "format:json": "yarn build && node dist/scripts/json-formatter.js"
   },
   "browserslist": {

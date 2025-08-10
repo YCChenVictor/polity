@@ -10,6 +10,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "openai": "^5.12.2",
     "pg": "^8.16.3",
     "sequelize": "^6.37.7"
   },
@@ -18,6 +19,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "eslint": "^9.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
     "sequelize-cli": "^6.6.3",
     "ts-node-dev": "^2.0.0",
@@ -29,6 +31,7 @@
     "build": "tsc && tsc-alias",
     "lint": "yarn eslint .",
     "dev": "NODE_ENV=dev yarn start:debug",
+    "format": "yarn eslint . --fix",
     "db:migrate:dev": "NODE_ENV=dev yarn db:migrate",
     "db:migrate": "sequelize db:migrate --debug",
     "start:debug": "yarn build && node --inspect=0.0.0.0 dist/server.js --experimental-modules",

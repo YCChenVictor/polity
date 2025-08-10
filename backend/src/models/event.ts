@@ -8,6 +8,8 @@ interface EventAttributes {
   actor: string;
   date: string;
   status: string;
+  verdict?: string;
+  reason?: string;
 }
 
 type CreateEventAttributes = Optional<EventAttributes, "id">;
@@ -46,6 +48,18 @@ const Event: EventModelStatic = sequelize.define(
     status: {
       type: DataTypes.STRING,
       defaultValue: "pending",
+    },
+    verdict: {
+      type: DataTypes.STRING,
+    },
+    reason: {
+      type: DataTypes.TEXT,
+    },
+    confidence: {
+      type: DataTypes.FLOAT,
+    },
+    analysis: {
+      type: DataTypes.JSONB,
     },
   },
   {
