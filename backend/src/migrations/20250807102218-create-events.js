@@ -26,6 +26,18 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: "pending",
       },
+      verdict: {
+        type: Sequelize.STRING,
+      },
+      reason: {
+        type: Sequelize.TEXT,
+      },
+      confidence: {
+        type: Sequelize.FLOAT,
+      },
+      analysis: {
+        type: Sequelize.JSONB,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
