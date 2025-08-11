@@ -61,10 +61,7 @@ function App({
       {isConnected && (
         <div className="min-h-screen bg-gray-50">
           <nav className="flex flex-wrap justify-center gap-4 px-4 py-3 bg-white border-b">
-            {steps.map(({ key, label, dependsOn }) => {
-              const disabled = dependsOn && !status[dependsOn];
-              if (disabled) return null;
-
+            {steps.map(({ key, label }) => {
               return (
                 <button
                   key={key}
@@ -85,24 +82,24 @@ function App({
             {tab === "governance" && (
               <Governance
                 govAddress={governmentAddress}
-                onSetupComplete={() => updateStatus("governor")}
+                
               />
             )}
             {tab === "governor" && (
               <Governors
                 address={governmentAddress}
-                onSetupComplete={() => updateStatus("immigrates")}
+                
               />
             )}
             {tab === "immigrates" && (
               <Immigrates
                 govAddress={governmentAddress}
                 userAddress={userAddress}
-                onSetupComplete={() => updateStatus("citizens")}
+               
               />
             )}
             {tab === "citizens" && (
-              <Citizens onSetupComplete={() => updateStatus("rules")} />
+              <Citizens />
             )}
             {tab === "rules" && <Rules govAddress={governmentAddress} />}
             {tab === "on-chain-bills" && (

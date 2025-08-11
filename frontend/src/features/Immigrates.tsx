@@ -7,11 +7,11 @@ import { useEffect } from "react";
 function Immigrates({
   govAddress,
   userAddress,
-  onSetupComplete,
+  
 }: {
   govAddress: `0x${string}`;
   userAddress: `0x${string}`;
-  onSetupComplete: () => void;
+  
 }) {
   const { data: isGovernor } = useReadContract({
     address: govAddress,
@@ -21,10 +21,8 @@ function Immigrates({
   });
 
   useEffect(() => {
-    if (isGovernor !== undefined) {
-      onSetupComplete();
-    }
-  }, [isGovernor, onSetupComplete]);
+
+  }, [isGovernor]);
 
   return (
     <>

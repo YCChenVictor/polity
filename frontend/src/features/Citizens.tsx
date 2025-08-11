@@ -2,10 +2,7 @@ import ListCitizens from "./citizens/ListCitizens";
 import CreateCitizen from "./citizens/CreateCitizen";
 import { useEffect } from "react";
 
-function CitizenList({ onSetupComplete }: { onSetupComplete: () => void }) {
-  useEffect(() => {
-    onSetupComplete();
-  }, [onSetupComplete]);
+function CitizenList() {
 
   return (
     <div>

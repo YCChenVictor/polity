@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useWriteContract } from "wagmi";
 
 type Verdict = "constitutional" | "unconstitutional" | "unclear";
 
@@ -37,6 +38,22 @@ export default function ListEvents() {
     );
   };
 
+  const { writeContract, isPending, isError, isSuccess, error } =
+      useWriteContract();
+
+  const handleRaiseVote = async () => {
+      try {
+        await writeContract({
+          address: governmentAddress,
+          abi: polityGovernmentAbi,
+          functionName: "raiseVote",
+          args: [ruleAddress as `0x${string}`],
+        });
+      } catch (error) {
+        console.error("Error adding on chain:", error);
+      }
+    };
+
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -71,6 +88,12 @@ export default function ListEvents() {
           {event.reason && (
             <p className="text-xs text-gray-700">理由：{event.reason}</p>
           )}
+          <button
+            onClick={() => handleConstitutionalCheck(event)}
+            className="bg-purple-600 text-white px-2 py-1 rounded text-xs"
+          >
+            憲法審查（GPT）
+          </button>
           <button
             onClick={() => handleConstitutionalCheck(event)}
             className="bg-purple-600 text-white px-2 py-1 rounded text-xs"

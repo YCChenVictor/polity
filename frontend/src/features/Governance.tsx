@@ -12,10 +12,9 @@ interface GovernanceModuleView {
 
 function Governance({
   govAddress,
-  onSetupComplete,
+  
 }: {
   govAddress: `0x${string}`;
-  onSetupComplete: () => void;
 }) {
   const { data: isGovernor } = useReadContract({
     address: govAddress,
@@ -36,9 +35,8 @@ function Governance({
 
   useEffect(() => {
     if (modules && !loadingModules && !errorModules) {
-      onSetupComplete();
     }
-  }, [modules, loadingModules, errorModules, onSetupComplete]);
+  }, [modules, loadingModules, errorModules]);
 
   return (
     <div className="p-4 space-y-4">
