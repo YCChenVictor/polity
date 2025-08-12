@@ -1,109 +1,110 @@
-import { useState } from "react";
-import { useReadContracts, useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../generated";
+// import { useState } from "react";
+// import { useReadContracts, useWriteContract } from "wagmi";
+// import { polityGovernmentAbi } from "../generated";
 
-interface RuleProposalView {
-  proposed: `0x${string}`;
-  votes: bigint;
-  executed: boolean;
-}
+// // interface RuleProposalView {
+// //   proposed: `0x${string}`;
+// //   votes: bigint;
+// //   executed: boolean;
+// }
 
-interface OffChainRuleProposalView {
-  proposed: `0x${string}`;
-  billNumber: string;
-  billId: string;
-  votes: bigint;
-  updateTimestamp: bigint;
-}
+// interface OffChainRuleProposalView {
+//   proposed: `0x${string}`;
+//   billNumber: string;
+//   billId: string;
+//   votes: bigint;
+//   updateTimestamp: bigint;
+// }
 
-function RuleProposals({
-  governmentAddress,
-}: {
-  governmentAddress: `0x${string}`;
-}) {
-  const [newRuleAddress, setNewRuleAddress] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [voteInProgress, setVoteInProgress] = useState(false); // Track vote status
-  const [, setShowRule] = useState(false); // New state to hold selected rule data
+function RuleProposals() {
+  // {
+  //   // governmentAddress,
+  // }: {
+  //   governmentAddress: `0x${string}`;
+  // },
+  // const [newRuleAddress, setNewRuleAddress] = useState("");
+  // const [modalOpen, setModalOpen] = useState(false);
+  // const [voteInProgress, setVoteInProgress] = useState(false); // Track vote status
+  // const [, setShowRule] = useState(false); // New state to hold selected rule data
 
-  const { writeContract, isPending, isError, isSuccess, error } =
-    useWriteContract();
+  // const { writeContract, isPending, isError, isSuccess, error } =
+  //   useWriteContract();
 
-  const {
-    data,
-    isLoading: readLoading,
-    error: readError,
-  } = useReadContracts({
-    contracts: [
-      {
-        address: governmentAddress,
-        abi: polityGovernmentAbi,
-        functionName: "listProposalsFromCode",
-      },
-      {
-        address: governmentAddress,
-        abi: polityGovernmentAbi,
-        functionName: "listProposalsFromBill",
-      },
-    ],
-  });
+  // const {
+  //   data,
+  //   isLoading: readLoading,
+  //   error: readError,
+  // } = useReadContracts({
+  //   contracts: [
+  //     {
+  //       address: governmentAddress,
+  //       abi: polityGovernmentAbi,
+  //       functionName: "listProposalsFromCode",
+  //     },
+  //     {
+  //       address: governmentAddress,
+  //       abi: polityGovernmentAbi,
+  //       functionName: "listProposalsFromBill",
+  //     },
+  //   ],
+  // });
 
-  if (readLoading) return <p>Loading proposals...</p>;
-  if (readError)
-    return <p className="text-red-500">Error: {readError.message}</p>;
+  // if (readLoading) return <p>Loading proposals...</p>;
+  // if (readError)
+  //   return <p className="text-red-500">Error: {readError.message}</p>;
 
-  const [codeProposals = [], billProposals = []] =
-    (data?.map((d) => d.result) as [
-      RuleProposalView[],
-      OffChainRuleProposalView[],
-    ]) || [];
+  // const [codeProposals = [], billProposals = []] =
+  //   (data?.map((d) => d.result) as [
+  //     RuleProposalView[],
+  //     OffChainRuleProposalView[],
+  //   ]) || [];
 
-  const handleView = () => {
-    setShowRule(true);
-  };
+  // const handleView = () => {
+  //   setShowRule(true);
+  // };
 
-  const handleVoteOnCodeContract = async (id: number) => {
-    console.log("zxcv");
-    setVoteInProgress(true);
-    try {
-      await writeContract({
-        address: governmentAddress,
-        abi: polityGovernmentAbi,
-        functionName: "voteRuleFromCode",
-        args: [BigInt(id)],
-      });
-      console.log(`Voted on rule #${id}`);
-    } catch (error) {
-      console.error("Error voting:", error);
-    } finally {
-      setVoteInProgress(false);
-    }
-  };
+  // const handleVoteOnCodeContract = async (id: number) => {
+  //   console.log("zxcv");
+  //   setVoteInProgress(true);
+  //   try {
+  //     // await writeContract({
+  //     //   address: governmentAddress,
+  //     //   abi: polityGovernmentAbi,
+  //     //   functionName: "voteRuleFromCode",
+  //     //   args: [BigInt(id)],
+  //     // });
+  //     console.log(`Voted on rule #${id}`);
+  //   } catch (error) {
+  //     console.error("Error voting:", error);
+  //   } finally {
+  //     setVoteInProgress(false);
+  //   }
+  // };
 
-  const handleVoteOnBillContract = async (id: number) => {
-    console.log("zxcv");
-    setVoteInProgress(true);
-    try {
-      await writeContract({
-        address: governmentAddress,
-        abi: polityGovernmentAbi,
-        functionName: "voteRuleFromBill",
-        args: [BigInt(id)],
-      });
-      console.log(`Voted on rule #${id}`);
-    } catch (error) {
-      console.error("Error voting:", error);
-    } finally {
-      setVoteInProgress(false);
-    }
-  };
+  // const handleVoteOnBillContract = async (id: number) => {
+  //   console.log("zxcv");
+  //   setVoteInProgress(true);
+  //   try {
+  //     // await writeContract({
+  //     //   address: governmentAddress,
+  //     //   abi: polityGovernmentAbi,
+  //     //   functionName: "voteRuleFromBill",
+  //     //   args: [BigInt(id)],
+  //     // });
+  //     console.log(`Voted on rule #${id}`);
+  //   } catch (error) {
+  //     console.error("Error voting:", error);
+  //   } finally {
+  //     setVoteInProgress(false);
+  //   }
+  // };
 
   return (
     <>
       <div>
         <h3>Proposals</h3>
         <ul>
-          {billProposals &&
+          {/* {billProposals &&
             billProposals.map((p, i) => (
               <li key={i}>
                 <div>Id: {p.billNumber}</div>
@@ -123,17 +124,17 @@ function RuleProposals({
                   Vote It
                 </button>
               </li>
-            ))}
+            ))} */}
         </ul>
       </div>
       <div className="flex justify-between items-center mb-4">
-        <button
+        {/* <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"
           onClick={() => setModalOpen(true)}
           disabled={isPending}
         >
           + Add Smart Contract Proposal
-        </button>
+        </button> */}
       </div>
 
       {modalOpen && (
@@ -141,7 +142,7 @@ function RuleProposals({
           <div className="bg-white rounded-2xl p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Add Rule</h3>
 
-            {isError && (
+            {/* {isError && (
               <p className="text-red-500 mb-2">Error: {error?.message}</p>
             )}
 
@@ -171,13 +172,13 @@ function RuleProposals({
               </button>
             </div>
 
-            {isSuccess && <p className="text-green-500 mt-2">Rule proposed!</p>}
+            {isSuccess && <p className="text-green-500 mt-2">Rule proposed!</p>} */}
           </div>
         </div>
       )}
 
       <ul className="space-y-4">
-        {codeProposals &&
+        {/* {codeProposals &&
           codeProposals.map((p, i) => (
             <li
               key={i}
@@ -211,24 +212,24 @@ function RuleProposals({
                 </button>
               </div>
             </li>
-          ))}
+          ))} */}
       </ul>
     </>
   );
 
-  async function handleAddRule() {
-    try {
-      await writeContract({
-        address: governmentAddress,
-        abi: polityGovernmentAbi,
-        functionName: "proposeRule",
-        args: [newRuleAddress as `0x${string}`],
-      });
-      console.log("Transaction sent. Waiting for confirmation...");
-    } catch (err) {
-      console.error("Error proposing rule:", err);
-    }
-  }
+  // async function handleAddRule() {
+  //   try {
+  //     // await writeContract({
+  //     //   address: governmentAddress,
+  //     //   abi: polityGovernmentAbi,
+  //     //   functionName: "proposeRule",
+  //     //   args: [newRuleAddress as `0x${string}`],
+  //     // });
+  //     console.log("Transaction sent. Waiting for confirmation...");
+  //   } catch (err) {
+  //     console.error("Error proposing rule:", err);
+  //   }
+  // }
 }
 
 export default RuleProposals;

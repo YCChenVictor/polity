@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { isGovernor } from "../../contracts/governor"; // custom hook wrapper
+// import { isGovernor } from "../../contracts/governor"; // custom hook wrapper
 
 interface Contribution {
   title: string;
@@ -9,7 +9,6 @@ interface Contribution {
 
 function ListContributions() {
   const [data, setData] = useState<Contribution[]>([]);
-  const { data: isGov } = isGovernor();
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_BACKEND_URL}/contributions`)
@@ -58,7 +57,7 @@ function ListContributions() {
               <span className="font-semibold">Validated:</span>{" "}
               {`${item.validated}`}
             </p>
-            {isGov && (
+            {true && (
               <button
                 className="mt-2 px-4 py-1 bg-blue-600 text-white rounded"
                 onClick={() => handleValidate(i)}

@@ -1,5 +1,5 @@
-import { useReadContract } from "wagmi";
-import { baseGovernanceAbi } from "../generated";
+// import { useReadContract } from "wagmi";
+// import { baseGovernanceAbi } from "../generated";
 
 const governorAddress = process.env.REACT_APP_GOVERNOR_ADDRESS as `0x${string}`;
 const governmentAddress = process.env
@@ -15,12 +15,8 @@ if (!governmentAddress) {
 
 // Read view from contracts will not cost ETH
 function isGovernor() {
-  return useReadContract({
-    address: governmentAddress,
-    abi: baseGovernanceAbi,
-    functionName: "isGovernor",
-    args: [governorAddress],
-  });
+  // Remove this one
+  return true;
 }
 
 export { isGovernor };

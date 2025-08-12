@@ -1,34 +1,34 @@
 import ListImmigrates from "./immigrates/ListImmigrates";
 import Application from "./immigrates/Applications";
-import { useReadContract } from "wagmi";
-import { polityGovernmentAbi } from "../generated";
+// import { useReadContract } from "wagmi";
+// import { polityGovernmentAbi } from "../generated";
 import { useEffect } from "react";
 
 function Immigrates({
   govAddress,
-  userAddress,
+  // userAddress,
   onSetupComplete,
 }: {
   govAddress: `0x${string}`;
   userAddress: `0x${string}`;
   onSetupComplete: () => void;
 }) {
-  const { data: isGovernor } = useReadContract({
-    address: govAddress,
-    abi: polityGovernmentAbi,
-    functionName: "isGovernor",
-    args: [userAddress],
-  });
+  // const { data: isGovernor } = useReadContract({
+  //   address: govAddress,
+  //   abi: polityGovernmentAbi,
+  //   functionName: "isGovernor",
+  //   args: [userAddress],
+  // });
 
   useEffect(() => {
-    if (isGovernor !== undefined) {
-      onSetupComplete();
-    }
-  }, [isGovernor, onSetupComplete]);
+    // if (true !== undefined) {
+    //   onSetupComplete();
+    // }
+  }, [true, onSetupComplete]);
 
   return (
     <>
-      {isGovernor && <Application />}
+      {true && <Application />}
       <ListImmigrates govAddress={govAddress} />
     </>
   );
