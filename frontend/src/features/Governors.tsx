@@ -1,4 +1,4 @@
-import Create from "./governors/GovernorCreate";
+// import Create from "./governors/GovernorCreate";
 import OffChainList from "./governors/OffChainGovernorList";
 import OnChainList from "./governors/OnChainGovernorList";
 import { useEffect } from "react";
@@ -17,7 +17,7 @@ function governors({
 
   return (
     <>
-      <Create address={address} />
+      {/* <Create address={address} /> */}
       <OnChainList address={address} />
       <OffChainList />
     </>

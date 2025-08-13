@@ -26,8 +26,13 @@ interface IProposeGovernor {
     function listGovernorProposals() external view returns (ProposedGovernor[] memory);
 }
 
-contract PolityGovernment is BaseGovernance, RuleProposalSystem, OffChainRuleProposalSystem {
-    constructor(uint256 _requiredSignatures) BaseGovernance(_requiredSignatures) {}
+contract PolityGovernment {
+    constructor() {}
+
+    mapping(string => address) private modules;
+    string[] private moduleNames;
+    mapping(string => bool) private seen;
+    event ModuleSet(string indexed name, address indexed oldImpl, address indexed newImpl);
 
     // ─────────────────────── Struct ───────────────────────
 
@@ -36,62 +41,82 @@ contract PolityGovernment is BaseGovernance, RuleProposalSystem, OffChainRulePro
         address moduleAddress;
     }
 
-    // ─────────────────────── Modules ───────────────────────
-    address public citizenRegistry;
-    address public governorProposalSystem;
+    function setModule(string calldata name, address impl) external {
+        require(bytes(name).length != 0, 'EMPTY_NAME');
+        require(impl != address(0), 'ZERO_ADDR');
+        address old = modules[name];
+        modules[name] = impl;
+        if (!seen[name]) {
+            moduleNames.push(name);
+            seen[name] = true;
+        }
+        emit ModuleSet(name, old, impl);
+    }
 
     function listGovernanceModules() external view returns (GovernanceModuleView[] memory views) {
-        views = new GovernanceModuleView[](2);
-        views[0] = GovernanceModuleView({
-            name: 'CitizenRegistry',
-            moduleAddress: citizenRegistry
-        });
-        views[1] = GovernanceModuleView({
-            name: 'GovernorProposalSystem',
-            moduleAddress: governorProposalSystem
-        });
+        // return only active (non-zero) modules
+        uint n = 0;
+        for (uint i = 0; i < moduleNames.length; i++)
+            if (modules[moduleNames[i]] != address(0)) n++;
+        views = new GovernanceModuleView[](n);
+        uint k = 0;
+        for (uint i = 0; i < moduleNames.length; i++) {
+            address a = modules[moduleNames[i]];
+            if (a != address(0)) {
+                views[k++] = GovernanceModuleView(moduleNames[i], a);
+            }
+        }
         return views;
     }
 
-    function setCitizenRegistry(address _addr) external onlyGovernor {
-        citizenRegistry = _addr;
+    // ─────────────────────── Citizen Modules ───────────────────────
+    address public votingMechanism;
+
+    function setVotingMechanism(address _addr) external {
+        votingMechanism = _addr;
     }
 
-    function createCitizen(address wallet, uint8 reasonCode) external onlyGovernor {
-        require(citizenRegistry != address(0), 'Citizen Registry Module not set');
-        ICitizenRegistry(citizenRegistry).createCitizen(wallet, reasonCode);
-    }
+    // ─────────────────────── Citizen Modules ───────────────────────
+    // address public citizenRegistry;
 
-    function readCitizens() external view onlyGovernor returns (ICitizenRegistry.Citizen[] memory) {
-        require(citizenRegistry != address(0), 'Citizen Registry Module not set');
-        return ICitizenRegistry(citizenRegistry).readCitizens();
-    }
+    // function createCitizen(address wallet, uint8 reasonCode) external {
+    //     require(citizenRegistry != address(0), 'Citizen Registry Module not set');
+    //     ICitizenRegistry(citizenRegistry).createCitizen(wallet, reasonCode);
+    // }
 
-    function setGovernorProposalSystem(address _addr) external onlyGovernor {
-        governorProposalSystem = _addr;
-    }
+    // function readCitizens() external view returns (ICitizenRegistry.Citizen[] memory) {
+    //     require(citizenRegistry != address(0), 'Citizen Registry Module not set');
+    //     return ICitizenRegistry(citizenRegistry).readCitizens();
+    // }
 
-    function proposeGovernor(address newGovernor) external {
-        require(governorProposalSystem != address(0), 'Governor Proposal Module not set');
-        IProposeGovernor(governorProposalSystem).proposeGovernor(newGovernor);
-    }
+    // ─────────────────────── Citizen Modules ───────────────────────
+    // address public governorProposalSystem;
 
-    function listGovernorProposals()
-        external
-        view
-        onlyGovernor
-        returns (IProposeGovernor.ProposedGovernor[] memory)
-    {
-        require(governorProposalSystem != address(0), 'Governor Proposal Module not set');
-        return IProposeGovernor(governorProposalSystem).listGovernorProposals();
-    }
+    // function setGovernorProposalSystem(address _addr) external onlyGovernor {
+    //     governorProposalSystem = _addr;
+    // }
+
+    // function proposeGovernor(address newGovernor) external {
+    //     require(governorProposalSystem != address(0), 'Governor Proposal Module not set');
+    //     IProposeGovernor(governorProposalSystem).proposeGovernor(newGovernor);
+    // }
+
+    // function listGovernorProposals()
+    //     external
+    //     view
+    //     onlyGovernor
+    //     returns (IProposeGovernor.ProposedGovernor[] memory)
+    // {
+    //     require(governorProposalSystem != address(0), 'Governor Proposal Module not set');
+    //     return IProposeGovernor(governorProposalSystem).listGovernorProposals();
+    // }
+
     // ─────────────────────── Law Level ───────────────────────
-
     string[] public lawLevels;
     mapping(string => bool) public isLawLevel;
     event LawLevelAdded(string level);
 
-    function addLawLevel(string memory level) external onlyGovernor {
+    function addLawLevel(string memory level) public {
         require(!isLawLevel[level], 'Exists');
         lawLevels.push(level);
         isLawLevel[level] = true;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useReadContracts, useWriteContract } from "wagmi";
+import { useReadContracts } from "wagmi";
 import { polityGovernmentAbi } from "../../generated";
 
 function CreateGovernor({ address }: { address: `0x${string}` }) {
@@ -7,7 +7,7 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   const {
-    data,
+    // data,
     isLoading,
     error: readError,
   } = useReadContracts({
@@ -17,30 +17,30 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
         abi: polityGovernmentAbi,
         functionName: "readCitizens",
       },
-      {
-        address,
-        abi: polityGovernmentAbi,
-        functionName: "listGovernorProposals",
-      },
-      {
-        address,
-        abi: polityGovernmentAbi,
-        functionName: "getRequiredSignatures",
-      },
+      // {
+      //   address,
+      //   abi: polityGovernmentAbi,
+      //   functionName: "listGovernorProposals",
+      // },
+      // {
+      //   address,
+      //   abi: polityGovernmentAbi,
+      //   functionName: "getRequiredSignatures",
+      // },
     ],
   });
 
-  const {
-    writeContract,
-    isPending,
-    isError,
-    isSuccess,
-    error: writeError,
-  } = useWriteContract();
+  // const {
+  //   writeContract,
+  //   isPending,
+  //   isError,
+  //   isSuccess,
+  //   error: writeError,
+  // } = useWriteContract();
 
   // const citizens = data?.[0]?.result;
-  const proposals = data?.[1]?.result;
-  const signatureThreshold = data?.[2]?.result;
+  // const proposals = data?.[1]?.result;
+  // const signatureThreshold = data?.[2]?.result;
 
   if (isLoading) {
     return <p>Loading governors...</p>;
@@ -52,25 +52,25 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
 
   return (
     <>
-      <>Passing Threshold: {signatureThreshold} Votes</>
+      <>Passing Threshold: Votes</>
       <div className="flex justify-between items-center mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700"
           onClick={() => setModalOpen(true)}
-          disabled={isPending}
+          // disabled={isPending}
         >
           + Add Governor
         </button>
       </div>
 
       <ul className="space-y-4">
-        {proposals?.map((p, i) => (
+        {[].map((p, i) => (
           <li
             key={i}
             className="border rounded-2xl p-4 shadow hover:shadow-md transition"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="text-sm text-gray-800">
+              {/* <div className="text-sm text-gray-800">
                 <span className="font-semibold">#{i}</span> &bull; Proposed:{" "}
                 <code className="bg-gray-100 px-1 py-0.5 rounded">
                   {p.proposed}
@@ -81,7 +81,7 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
                 >
                   {p.executed ? "Yes" : "No"}
                 </span>
-              </div>
+              </div> */}
               <button
                 onClick={() => handleVote()}
                 className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -147,12 +147,12 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
   }
 
   function handleAddGovernor() {
-    writeContract({
-      address,
-      abi: polityGovernmentAbi,
-      functionName: "proposeGovernor",
-      args: [newGovAddress as `0x${string}`],
-    });
+    // writeContract({
+    //   address,
+    //   abi: polityGovernmentAbi,
+    //   functionName: "proposeGovernor",
+    //   args: [newGovAddress as `0x${string}`],
+    // });
   }
 }
 

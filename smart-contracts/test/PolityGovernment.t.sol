@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
+import 'forge-std/Test.sol';
+
 import '../../contracts/polity/PolityGovernment.sol';
+import '../../contracts/polity/InitialVoting.sol';
 import '../../contracts/polity/CitizenRegistry.sol';
 import '../../contracts/polity/GovernorProposalSystem.sol';
-import 'forge-std/Test.sol';
 
 contract MockUUPS {
     address public currentImpl;
 }
 
 contract PolityGovernmentTest is Test {
+    InitialVoting voting;
     GovernorProposalSystem governorProposalSystem;
     CitizenRegistry citizenRegistry;
     PolityGovernment polity;
@@ -26,59 +29,68 @@ contract PolityGovernmentTest is Test {
     address citizen = address(0x22);
 
     function setUp() public {
+        voting = new InitialVoting(51);
         citizenRegistry = new CitizenRegistry();
         governorProposalSystem = new GovernorProposalSystem();
 
         initGovernor = address(0x1);
         proxy = new MockUUPS();
         vm.prank(initGovernor);
-        polity = new PolityGovernment(1);
+        polity = new PolityGovernment();
 
         vm.prank(initGovernor);
-        polity.setCitizenRegistry(address(citizenRegistry));
-        vm.prank(initGovernor);
-        polity.setGovernorProposalSystem(address(governorProposalSystem));
+        polity.setModule('Voting', address(voting));
     }
 
     // Modules
     function testListGovernanceModules() public {
-        // call the view function
         PolityGovernment.GovernanceModuleView[] memory modules = polity.listGovernanceModules();
 
-        assertEq(modules.length, 2);
-        assertEq(modules[0].moduleAddress, address(citizenRegistry));
-        assertEq(modules[0].name, 'CitizenRegistry');
-        assertEq(modules[1].moduleAddress, address(governorProposalSystem));
-        assertEq(modules[1].name, 'GovernorProposalSystem');
+        assertEq(modules.length, 1);
+        assertEq(modules[0].moduleAddress, address(voting));
+        assertEq(modules[0].name, 'Voting');
     }
+
+    // Citizen Module
+    // function testGetCitizens() public {
+    //     vm.prank(initGovernor);
+    //     polity.createCitizen(citizen, 1);
+
+    //     vm.prank(initGovernor);
+    //     ICitizenRegistry.Citizen[] memory list = polity.readCitizens();
+
+    //     assertEq(list.length, 1);
+    //     assertEq(list[0].wallet, citizen);
+    //     assertEq(list[0].reasonCode, 1);
+    // }
 
     // Governor Proposals Module
-    function testAddGovernor() public {
-        vm.prank(initGovernor);
-        polity.addGovernor(newGovernor);
-        assertTrue(polity.isGovernor(newGovernor));
-    }
+    // function testAddGovernor() public {
+    //     vm.prank(initGovernor);
+    //     polity.addGovernor(newGovernor);
+    //     assertTrue(polity.isGovernor(newGovernor));
+    // }
 
-    function testListGovernorReturnsInitialGovernor() public {
-        address[] memory listed = polity.getGovernors();
-        assertEq(listed.length, 1);
-        assertEq(listed[0], initGovernor);
-    }
+    // function testListGovernorReturnsInitialGovernor() public {
+    //     address[] memory listed = polity.getGovernors();
+    //     assertEq(listed.length, 1);
+    //     assertEq(listed[0], initGovernor);
+    // }
 
-    function testListGovernorProposals() public {
-        address newGov1 = address(0x1);
-        address newGov2 = address(0x2);
+    // function testListGovernorProposals() public {
+    //     address newGov1 = address(0x1);
+    //     address newGov2 = address(0x2);
 
-        vm.prank(initGovernor);
-        polity.proposeGovernor(newGov1);
-        vm.prank(initGovernor);
-        polity.proposeGovernor(newGov2);
-        vm.prank(initGovernor);
-        IProposeGovernor.ProposedGovernor[] memory proposals = polity.listGovernorProposals();
+    //     vm.prank(initGovernor);
+    //     polity.proposeGovernor(newGov1);
+    //     vm.prank(initGovernor);
+    //     polity.proposeGovernor(newGov2);
+    //     vm.prank(initGovernor);
+    //     IProposeGovernor.ProposedGovernor[] memory proposals = polity.listGovernorProposals();
 
-        assertEq(proposals[0].proposed, newGov1);
-        assertEq(proposals[1].proposed, newGov2);
-    }
+    //     assertEq(proposals[0].proposed, newGov1);
+    //     assertEq(proposals[1].proposed, newGov2);
+    // }
 
     // function testVoteGovernorWorksAndExecutesWhenThresholdMet() public {
     //     address actualDeployer = polity.deployer();
@@ -97,86 +109,73 @@ contract PolityGovernmentTest is Test {
     // }
 
     // On chain Rules
-    function testListRuleProposals() public {
-        vm.prank(initGovernor);
-        polity.proposeRule(address(0x1));
+    // function testListRuleProposals() public {
+    //     vm.prank(initGovernor);
+    //     polity.proposeRule(address(0x1));
 
-        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listProposalsFromCode();
+    //     RuleProposalSystem.RuleProposalView[] memory proposals = polity.listProposalsFromCode();
 
-        assertEq(proposals.length, 1);
-        assertEq(proposals[0].proposed, address(0x1));
-        assertEq(proposals[0].votes, 0);
-        assertFalse(proposals[0].executed);
-    }
+    //     assertEq(proposals.length, 1);
+    //     assertEq(proposals[0].proposed, address(0x1));
+    //     assertEq(proposals[0].votes, 0);
+    //     assertFalse(proposals[0].executed);
+    // }
 
-    function testVoteRuleWorksAndExecutesWhenThresholdMet() public {
-        address actualDeployer = polity.deployer();
-        vm.prank(actualDeployer);
-        newRule = address(0x10);
-        polity.proposeRule(newRule);
+    // function testVoteRuleWorksAndExecutesWhenThresholdMet() public {
+    //     address actualDeployer = polity.deployer();
+    //     vm.prank(actualDeployer);
+    //     newRule = address(0x10);
+    //     polity.proposeRule(newRule);
 
-        vm.prank(actualDeployer);
-        polity.voteRuleFromCode(0);
+    //     vm.prank(actualDeployer);
+    //     polity.voteRuleFromCode(0);
 
-        RuleProposalSystem.RuleProposalView[] memory proposals = polity.listProposalsFromCode();
+    //     RuleProposalSystem.RuleProposalView[] memory proposals = polity.listProposalsFromCode();
 
-        assertEq(proposals[0].votes, 1);
-        // assertTrue(proposals[0].executed);
-    }
+    //     assertEq(proposals[0].votes, 1);
+    //     // assertTrue(proposals[0].executed);
+    // }
 
     // Off Chain Rules
-    function testListOffChainRuleProposals() public {
-        vm.prank(initGovernor);
-        polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
+    // function testListOffChainRuleProposals() public {
+    //     vm.prank(initGovernor);
+    //     polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
 
-        OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
-            .listProposalsFromBill();
+    //     OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
+    //         .listProposalsFromBill();
 
-        assertEq(proposals.length, 1);
-        assertEq(proposals[0].proposed, address(0x1));
-    }
+    //     assertEq(proposals.length, 1);
+    //     assertEq(proposals[0].proposed, address(0x1));
+    // }
 
-    function testVoteOffChainRuleWorks() public {
-        address actualDeployer = polity.deployer();
-        vm.prank(actualDeployer);
-        polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
+    // function testVoteOffChainRuleWorks() public {
+    //     address actualDeployer = polity.deployer();
+    //     vm.prank(actualDeployer);
+    //     polity.proposeOffChainRule(address(0x1), '202110143390000', 'Bill123');
 
-        vm.prank(actualDeployer);
-        polity.voteRuleFromBill(0);
+    //     vm.prank(actualDeployer);
+    //     polity.voteRuleFromBill(0);
 
-        OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
-            .listProposalsFromBill();
+    //     OffChainRuleProposalSystem.OffChainRuleProposalView[] memory proposals = polity
+    //         .listProposalsFromBill();
 
-        assertEq(proposals[0].votes, 1);
-    }
+    //     assertEq(proposals[0].votes, 1);
+    // }
 
-    function testAddLawLevel() public {
-        vm.prank(initGovernor);
-        polity.addLawLevel('constitution');
+    // function testAddLawLevel() public {
+    //     vm.prank(initGovernor);
+    //     polity.addLawLevel('constitution');
 
-        string memory level = polity.lawLevels(0);
-        bool exists = polity.isLawLevel('constitution');
+    //     string memory level = polity.lawLevels(0);
+    //     bool exists = polity.isLawLevel('constitution');
 
-        assertEq(level, 'constitution');
-        assertTrue(exists);
+    //     assertEq(level, 'constitution');
+    //     assertTrue(exists);
 
-        string[] memory levels = polity.getLawLevels();
-        assertEq(levels.length, 1);
-        assertEq(levels[0], 'constitution');
-    }
-
-    // Citizen Module
-    function testGetCitizens() public {
-        vm.prank(initGovernor);
-        polity.createCitizen(citizen, 1);
-
-        vm.prank(initGovernor);
-        ICitizenRegistry.Citizen[] memory list = polity.readCitizens();
-
-        assertEq(list.length, 1);
-        assertEq(list[0].wallet, citizen);
-        assertEq(list[0].reasonCode, 1);
-    }
+    //     string[] memory levels = polity.getLawLevels();
+    //     assertEq(levels.length, 1);
+    //     assertEq(levels[0], 'constitution');
+    // }
 
     // Upgrade contract
     // function testApproveAndTriggerUpgrade() public {

@@ -1,6 +1,7 @@
 import { useReadContract } from "wagmi";
 import { polityGovernmentAbi } from "../generated";
 import CheckContractDeployment from "./governance/Government";
+import SetVotingMechanism from "./governance/SetVotingMechanism";
 import SetCitizenRegistry from "./governance/SetCitizenRegistry";
 import SetGovernorProposalSystem from "./governance/SetGovernorProposalSystem";
 import { useEffect } from "react";
@@ -17,12 +18,12 @@ function Governance({
   govAddress: `0x${string}`;
   onSetupComplete: () => void;
 }) {
-  const { data: isGovernor } = useReadContract({
-    address: govAddress,
-    abi: polityGovernmentAbi,
-    functionName: "isGovernor",
-    args: [process.env.REACT_APP_GOVERNOR_ADDRESS as `0x${string}`],
-  });
+  // const { data: isGovernor } = useReadContract({
+  //   address: govAddress,
+  //   abi: polityGovernmentAbi,
+  //   functionName: "isGovernor",
+  //   args: [process.env.REACT_APP_GOVERNOR_ADDRESS as `0x${string}`],
+  // });
 
   const {
     data: modules,
@@ -44,9 +45,6 @@ function Governance({
     <div className="p-4 space-y-4">
       <h2 className="text-xl font-bold">Government Address</h2>
       <CheckContractDeployment />
-      <h2 className="text-xl font-bold">
-        {isGovernor ? "You are a Governor" : "You are NOT a Governor"}
-      </h2>
       <h2 className="text-xl font-bold">Governance Modules</h2>
 
       {loadingModules && <p>Loading...</p>}
@@ -61,6 +59,7 @@ function Governance({
         </ul>
       )}
 
+      <SetVotingMechanism govAddress={govAddress} />
       <SetCitizenRegistry govAddress={govAddress} />
       <SetGovernorProposalSystem govAddress={govAddress} />
     </div>
