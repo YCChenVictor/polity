@@ -5,7 +5,7 @@ import Application from "./immigrates/Applications";
 import { useEffect } from "react";
 
 function Immigrates({
-  govAddress,
+  // govAddress,
   // userAddress,
   onSetupComplete,
 }: {
@@ -29,7 +29,7 @@ function Immigrates({
   return (
     <>
       {true && <Application />}
-      <ListImmigrates govAddress={govAddress} />
+      <ListImmigrates />
     </>
   );
 }

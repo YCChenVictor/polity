@@ -4,7 +4,7 @@ import OnChainList from "./governors/OnChainGovernorList";
 import { useEffect } from "react";
 
 function governors({
-  address,
+  // address,
   onSetupComplete,
 }: {
   address: `0x${string}`;
@@ -18,7 +18,7 @@ function governors({
   return (
     <>
       {/* <Create address={address} /> */}
-      <OnChainList address={address} />
+      <OnChainList />
       <OffChainList />
     </>
   );

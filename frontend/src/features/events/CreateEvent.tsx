@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 
-interface Props {
-  onCreated: () => void;
-}
-
-export default function CreateEvent({ onCreated }: Props) {
+export default function CreateEvent() {
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -26,7 +22,6 @@ export default function CreateEvent({ onCreated }: Props) {
       body: JSON.stringify(form),
     });
     setForm({ title: "", description: "", actor: "", date: "" });
-    onCreated();
   };
 
   return (

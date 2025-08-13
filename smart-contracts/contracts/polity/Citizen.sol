@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-contract CitizenRegistry {
+contract Citizen {
     struct Citizen {
         uint256 id;
         address wallet;
@@ -22,7 +22,7 @@ contract CitizenRegistry {
         reasonMap[2] = 'immigrate';
     }
 
-    function createCitizen(address wallet, uint8 reasonCode) external {
+    function create(address wallet, uint8 reasonCode) external {
         require(citizens[wallet].wallet == address(0), 'Already exists');
         require(bytes(reasonMap[reasonCode]).length > 0, 'Invalid reason code');
 
@@ -31,7 +31,7 @@ contract CitizenRegistry {
         emit CitizenCreated(wallet, reasonCode);
     }
 
-    function readCitizens() external view returns (Citizen[] memory) {
+    function read() external view returns (Citizen[] memory) {
         Citizen[] memory list = new Citizen[](citizenList.length);
         for (uint i = 0; i < citizenList.length; i++) {
             list[i] = citizens[citizenList[i]];

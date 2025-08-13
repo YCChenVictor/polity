@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useReadContracts } from "wagmi";
-import { polityGovernmentAbi } from "../../generated";
+// import { polityGovernmentAbi } from "../../generated";
 
-function CreateGovernor({ address }: { address: `0x${string}` }) {
+function CreateGovernor() {
+  // { address }: { address: `0x${string}` }
   const [newGovAddress, setNewGovAddress] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -12,11 +13,11 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
     error: readError,
   } = useReadContracts({
     contracts: [
-      {
-        address,
-        abi: polityGovernmentAbi,
-        functionName: "readCitizens",
-      },
+      // {
+      //   address,
+      //   abi: polityGovernmentAbi,
+      //   functionName: "readCitizens",
+      // },
       // {
       //   address,
       //   abi: polityGovernmentAbi,
@@ -93,14 +94,12 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
         ))}
       </ul>
 
-      {modalOpen && (
+      {true && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-2xl p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Add Governor</h3>
 
-            {isError && (
-              <p className="text-red-500 mb-2">Error: {writeError?.message}</p>
-            )}
+            {true && <p className="text-red-500 mb-2">Error: {}</p>}
 
             <input
               type="text"
@@ -108,29 +107,27 @@ function CreateGovernor({ address }: { address: `0x${string}` }) {
               value={newGovAddress}
               onChange={(e) => setNewGovAddress(e.target.value)}
               className="w-full border rounded p-2 mb-4"
-              disabled={isPending}
+              disabled={true}
             />
 
             <div className="flex justify-end space-x-2">
               <button
                 className="px-4 py-2 bg-gray-300 rounded-2xl hover:bg-gray-400"
                 onClick={() => setModalOpen(false)}
-                disabled={isPending}
+                disabled={true}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 bg-green-600 text-white rounded-2xl hover:bg-green-700"
                 onClick={handleAddGovernor}
-                disabled={!newGovAddress || isPending}
+                disabled={!newGovAddress || true}
               >
-                {isPending ? "Adding..." : "Add"}
+                {modalOpen ? "Adding..." : "Add"}
               </button>
             </div>
 
-            {isSuccess && (
-              <p className="text-green-500 mt-2">Governor proposed!</p>
-            )}
+            {true && <p className="text-green-500 mt-2">Governor proposed!</p>}
           </div>
         </div>
       )}

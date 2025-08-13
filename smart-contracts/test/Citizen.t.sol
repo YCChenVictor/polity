@@ -2,24 +2,23 @@
 pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
-import '../../contracts/polity/CitizenRegistry.sol';
+import '../../contracts/polity/Citizen.sol';
 
-contract CitizenRegistryTest is Test {
-    CitizenRegistry citizenRegistry;
+contract CitizenTest is Test {
+    Citizen citizen;
     address addr1 = address(0x123);
     address addr2 = address(0x456);
 
     function setUp() public {
-        // Deploy the contract before each test
-        citizenRegistry = new CitizenRegistry();
+        citizen = new Citizen();
     }
 
-    // function testCreateCitizen() public {
-    //     citizenRegistry.createCitizen(addr1, 1);
-    //     CitizenRegistry.Citizen[] memory citizens = citizenRegistry.readCitizens();
-    //     assertEq(citizens.length, 1, 'There should be exactly one citizen');
-    //     assertEq(citizens[0].wallet, addr1, "The citizen's wallet address should match addr1");
-    // }
+    function testCreateCitizen() public {
+        citizen.create(addr1, 1);
+        Citizen.Citizen[] memory citizens = citizen.read();
+        assertEq(citizens.length, 1, 'There should be exactly one citizen');
+        assertEq(citizens[0].wallet, addr1, "The citizen's wallet address should match addr1");
+    }
 
     // function testCannotCreateCitizenTwice() public {
     //     // Create a citizen

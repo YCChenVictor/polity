@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../../generated";
+import { citizenAbi } from "../../generated";
 
 interface CitizenData {
   name: string;
@@ -12,7 +12,7 @@ const REASON_OPTIONS: Record<number, string> = {
   2: "immigrate",
 };
 
-function CreateCitizen({ govAddress }: { govAddress: `0x${string}` }) {
+function CreateCitizen({ address }: { address: `0x${string}` }) {
   const [citizenAddress, setCitizenAddress] = useState<string>("");
   const [formData, setFormData] = useState<CitizenData>({
     name: "",
@@ -38,9 +38,9 @@ function CreateCitizen({ govAddress }: { govAddress: `0x${string}` }) {
     console.log("Creating citizen:", { ...formData, citizenAddress });
 
     await writeContract({
-      address: govAddress,
-      abi: polityGovernmentAbi,
-      functionName: "createCitizen",
+      address: address,
+      abi: citizenAbi,
+      functionName: "create",
       args: [citizenAddress as `0x${string}`, formData.reason],
     });
 

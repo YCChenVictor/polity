@@ -1,0 +1,15 @@
+// wagmi.config.ts
+import { defineConfig } from "@wagmi/cli";
+import { react } from "@wagmi/cli/plugins";
+import { hardhat } from "@wagmi/cli/plugins";
+var wagmi_config_default = defineConfig({
+  out: "src/generated.ts",
+  plugins: [
+    react(),
+    hardhat({
+      project: "../smart-contracts",
+    }),
+  ],
+});
+export { wagmi_config_default as default };
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsid2FnbWkuY29uZmlnLnRzIl0sCiAgInNvdXJjZXNDb250ZW50IjogWyJjb25zdCBfX2luamVjdGVkX2ZpbGVuYW1lX18gPSBcIi9Vc2Vycy9ob2N0cmFkZS9Eb2N1bWVudHMvc2VsZi9wb2xpdHkvZnJvbnRlbmQvd2FnbWkuY29uZmlnLnRzXCI7Y29uc3QgX19pbmplY3RlZF9kaXJuYW1lX18gPSBcIi9Vc2Vycy9ob2N0cmFkZS9Eb2N1bWVudHMvc2VsZi9wb2xpdHkvZnJvbnRlbmRcIjtjb25zdCBfX2luamVjdGVkX2ltcG9ydF9tZXRhX3VybF9fID0gXCJmaWxlOi8vL1VzZXJzL2hvY3RyYWRlL0RvY3VtZW50cy9zZWxmL3BvbGl0eS9mcm9udGVuZC93YWdtaS5jb25maWcudHNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tIFwiQHdhZ21pL2NsaVwiO1xuaW1wb3J0IHsgcmVhY3QgfSBmcm9tIFwiQHdhZ21pL2NsaS9wbHVnaW5zXCI7XG5pbXBvcnQgeyBoYXJkaGF0IH0gZnJvbSBcIkB3YWdtaS9jbGkvcGx1Z2luc1wiO1xuXG5leHBvcnQgZGVmYXVsdCBkZWZpbmVDb25maWcoe1xuICBvdXQ6IFwic3JjL2dlbmVyYXRlZC50c1wiLFxuICBwbHVnaW5zOiBbXG4gICAgcmVhY3QoKSxcbiAgICBoYXJkaGF0KHtcbiAgICAgIHByb2plY3Q6IFwiLi4vc21hcnQtY29udHJhY3RzXCIsXG4gICAgfSksXG4gIF0sXG59KTtcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBMFIsU0FBUyxvQkFBb0I7QUFDdlQsU0FBUyxhQUFhO0FBQ3RCLFNBQVMsZUFBZTtBQUV4QixJQUFPLHVCQUFRLGFBQWE7QUFBQSxFQUMxQixLQUFLO0FBQUEsRUFDTCxTQUFTO0FBQUEsSUFDUCxNQUFNO0FBQUEsSUFDTixRQUFRO0FBQUEsTUFDTixTQUFTO0FBQUEsSUFDWCxDQUFDO0FBQUEsRUFDSDtBQUNGLENBQUM7IiwKICAibmFtZXMiOiBbXQp9Cg==
