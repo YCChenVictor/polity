@@ -4,8 +4,8 @@ pragma solidity ^0.8.20;
 import 'forge-std/Test.sol';
 
 import '../../contracts/polity/PolityGovernment.sol';
-import '../../contracts/polity/InitialVoting.sol';
-import '../../contracts/polity/CitizenRegistry.sol';
+import '../../contracts/polity/Poll.sol';
+import '../../contracts/polity/Citizen.sol';
 import '../../contracts/polity/GovernorProposalSystem.sol';
 
 contract MockUUPS {
@@ -13,33 +13,23 @@ contract MockUUPS {
 }
 
 contract PolityGovernmentTest is Test {
-    InitialVoting voting;
-    GovernorProposalSystem governorProposalSystem;
-    CitizenRegistry citizenRegistry;
+    Poll poll;
     PolityGovernment polity;
-    MockUUPS proxy;
 
     address public deployer;
     address[] governors;
-    address initGovernor;
-    address newGovernor;
-    address newImpl;
-    address newRule;
-
-    address citizen = address(0x22);
+    address firstCitizen;
 
     function setUp() public {
-        voting = new InitialVoting(51);
-        citizenRegistry = new CitizenRegistry();
-        governorProposalSystem = new GovernorProposalSystem();
-
-        initGovernor = address(0x1);
-        proxy = new MockUUPS();
-        vm.prank(initGovernor);
+        firstCitizen = address(0x1);
+        vm.prank(firstCitizen);
         polity = new PolityGovernment();
 
-        vm.prank(initGovernor);
-        polity.setModule('Voting', address(voting));
+        vm.prank(firstCitizen);
+        poll = new Poll(51);
+
+        vm.prank(firstCitizen);
+        polity.setModule('voting', address(poll));
     }
 
     // Modules
@@ -47,8 +37,8 @@ contract PolityGovernmentTest is Test {
         PolityGovernment.GovernanceModuleView[] memory modules = polity.listGovernanceModules();
 
         assertEq(modules.length, 1);
-        assertEq(modules[0].moduleAddress, address(voting));
-        assertEq(modules[0].name, 'Voting');
+        assertEq(modules[0].moduleAddress, address(poll));
+        assertEq(modules[0].name, 'voting');
     }
 
     // Citizen Module

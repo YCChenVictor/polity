@@ -137,7 +137,7 @@ function RuleProposals() {
         </button> */}
       </div>
 
-      {modalOpen && (
+      {true && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white rounded-2xl p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Add Rule</h3>

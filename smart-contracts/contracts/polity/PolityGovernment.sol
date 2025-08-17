@@ -69,12 +69,19 @@ contract PolityGovernment {
         return views;
     }
 
-    // ─────────────────────── Citizen Modules ───────────────────────
-    address public votingMechanism;
+    // ─────────────────────── Voting Modules ───────────────────────
+    // Directly read the method from voting module address
+    // function propose() external {
+    //     // Going to release the constraint Voting later
+    //     require(modules['voting'] != address(0), 'Voting Mechanism not set');
+    //     return IVoting(modules['voting']).propose();
+    // }
 
-    function setVotingMechanism(address _addr) external {
-        votingMechanism = _addr;
-    }
+    // function listProposals() external view returns (IVoting.ProposalView[] memory views) {
+    //     address v = modules['voting'];
+    //     require(v != address(0), 'Voting Mechanism not set');
+    //     return IVoting(v).listProposals();
+    // }
 
     // ─────────────────────── Citizen Modules ───────────────────────
     // address public citizenRegistry;

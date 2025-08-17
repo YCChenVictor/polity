@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { pollAbi } from "../../generated";
 
 type Verdict = "constitutional" | "unconstitutional" | "unclear";
 
@@ -13,8 +15,13 @@ interface Event {
   reason?: string;
 }
 
-export default function ListEvents() {
+export default function ListEvents({
+  governmentAddress,
+}: {
+  governmentAddress: `0x${string}`;
+}) {
   const [events, setEvents] = useState<Event[]>([]);
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
   const fetchEvents = async () => {
     const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/events`);
@@ -31,10 +38,33 @@ export default function ListEvents() {
     setEvents((prev) =>
       prev.map((e) =>
         e.id === event.id
-          ? { ...e, verdict: data.verdict, const_reason: data.reason }
+          ? { ...e, verdict: data.verdict, reason: data.reason }
           : e,
       ),
     );
+  };
+
+  // Submission state
+  const { writeContractAsync, isPending, error } = useWriteContract();
+  // Confirmation state
+  const {
+    isLoading: isConfirming,
+    isSuccess,
+    isError,
+  } = useWaitForTransactionReceipt({ hash: txHash });
+
+  const handleRaiseVote = async () => {
+    try {
+      const hash = await writeContractAsync({
+        address: governmentAddress,
+        abi: pollAbi,
+        functionName: "create",
+        args: ["testing"],
+      });
+      setTxHash(hash);
+    } catch {
+      // error already comes from the hook
+    }
   };
 
   useEffect(() => {
@@ -53,6 +83,30 @@ export default function ListEvents() {
       {events.map((event) => (
         <div key={event.id} className="py-4 space-y-3 border-b">
           <h2 className="text-lg font-bold">{event.title}</h2>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRaiseVote}
+              disabled={isPending || isConfirming}
+              className="bg-purple-600 text-white px-2 py-1 rounded text-xs disabled:opacity-60"
+            >
+              {isPending
+                ? "Submitting…"
+                : isConfirming
+                  ? "Confirming…"
+                  : "Raise Vote"}
+            </button>
+
+            {isSuccess && (
+              <span className="text-xs text-green-700">Tx confirmed</span>
+            )}
+            {(isError || error) && (
+              <span className="text-xs text-red-700">
+                {error instanceof Error ? error.message : "Tx failed"}
+              </span>
+            )}
+          </div>
+
           <p className="text-sm text-gray-600">
             {event.actor} • {new Date(event.date).toLocaleString()}
           </p>
@@ -71,12 +125,14 @@ export default function ListEvents() {
           {event.reason && (
             <p className="text-xs text-gray-700">理由：{event.reason}</p>
           )}
+
           <button
             onClick={() => handleConstitutionalCheck(event)}
             className="bg-purple-600 text-white px-2 py-1 rounded text-xs"
           >
             憲法審查（GPT）
           </button>
+
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
             <h3 className="text-sm font-semibold text-gray-800 mb-1">
               Description

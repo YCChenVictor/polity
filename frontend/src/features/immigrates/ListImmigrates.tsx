@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../../generated";
+// import { polityGovernmentAbi } from "../../generated";
 
 interface Immigrate {
   name: string;
   wallet_address: `0x${string}`;
 }
 
-function ListImmigrates({ govAddress }: { govAddress: `0x${string}` }) {
+function ListImmigrates() {
+  // { govAddress }: { govAddress: `0x${string}` }
   const [data, setData] = useState<Immigrate[]>([]);
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { isPending } = useWriteContract();
 
   useEffect(() => {
     fetch("http://localhost:5000/immigrates")
@@ -18,20 +19,22 @@ function ListImmigrates({ govAddress }: { govAddress: `0x${string}` }) {
       .catch(console.error);
   }, []);
 
-  const handleCreate = async (wallet: `0x${string}`, reason: number) => {
-    try {
-      await writeContractAsync({
-        address: govAddress,
-        abi: polityGovernmentAbi,
-        functionName: "createCitizen",
-        args: [wallet, reason],
-      });
-      alert("Created as citizen");
-    } catch (err) {
-      console.error(err);
-      alert("Failed");
-    }
-  };
+  const handleCreate = async () =>
+    // wallet: `0x${string}`, reason: number
+    {
+      try {
+        // await writeContractAsync({
+        //   address: govAddress,
+        //   abi: polityGovernmentAbi,
+        //   functionName: "createCitizen",
+        //   args: [wallet, reason],
+        // });
+        alert("Created as citizen");
+      } catch (err) {
+        console.error(err);
+        alert("Failed");
+      }
+    };
 
   return (
     <div>
@@ -47,7 +50,7 @@ function ListImmigrates({ govAddress }: { govAddress: `0x${string}` }) {
             </p>
             <button
               disabled={isPending}
-              onClick={() => handleCreate(item.wallet_address, 1)} // Fix the reason numbering
+              onClick={() => handleCreate()}
               className="mt-2 px-3 py-1 bg-green-600 text-white rounded"
             >
               {isPending ? "Submitting..." : "Create as Citizen"}
