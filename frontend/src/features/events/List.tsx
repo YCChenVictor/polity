@@ -15,11 +15,7 @@ interface Event {
   reason?: string;
 }
 
-export default function ListEvents({
-  governmentAddress,
-}: {
-  governmentAddress: `0x${string}`;
-}) {
+export default function List({ pollAddress }: { pollAddress: `0x${string}` }) {
   const [events, setEvents] = useState<Event[]>([]);
   const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
@@ -53,13 +49,13 @@ export default function ListEvents({
     isError,
   } = useWaitForTransactionReceipt({ hash: txHash });
 
-  const handleRaiseVote = async () => {
+  const handleRaiseVote = async (content: string) => {
     try {
       const hash = await writeContractAsync({
-        address: governmentAddress,
+        address: pollAddress,
         abi: pollAbi,
         functionName: "create",
-        args: ["testing"],
+        args: [content],
       });
       setTxHash(hash);
     } catch {
@@ -86,7 +82,7 @@ export default function ListEvents({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handleRaiseVote}
+              onClick={() => handleRaiseVote(event.description)}
               disabled={isPending || isConfirming}
               className="bg-purple-600 text-white px-2 py-1 rounded text-xs disabled:opacity-60"
             >
