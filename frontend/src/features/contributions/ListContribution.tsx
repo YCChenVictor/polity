@@ -57,14 +57,14 @@ function ListContributions() {
               <span className="font-semibold">Validated:</span>{" "}
               {`${item.validated}`}
             </p>
-            {true && (
-              <button
-                className="mt-2 px-4 py-1 bg-blue-600 text-white rounded"
-                onClick={() => handleValidate(i)}
-              >
-                Validate
-              </button>
-            )}
+            (
+            <button
+              className="mt-2 px-4 py-1 bg-blue-600 text-white rounded"
+              onClick={() => handleValidate(i)}
+            >
+              Validate
+            </button>
+            )
           </li>
         ))}
       </ul>

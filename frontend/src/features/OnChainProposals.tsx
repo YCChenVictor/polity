@@ -136,13 +136,12 @@ function RuleProposals() {
           + Add Smart Contract Proposal
         </button> */}
       </div>
+      (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white rounded-2xl p-6 w-96">
+          <h3 className="text-lg font-semibold mb-4">Add Rule</h3>
 
-      {true && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-2xl p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">Add Rule</h3>
-
-            {/* {isError && (
+          {/* {isError && (
               <p className="text-red-500 mb-2">Error: {error?.message}</p>
             )}
 
@@ -173,10 +172,9 @@ function RuleProposals() {
             </div>
 
             {isSuccess && <p className="text-green-500 mt-2">Rule proposed!</p>} */}
-          </div>
         </div>
-      )}
-
+      </div>
+      )
       <ul className="space-y-4">
         {/* {codeProposals &&
           codeProposals.map((p, i) => (

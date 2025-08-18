@@ -28,7 +28,7 @@ function Immigrates({
 
   return (
     <>
-      {true && <Application />}
+      <Application />
       <ListImmigrates />
     </>
   );
