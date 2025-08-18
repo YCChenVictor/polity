@@ -18,8 +18,7 @@ if (process.env.NODE_ENV === "test") {
     networks: {
       hardhat: {
         mining: {
-          auto: false,
-          interval: 1000,
+          auto: true,
         },
       },
     },

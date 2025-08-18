@@ -63,7 +63,6 @@ function CreateGovernor() {
           + Add Governor
         </button>
       </div>
-
       <ul className="space-y-4">
         {[].map((p, i) => (
           <li
@@ -93,44 +92,43 @@ function CreateGovernor() {
           </li>
         ))}
       </ul>
+      (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white rounded-2xl p-6 w-96">
+          <h3 className="text-lg font-semibold mb-4">Add Governor</h3>
 
-      {true && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-2xl p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">Add Governor</h3>
+          <p className="text-red-500 mb-2">Error: {}</p>
 
-            {true && <p className="text-red-500 mb-2">Error: {}</p>}
+          <input
+            type="text"
+            placeholder="0xAddress"
+            value={newGovAddress}
+            onChange={(e) => setNewGovAddress(e.target.value)}
+            className="w-full border rounded p-2 mb-4"
+            disabled={true}
+          />
 
-            <input
-              type="text"
-              placeholder="0xAddress"
-              value={newGovAddress}
-              onChange={(e) => setNewGovAddress(e.target.value)}
-              className="w-full border rounded p-2 mb-4"
+          <div className="flex justify-end space-x-2">
+            <button
+              className="px-4 py-2 bg-gray-300 rounded-2xl hover:bg-gray-400"
+              onClick={() => setModalOpen(false)}
               disabled={true}
-            />
-
-            <div className="flex justify-end space-x-2">
-              <button
-                className="px-4 py-2 bg-gray-300 rounded-2xl hover:bg-gray-400"
-                onClick={() => setModalOpen(false)}
-                disabled={true}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 bg-green-600 text-white rounded-2xl hover:bg-green-700"
-                onClick={handleAddGovernor}
-                disabled={!newGovAddress || true}
-              >
-                {modalOpen ? "Adding..." : "Add"}
-              </button>
-            </div>
-
-            {true && <p className="text-green-500 mt-2">Governor proposed!</p>}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded-2xl hover:bg-green-700"
+              onClick={handleAddGovernor}
+              disabled={!newGovAddress || true}
+            >
+              {modalOpen ? "Adding..." : "Add"}
+            </button>
           </div>
+
+          <p className="text-green-500 mt-2">Governor proposed!</p>
         </div>
-      )}
+      </div>
+      )
     </>
   );
 

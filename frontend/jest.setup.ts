@@ -1,6 +1,13 @@
 // jest.setup.ts
-import { TextEncoder, TextDecoder } from "util";
+import {
+  TextEncoder as UtilTextEncoder,
+  TextDecoder as UtilTextDecoder,
+} from "util";
 
-global.TextEncoder = TextEncoder;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-global.TextDecoder = TextDecoder as any;
+(
+  globalThis as unknown as { TextEncoder: typeof globalThis.TextEncoder }
+).TextEncoder = UtilTextEncoder as unknown as typeof globalThis.TextEncoder;
+
+(
+  globalThis as unknown as { TextDecoder: typeof globalThis.TextDecoder }
+).TextDecoder = UtilTextDecoder as unknown as typeof globalThis.TextDecoder;
