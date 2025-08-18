@@ -23,7 +23,7 @@ const SetVotingMechanism = ({ governmentAddress }: SetVotingMechanismProps) => {
         address: governmentAddress,
         abi: polityGovernmentAbi,
         functionName: "setModule",
-        args: ["vote", newAddressForVotingMechanism],
+        args: ["poll", newAddressForVotingMechanism],
       });
     } catch (error) {
       console.error("Error setting governance modules:", error);

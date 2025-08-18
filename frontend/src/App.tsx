@@ -1,38 +1,42 @@
 import { useAccount } from "wagmi";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import ConnectButton from "./features/ConnectButton";
 import Governance, { GovernanceModuleView } from "./features/Governance";
 import Vote from "./features/Poll";
-import Rules from "./features/Rules";
 import SetVoting from "./features/governance/SetVoting";
 import SetCitizen from "./features/governance/SetCitizen";
 import Citizen from "./features/Citizen";
+import Topic from "./features/Topic";
+
+const ZERO = "0x0000000000000000000000000000000000000000" as `0x${string}`;
+const norm = (s: string) => s.trim().toLowerCase();
 
 function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
   const { isConnected } = useAccount();
-  const [tab, setTab] = useState<string>("");
-  const [citizenAddress, setCitizenAddress] = useState<`0x${string}`>(
-    "0x0000" as `0x${string}`,
-  );
-  const [votingAddress, setVotingAddress] = useState<`0x${string}`>(
-    "0x0000" as `0x${string}`,
-  );
 
-  const handleModuleClick = (m: GovernanceModuleView) => {
-    const key = (m.name || "").trim();
-    console.log(
-      "clicked module:",
-      key,
-      "→ tab:",
-      key,
-      "addr:",
-      m.moduleAddress,
+  const [tab, setTab] = useState<string>("");
+  // store all module addresses keyed by normalized name
+  const [addr, setAddr] = useState<Record<string, `0x${string}`>>({});
+
+  // stable: avoids infinite loops
+  const handleModulesLoaded = useCallback((mods: GovernanceModuleView[]) => {
+    setAddr(
+      Object.fromEntries(
+        mods.map((m) => [norm(m.name), m.moduleAddress]),
+      ) as Record<string, `0x${string}`>,
     );
+  }, []);
+
+  const handleModuleClick = useCallback((m: GovernanceModuleView) => {
+    const key = norm(m.name);
     setTab(key);
-    if (key === "vote") setVotingAddress(m.moduleAddress);
-    if (key === "citizen") setCitizenAddress(m.moduleAddress);
-  };
+
+    // ensure clicked module is in addr (handles static/manual entries)
+    if (m.moduleAddress && m.moduleAddress !== ZERO) {
+      setAddr((s) => (s[key] ? s : { ...s, [key]: m.moduleAddress }));
+    }
+  }, []);
 
   return (
     <>
@@ -53,17 +57,18 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
             <Governance
               govAddress={governmentAddress}
               onModuleClick={handleModuleClick}
+              onLoaded={handleModulesLoaded}
             />
 
             <p className="text-sm text-gray-500">
               current tab: {tab || "(none)"}
             </p>
 
-            {tab === "vote" && votingAddress && (
-              <Vote address={votingAddress} />
+            {tab === "poll" && addr[tab] && <Vote address={addr.poll} />}
+            {tab === "citizen" && addr.citizen && (
+              <Citizen citizenAddress={addr.citizen} />
             )}
-            {tab === "citizen" && <Citizen citizenAddress={citizenAddress} />}
-            {tab === "rules" && <Rules govAddress={governmentAddress} />}
+            {tab === "topic" && <Topic pollAddress={addr.poll} />}
           </main>
         </div>
       )}
