@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  contract:
+    build:
+      context: ./smart-contracts
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file: ./frontend/.env
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
