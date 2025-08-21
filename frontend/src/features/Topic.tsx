@@ -1,11 +1,18 @@
-import Create from "./events/Create";
-import List from "./events/List";
+// import Create from "./topics/Create";
+import CreateIPFS from "./topics/CreateIPFS";
+// import List from "./topics/List";
 
-function Topic({ pollAddress }: { pollAddress: `0x${string}` }) {
+function Topic() {
   return (
     <>
-      <Create />
-      <List pollAddress={pollAddress} />
+      <>
+        Any person can send requests for our services. This is the concept to
+        build virtuous government. As a result, the current topic will be around
+        economics.
+      </>
+      <CreateIPFS />
+      {/* <Create /> */}
+      {/* <List pollAddress={pollAddress} /> */}
     </>
   );
 }
