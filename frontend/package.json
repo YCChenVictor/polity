@@ -33,7 +33,7 @@
     "typescript-eslint": "^8.32.0"
   },
   "scripts": {
-    "start": "yarn generate && react-scripts start",
+    "start": "react-scripts start",
     "generate": "wagmi generate",
     "lint": "yarn eslint .",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --env=jsdom",
