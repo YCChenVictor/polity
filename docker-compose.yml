@@ -1,5 +1,12 @@
 version: "3.9"
 services:
+  ipfs:
+    build: ./ipfs
+    image: ipfs/kubo:latest
+    ports:
+      - "5001:5001"
+    volumes:
+      - ipfs-data:/data/ipfs
   contract:
     build:
       context: ./smart-contracts
@@ -15,3 +22,5 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+volumes:
+  ipfs-data:

@@ -40,10 +40,7 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
 
   return (
     <>
-      <h2 className="text-xl font-bold mt-4 mb-2 text-center">
-        台灣民眾對提案的公開投票
-      </h2>
-
+      <Topic pollAddress={addr.poll} />
       <div className="text-center mb-4">
         <ConnectButton />
       </div>
@@ -68,7 +65,6 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
             {tab === "citizen" && addr.citizen && (
               <Citizen citizenAddress={addr.citizen} />
             )}
-            {tab === "topic" && <Topic pollAddress={addr.poll} />}
           </main>
         </div>
       )}
