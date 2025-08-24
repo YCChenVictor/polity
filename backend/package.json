@@ -2,22 +2,25 @@
   "type": "module",
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "axios": "^1.10.0",
     "babel-register": "^6.26.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
+    "ethers": "^6.15.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9",
     "openai": "^5.12.2",
     "pg": "^8.16.3",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "siwe": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "eslint": "^9.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
@@ -28,12 +31,11 @@
     "typescript-eslint": "^8.39.0"
   },
   "scripts": {
+    "start": "yarn build && node dist/server.js",
     "build": "tsc && tsc-alias",
     "lint": "yarn eslint .",
     "dev": "NODE_ENV=dev yarn start:debug",
     "format": "yarn eslint . --fix",
-    "db:migrate:dev": "NODE_ENV=dev yarn db:migrate",
-    "db:migrate": "sequelize db:migrate --debug",
     "start:debug": "yarn build && node --inspect=0.0.0.0 dist/server.js --experimental-modules",
     "format:json": "yarn build && node dist/scripts/json-formatter.js"
   }
