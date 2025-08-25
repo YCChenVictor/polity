@@ -8,6 +8,7 @@ import SetVoting from "./features/governance/SetVoting";
 import SetCitizen from "./features/governance/SetCitizen";
 import Citizen from "./features/Citizen";
 import Topic from "./features/Topic";
+import Auth from "./features/Auth";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as `0x${string}`;
 const norm = (s: string) => s.trim().toLowerCase();
@@ -40,7 +41,8 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
 
   return (
     <>
-      <Topic pollAddress={addr.poll} />
+      <Auth />
+      <Topic />
       <div className="text-center mb-4">
         <ConnectButton />
       </div>
