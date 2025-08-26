@@ -1,55 +1,54 @@
 import express from "express";
-
-import Event from "../models/event";
+import multer from "multer";
+import { create } from "ipfs-http-client";
 
 // import LLMService from "../services/llm";
 
 const router = express.Router();
 
+if(!process.env.IPFS_API) {
+  throw new Error("Missing IPFS_API in environment")
+}
+
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing OPENAI_API_KEY in environment");
 }
+
+const ipfs = create({ url: process.env.IPFS_API });
 // const llmService = new LLMService(process.env.OPENAI_API_KEY!);
 
-router.post("/", async (req, res) => {
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+
+router.post("/", upload.single("file"), async (req, res) => {
   try {
-    const { title, description, actor, date, status } = req.body;
+    const f = req.file;
+    if (!f) return res.status(400).json({ error: "file required" });
 
-    if (!title || !date || !actor) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
+    const { cid } = await ipfs.add(
+      { content: f.buffer, path: f.originalname },
+      { pin: true, cidVersion: 1 }
+    );
 
-    const event = await Event.create({
-      title,
-      description,
-      actor,
-      date,
-      status,
-    });
-
-    return res.status(201).json(event);
-  } catch (err) {
-    console.error("Error creating event:", err);
-    return res.status(500).json({ message: "Server error" });
+    res.json({ cid: cid.toString(), name: f.originalname, size: f.size });
+  } catch (error) {
+    res.status(500).json({ error });
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", async (_req, res) => {
   try {
-    const events = await Event.findAll({
-      order: [["date", "DESC"]],
-    });
-    return res.status(200).json(events);
-  } catch (err) {
-    console.error("Error fetching events:", err);
-    return res.status(500).json({ message: "Server error" });
+    const out: { cid: string }[] = [];
+    for await (const p of ipfs.pin.ls({ type: "recursive" })) {
+      out.push({ cid: p.cid.toString() });
+    }
+    res.json(out);
+  } catch (error) {
+    res.status(500).json({ error });
   }
 });
 
 router.post("/:id/constitutional-check", async (req, res) => {
   try {
-    const event = await Event.findByPk(req.params.id);
-    if (!event) return res.status(404).json({ message: "Not found" });
 
     // const result = await llmService.constitutionalCheck(ev);
     const result = {
@@ -68,14 +67,6 @@ router.post("/:id/constitutional-check", async (req, res) => {
 }
     const verdict = result.verdict as "constitutional" | "unconstitutional" | "unclear";
     const reason = String(result.reason || "");
-
-    await event.update({
-      verdict: verdict,
-      reason: reason,
-    });
-
-    console.log("zxcvzxcvzcvxzvxc")
-    console.log(event)
 
     res.json({ verdict, reason, confidence: result.confidence });
   } catch (err) {

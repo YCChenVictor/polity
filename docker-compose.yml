@@ -1,12 +1,20 @@
 version: "3.9"
 services:
   ipfs:
-    build: ./ipfs
     image: ipfs/kubo:latest
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/api/v0/id"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: ./backend/.env
+    restart: unless-stopped
     ports:
-      - "5001:5001"
-    volumes:
-      - ipfs-data:/data/ipfs
+      - "5000:5000"
   contract:
     build:
       context: ./smart-contracts
@@ -22,13 +30,5 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file: ./backend/.env
-    restart: unless-stopped
-    ports:
-      - "5000:5000"
 volumes:
   ipfs-data:
