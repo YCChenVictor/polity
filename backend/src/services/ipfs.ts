@@ -61,6 +61,35 @@ export default class IpfsService {
     return out;
   }
 
+  async mfsStat(path: string) {
+    const p = this.normalizePath(path);
+    return this.ipfs.files.stat(p);
+  }
+
+  async mfsMkdir(path: string, parents = true): Promise<void> {
+    const p = this.normalizePath(path);
+    await this.ipfs.files.mkdir(p, { parents });
+  }
+
+  async mfsWrite(path: string, data: Uint8Array | Buffer): Promise<void> {
+    const p = this.normalizePath(path);
+    await this.ipfs.files.write(p, data, {
+      create: true,
+      parents: true,
+      truncate: true,
+    });
+  }
+
+  async mfsWriteJson(path: string, obj: unknown): Promise<void> {
+    await this.mfsWrite(path, Buffer.from(JSON.stringify(obj, null, 2)));
+  }
+
+  async mfsRead(cid: string): Promise<Buffer> {
+    const chunks: Uint8Array[] = [];
+    for await (const ch of this.ipfs.cat(cid)) chunks.push(ch);
+    return Buffer.concat(chunks as Buffer[]);
+  }
+
   async snapshotAndPin(
     path: string,
     recursive = true,
