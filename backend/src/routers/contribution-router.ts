@@ -5,8 +5,8 @@ const router = Router();
 
 const contributions = [
   { title: "Canada", content: "" },
-  { title: "Germany",  content: "" },
-  { title: "Australia",  content: "" },
+  { title: "Germany", content: "" },
+  { title: "Australia", content: "" },
 ];
 
 router.get("/", (req, res) => {
@@ -16,7 +16,7 @@ router.get("/", (req, res) => {
 router.post("/", (req, res) => {
   const { title, content } = req.body;
 
-  contributions.push({title, content})
+  contributions.push({ title, content });
 
   res.status(201).json(contributions);
 });

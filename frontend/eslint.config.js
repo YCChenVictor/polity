@@ -1,7 +1,6 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettierPlugin from "eslint-plugin-prettier";
-import jsonPlugin from "eslint-plugin-json";
 import jestPlugin from "eslint-plugin-jest";
 
 export default [
@@ -21,10 +20,6 @@ export default [
       // "no-console": ["error"],
       "jest/no-focused-tests": "error",
     },
-  },
-  {
-    files: ["**/*.json"],
-    ...jsonPlugin.configs.recommended,
   },
   // {
   //   files: ["src/node.ts"],

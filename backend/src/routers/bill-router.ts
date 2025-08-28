@@ -7,13 +7,12 @@ const billRouter = express.Router();
 
 // Define types for the Bill data
 interface Bill {
-  billId: string;  // This will now map to '議案編號'
-  title: string;   // '議案名稱'
+  billId: string; // This will now map to '議案編號'
+  title: string; // '議案名稱'
   proposer: string; // '提案單位/提案委員'
-  status: string;  // '議案狀態'
-  url: string;     // 'url'
+  status: string; // '議案狀態'
+  url: string; // 'url'
 }
-
 
 const billsJSON: Record<string, Bill> = {};
 
@@ -21,7 +20,7 @@ const billsJSON: Record<string, Bill> = {};
 // source https://v2.ly.govapi.tw/bills`
 billRouter.get("/", async (req, res) => {
   try {
-    const response = await axios.get('https://v2.ly.govapi.tw/bills');
+    const response = await axios.get("https://v2.ly.govapi.tw/bills");
     res.json(response.data);
   } catch (err) {
     res.status(500).json({ error: `Failed to fetch legislator data: ${err}` });
@@ -46,12 +45,12 @@ billRouter.post("/", async (req, res) => {
     //   billsJSON[billId] = { billId, title, proposer, status, url };
     // });
 
-    console.log(billsJSON)
+    console.log(billsJSON);
     // Respond with the stored JSON data
     res.json(billsJSON);
   } catch (error) {
-    console.error('Error fetching bills:', error);
-    res.status(500).json({ error: 'Failed to fetch bills data' });
+    console.error("Error fetching bills:", error);
+    res.status(500).json({ error: "Failed to fetch bills data" });
   }
 });
 
