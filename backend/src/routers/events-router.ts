@@ -11,6 +11,10 @@ if (!process.env.IPFS_API) {
   throw new Error("Missing IPFS_API in environment");
 }
 
+if (!process.env.IPFS_API) {
+  throw new Error("Missing IPFS_API in environment");
+}
+
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing OPENAI_API_KEY in environment");
 }
@@ -25,58 +29,82 @@ const upload = multer({
 // curl -X POST http://localhost:5000/events/ -F "file=@tmp/test.txt"
 router.post("/", upload.single("file"), async (req, res) => {
   try {
+    if (!req.file)
+      return res.status(400).json({ error: "file required (field: file)" });
     const result = await ipfsService.mfsCreate(req.file as Express.Multer.File);
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error });
+    res.status(500).json({ error: String(error) });
   }
 });
 
 // curl http://localhost:5000/events/
 router.get("/", async (_req, res) => {
   try {
-    const pins = await ipfsService.mfsList();
-    res.json(pins);
+    await ipfsService.mfsMkdir("/staging", true);
+
+    const entries = await ipfsService.mfsList("/staging");
+    res.json(entries);
   } catch (error) {
-    res.status(500).json({ error });
+    console.error("Error listing /staging:", error);
+    res.status(500).json({ error: String(error) });
   }
 });
 
-router.post("/:id/constitutional-check", async (req, res) => {
+// curl http://localhost:5000/events/:cid
+router.get("/:cid", async (req, res) => {
+  const { cid } = req.params;
   try {
-    // const result = await llmService.constitutionalCheck(ev);
-    const result = {
+    const chunks: Uint8Array[] = [];
+    for await (const c of ipfsService["ipfs"].cat(cid)) {
+      chunks.push(c);
+    }
+    const buf = Buffer.concat(chunks as Buffer[]);
+    res.type("application/octet-stream").send(buf);
+  } catch (e) {
+    res.status(404).json({ error: `CID not found: ${String(e)}` });
+  }
+});
+
+// curl -X POST http://localhost:5000/events/:cid/constitutional-check
+router.post("/:cid/constitutional-check", async (req, res) => {
+  const { cid } = req.params;
+  try {
+    // ensure dir
+    await ipfsService.mfsMkdir(`/staging/${cid}`, true);
+
+    // use provided body if any; else default sample
+    const aiCheck = req.body ?? {
       verdict: "unclear",
       reason:
         "此修正案並非直接明文違憲，但在功能性影響、比例原則與權力分立面向存在高度疑慮，若無合憲解釋配套，實務上可能造成憲法法庭失能。",
       confidence: 0.8,
       analysis: {
         程序合法性:
-          "立委提案、委員會審查、送院會處理，程序上符合憲法及立法院職權行使法規定 → 無程序違憲問題。",
-        明文衝突:
-          "憲法增修條文第5條確定大法官員額為15人，但現行憲法訴訟法採在職人數計算。修正案若強制以15人為基準，與憲法條文本身不直接衝突，但恐與憲法訴訟法第12條形成內部矛盾。",
-        功能性影響:
-          "採修正案時，出缺或迴避可能導致無法達到法定評議人數，憲法法庭運作中斷 → 高風險影響憲政運作。",
-        比例原則:
-          "目的為確保多元觀點，但手段過於僵化，副作用（癱瘓審判）大於利益 → 疑似違反比例原則。",
-        平等原則:
-          "無針對特定人或群體差別待遇，屬程序設計爭議 → 平等原則影響低。",
-        權力分立:
-          "立法機關透過修法實質限制司法院大法官憲法解釋權，恐構成對司法權的不當干預 → 可能違反權力分立。",
-        合憲解釋可能性:
-          "可透過解釋將「15人」視為理想額數，仍依在職人數計算，避免癱瘓法庭 → 具合憲解釋空間。",
+          "立委提案、委員會審查、送院會處理，程序上符合規定 → 無程序違憲。",
+        明文衝突: "與憲法訴訟法可能形成內部矛盾，但非直接衝突。",
+        功能性影響: "人數不足時可能癱瘓審理 → 高風險。",
+        比例原則: "目的合理但手段僵化 → 疑違反比例原則。",
+        平等原則: "影響低。",
+        權力分立: "恐對司法權造成不當干預。",
+        合憲解釋可能性: "可採在職人數解釋以避免癱瘓。",
       },
     };
-    const verdict = result.verdict as
-      | "constitutional"
-      | "unconstitutional"
-      | "unclear";
-    const reason = String(result.reason || "");
 
-    res.json({ verdict, reason, confidence: result.confidence });
+    const outPath = `/staging/${cid}/constitutional-check.json`;
+    await ipfsService.mfsWriteJson(outPath, aiCheck);
+
+    const stat = await ipfsService.mfsStat(outPath); // add this wrapper if you don't have it
+    res.json({
+      ok: true,
+      path: outPath,
+      cid: stat.cid?.toString?.() ?? "",
+      size: Number(stat.size ?? 0),
+      type: stat.type,
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "AI check failed" });
+    console.error("constitutional-check error:", err);
+    res.status(500).json({ error: String(err) });
   }
 });
 
