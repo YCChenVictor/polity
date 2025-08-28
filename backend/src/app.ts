@@ -26,6 +26,6 @@ app.use("/contributions", contributionsRouter);
 app.use("/legislators", legislatorRouter);
 app.use("/bills", bullRouter);
 app.use("/events", eventsRouter);
-app.use("/auth", authRouter)
+app.use("/auth", authRouter);
 
 export default app;

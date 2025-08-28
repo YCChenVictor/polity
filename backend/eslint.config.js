@@ -1,25 +1,27 @@
-import eslint from '@eslint/js';
+// eslint.config.ts
+import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import prettierPlugin from "eslint-plugin-prettier";
+import prettier from "eslint-plugin-prettier";
 
 export default [
   eslint.configs.recommended,
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
+
   {
     ignores: [
-      '**/coverage/**',
-      '**/dist/**',
-      '**/migrations/**',
-      '**/*.config.js',
-      '**/*.config.ts',
-      'tsconfig.json',
-      "**/patch/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/*.config.js",
+      "**/migrations/**",
     ],
   },
+
   {
-    plugins: {
-      prettier: prettierPlugin,
+    files: ["**/*.ts"],
+    plugins: { prettier },
+    rules: {
+      "prettier/prettier": "error",
     },
   },
-]
+];
