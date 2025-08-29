@@ -1,5 +1,5 @@
 import { Router } from "express";
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt, { SignOptions, JwtPayload } from "jsonwebtoken";
 import { generateNonce, SiweMessage } from "siwe";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -62,6 +62,19 @@ authRouter.post("/verify", async (req, res) => {
   } catch (error) {
     res.status(400).json({ error });
   }
+});
+
+authRouter.get("/me", (req, res) => {
+  const [, token] = (req.headers.authorization || "").split(" ");
+  if (!token) return res.status(401).json({ error: "Missing auth" });
+
+  const payload = jwt.verify(token, JWT_SECRET);
+  if (typeof payload === "string" || !("addr" in payload)) {
+    return res.status(401).json({ error: "Bad token" });
+  }
+
+  const { addr } = payload as JwtPayload & { addr: string };
+  res.json({ address: addr });
 });
 
 export default authRouter;

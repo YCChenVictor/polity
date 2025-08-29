@@ -1,7 +1,6 @@
 import { useAccount } from "wagmi";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import ConnectButton from "./features/ConnectButton";
 import Governance, { GovernanceModuleView } from "./features/Governance";
 import Vote from "./features/Poll";
 import SetVoting from "./features/governance/SetVoting";
@@ -39,13 +38,28 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
     }
   }, []);
 
+  const [user, setUser] = useState<{ address: string } | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setUser(data))
+      .catch(() => setUser(null));
+  }, []);
+
   return (
     <>
-      <Auth />
-      <Topic />
-      <div className="text-center mb-4">
-        <ConnectButton />
-      </div>
+      {!user ? <Auth /> : <Topic />}
 
       <SetCitizen governmentAddress={governmentAddress} />
       <SetVoting governmentAddress={governmentAddress} />

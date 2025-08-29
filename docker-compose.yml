@@ -2,11 +2,17 @@ version: "3.9"
 services:
   ipfs:
     image: ipfs/kubo:latest
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/api/v0/id"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs-data:/data/ipfs
+    entrypoint: >
+      sh -lc '
+        ipfs config Addresses.API --json "\"/ip4/0.0.0.0/tcp/5001\"" &&
+        ipfs config Addresses.Gateway --json "\"/ip4/0.0.0.0/tcp/8080\"" &&
+        exec /sbin/tini -- ipfs daemon --migrate=true
+      '
   backend:
     build:
       context: ./backend

@@ -1,7 +1,6 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettierPlugin from "eslint-plugin-prettier";
-import jestPlugin from "eslint-plugin-jest";
 
 export default [
   eslint.configs.recommended,
@@ -13,18 +12,9 @@ export default [
   {
     plugins: {
       prettier: prettierPlugin,
-      jest: jestPlugin,
     },
     rules: {
       "prettier/prettier": "error",
-      // "no-console": ["error"],
-      "jest/no-focused-tests": "error",
     },
   },
-  // {
-  //   files: ["src/node.ts"],
-  //   rules: {
-  //     "no-console": "off",
-  //   },
-  // },
 ];

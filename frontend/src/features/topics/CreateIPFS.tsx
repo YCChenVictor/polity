@@ -1,77 +1,45 @@
 import React, { useState } from "react";
-import { useAccount, useWalletClient, useWriteContract } from "wagmi";
-import { create as createIpfs } from "ipfs-http-client";
 
-const IPFS_API_URL =
-  process.env.NEXT_PUBLIC_IPFS_API_URL ?? "http://localhost:5001/api/v0";
-const TOPICS_CONTRACT_ADDRESS = process.env
-  .NEXT_PUBLIC_TOPICS_ADDRESS as `0x${string}`;
-const TOPICS_ABI = [
-  {
-    type: "function",
-    name: "createTopic",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "topicCid", type: "string" },
-      { name: "title", type: "string" },
-    ],
-    outputs: [],
-  },
-] as const;
+export default function UploadEvent() {
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
 
-export default function TopicCreateForm() {
-  const { address } = useAccount();
-  const { data: walletClient } = useWalletClient();
-  const { writeContractAsync } = useWriteContract();
+  const handleUpload = async () => {
+    if (!file) return;
+    setStatus("Uploading...");
 
-  const ipfs = createIpfs({ url: IPFS_API_URL });
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!address || !walletClient) return;
+    try {
+      const res = await fetch("http://localhost:5000/events/", {
+        method: "POST",
+        body: formData,
+      });
 
-    const payload = { title, body, proposer: address, createdAt: Date.now() };
-    const bytes = new TextEncoder().encode(JSON.stringify(payload));
-    const { cid } = await ipfs.add(bytes);
-
-    await writeContractAsync({
-      abi: TOPICS_ABI,
-      address: TOPICS_CONTRACT_ADDRESS,
-      functionName: "createTopic",
-      args: [cid.toString(), title],
-    });
-
-    setTitle("");
-    setBody("");
+      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+      const data = await res.json();
+      setStatus(`✅ Uploaded! CID: ${data.cid ?? "no cid returned"}`);
+    } catch (error) {
+      setStatus(`❌ Error: ${error}`);
+    }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-        maxWidth: "500px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="p-4 max-w-md mx-auto flex flex-col gap-3">
       <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Topic Title"
+        type="file"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        className="w-full"
       />
-      <textarea
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder="Topic body..."
-        rows={5}
-      />
-      <button type="submit" disabled={!title || !body}>
-        Publish Topic
+      <button
+        onClick={handleUpload}
+        disabled={!file}
+        className="rounded-md bg-blue-600 px-4 py-2 text-white disabled:bg-gray-400"
+      >
+        Upload
       </button>
-    </form>
+      {status && <p className="text-sm">{status}</p>}
+    </div>
   );
 }
