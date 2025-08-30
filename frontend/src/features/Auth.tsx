@@ -28,15 +28,16 @@ const signInWithEthereum = async () => {
     body: JSON.stringify({ message: prepared, signature, nonce }),
   });
   if (!res.ok) throw new Error("SIWE verify failed");
-  const { token, address: addr } = await res.json();
+  const { token } = await res.json();
 
-  return { token, address: addr };
+  return token;
 };
 
 export default function SiweLoginButton() {
   const handleLogin = async () => {
     try {
       const token = await signInWithEthereum();
+      localStorage.setItem("authToken", token);
       console.log("✅ Access token:", token);
     } catch (err) {
       console.error("❌ SIWE login failed:", err);

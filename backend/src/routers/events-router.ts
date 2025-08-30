@@ -34,6 +34,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     const result = await ipfsService.mfsCreate(req.file as Express.Multer.File);
     res.json(result);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: String(error) });
   }
 });
