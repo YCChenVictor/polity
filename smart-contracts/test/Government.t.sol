@@ -3,42 +3,46 @@ pragma solidity ^0.8.20;
 
 import 'forge-std/Test.sol';
 
-import '../../contracts/polity/PolityGovernment.sol';
+import '../../contracts/polity/Government.sol';
 import '../../contracts/polity/Poll.sol';
 import '../../contracts/polity/Citizen.sol';
-import '../../contracts/polity/GovernorProposalSystem.sol';
 
 contract MockUUPS {
     address public currentImpl;
 }
 
-contract PolityGovernmentTest is Test {
+contract Main is Test {
     Poll poll;
-    PolityGovernment polity;
+    Citizen citizen;
+    Government government;
 
     address public deployer;
     address[] governors;
     address firstCitizen;
 
     function setUp() public {
-        firstCitizen = address(0x1);
-        vm.prank(firstCitizen);
-        polity = new PolityGovernment();
-
         vm.prank(firstCitizen);
         poll = new Poll(51);
 
         vm.prank(firstCitizen);
-        polity.setModule('voting', address(poll));
+        citizen = new Citizen();
+
+        firstCitizen = address(0x1);
+        vm.prank(firstCitizen);
+        government = new Government(address(citizen), address(poll));
     }
 
-    // Modules
-    function testListGovernanceModules() public {
-        PolityGovernment.GovernanceModuleView[] memory modules = polity.listGovernanceModules();
+    function testInitGovernanceModules() public {
+        assertEq(government.getModule('citizen'), address(citizen));
+        assertEq(government.getModule('poll'), address(poll));
+    }
 
-        assertEq(modules.length, 1);
-        assertEq(modules[0].moduleAddress, address(poll));
-        assertEq(modules[0].name, 'voting');
+    function testListGovernanceModules() public {
+        Government.GovernanceModuleView[] memory modules = government.listGovernanceModules();
+
+        assertEq(modules.length, 2);
+        assertEq(modules[0].name, 'citizen');
+        assertEq(modules[1].name, 'poll');
     }
 
     // Citizen Module

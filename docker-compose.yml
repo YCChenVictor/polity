@@ -25,7 +25,6 @@ services:
     build:
       context: ./smart-contracts
       dockerfile: Dockerfile
-    restart: unless-stopped
     ports:
       - "8545:8545"
   frontend:

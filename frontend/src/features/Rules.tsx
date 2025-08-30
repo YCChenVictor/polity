@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import RawLaw from "../laws/ChLaw.json";
 import { useReadContract, useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../generated";
+import { governmentAbi } from "../generated";
 import { LawJson } from "../models/law";
 import LawShow from "./rules/LawShow";
 
@@ -14,7 +14,7 @@ function Rules({ govAddress }: { govAddress: `0x${string}` }) {
     try {
       await writeContract({
         address: govAddress,
-        abi: polityGovernmentAbi,
+        abi: governmentAbi,
         functionName: "addLawLevel",
         args: [newLevel],
       });
@@ -27,7 +27,7 @@ function Rules({ govAddress }: { govAddress: `0x${string}` }) {
 
   const { data: lawLevels } = useReadContract({
     address: govAddress,
-    abi: polityGovernmentAbi,
+    abi: governmentAbi,
     functionName: "getLawLevels",
   });
 
