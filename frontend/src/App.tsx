@@ -64,15 +64,15 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
       <SetCitizen governmentAddress={governmentAddress} />
       <SetVoting governmentAddress={governmentAddress} />
 
+      <Governance
+        govAddress={governmentAddress}
+        onModuleClick={handleModuleClick}
+        onLoaded={handleModulesLoaded}
+      />
+
       {isConnected && (
         <div className="min-h-screen bg-gray-50">
           <main className="p-6 space-y-6">
-            <Governance
-              govAddress={governmentAddress}
-              onModuleClick={handleModuleClick}
-              onLoaded={handleModulesLoaded}
-            />
-
             <p className="text-sm text-gray-500">
               current tab: {tab || "(none)"}
             </p>

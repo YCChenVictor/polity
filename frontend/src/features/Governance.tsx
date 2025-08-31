@@ -1,7 +1,7 @@
 // features/Governance.tsx
 import { useEffect, useMemo, useRef } from "react";
 import { useReadContract } from "wagmi";
-import { polityGovernmentAbi } from "../generated";
+import { governmentAbi } from "../generated";
 
 export interface GovernanceModuleView {
   name: string;
@@ -21,7 +21,7 @@ export default function Governance({
 }: Props) {
   const { data, isLoading, error } = useReadContract({
     address: govAddress,
-    abi: polityGovernmentAbi,
+    abi: governmentAbi,
     functionName: "listGovernanceModules",
   });
 

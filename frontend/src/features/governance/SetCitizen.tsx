@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useWriteContract } from "wagmi";
-import { polityGovernmentAbi } from "../../generated";
+import { governmentAbi } from "../../generated";
 
 interface SetCitizenRegistryProps {
   governmentAddress: `0x${string}`;
@@ -21,7 +21,7 @@ const SetCitizenRegistry = ({ governmentAddress }: SetCitizenRegistryProps) => {
     try {
       await writeContract({
         address: governmentAddress,
-        abi: polityGovernmentAbi,
+        abi: governmentAbi,
         functionName: "setModule",
         args: ["citizen", newAddressForCitizenRegistry],
       });

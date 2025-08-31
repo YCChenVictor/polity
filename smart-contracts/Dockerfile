@@ -1,11 +1,19 @@
 FROM node:20-alpine
-
 WORKDIR /app
 
-COPY package*.json ./
+RUN apk add --no-cache netcat-openbsd
 
-COPY . .
+# deps
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
-EXPOSE 8545
+# sources + config
+COPY hardhat.config.* tsconfig.* ./
+COPY contracts ./contracts
+COPY deploy ./deploy
 
+# ✅ download compiler & compile during image build
+RUN npx hardhat compile
+
+# start node + deploy (no compile at runtime)
 CMD ["yarn", "start"]
