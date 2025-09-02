@@ -64,7 +64,6 @@ function RuleProposals() {
   // };
 
   // const handleVoteOnCodeContract = async (id: number) => {
-  //   console.log("zxcv");
   //   setVoteInProgress(true);
   //   try {
   //     // await writeContract({
@@ -82,7 +81,6 @@ function RuleProposals() {
   // };
 
   // const handleVoteOnBillContract = async (id: number) => {
-  //   console.log("zxcv");
   //   setVoteInProgress(true);
   //   try {
   //     // await writeContract({

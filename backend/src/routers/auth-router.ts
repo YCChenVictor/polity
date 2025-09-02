@@ -1,5 +1,5 @@
 import { Router } from "express";
-import jwt, { SignOptions, JwtPayload } from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { generateNonce, SiweMessage } from "siwe";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -29,7 +29,6 @@ const take = (n: string) => {
 
 authRouter.get("/nonce", (_req, res) => {
   const nonce = generateNonce();
-
   keep(nonce);
   res.json({ nonce });
 });
@@ -45,11 +44,15 @@ authRouter.post("/verify", async (req, res) => {
     if (!nonce || !take(nonce))
       return res.status(401).json({ error: "Missing/expired nonce" });
 
+    console.log("zxcvzxcvzvcx");
+    console.log(message);
     const siwe = new SiweMessage(message);
+    console.log("zxcvzxcvzvcx");
     const domain =
       (req.headers.origin
         ? new URL(req.headers.origin as string).host
         : req.headers.host) || undefined;
+
     const { success, data } = await siwe.verify({ signature, nonce, domain });
     if (!success) return res.status(401).json({ error: "Invalid SIWE" });
 
@@ -58,23 +61,40 @@ authRouter.post("/verify", async (req, res) => {
       JWT_SECRET,
       { expiresIn: JWT_EXPIRES, issuer: "polity-auth" },
     );
-    res.json({ ok: true, address: data.address, token });
+
+    res.cookie("auth", token, {
+      httpOnly: true,
+      secure: true, // true in prod (HTTPS)
+      sameSite: "lax", // or "strict" if same-site
+      maxAge: 1000 * 60 * 60 * 8, // align with JWT_EXPIRES
+      path: "/",
+    });
+
+    res.json({ ok: true, address: data.address }); // no token in body
   } catch (error) {
+    console.log("zxcvzxcv");
+    console.log(error);
     res.status(400).json({ error });
   }
 });
 
 authRouter.get("/me", (req, res) => {
-  const [, token] = (req.headers.authorization || "").split(" ");
+  const token = req.cookies?.auth;
   if (!token) return res.status(401).json({ error: "Missing auth" });
 
-  const payload = jwt.verify(token, JWT_SECRET);
-  if (typeof payload === "string" || !("addr" in payload)) {
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload & {
+      addr: string;
+    };
+    res.json({ address: payload.addr });
+  } catch {
     return res.status(401).json({ error: "Bad token" });
   }
+});
 
-  const { addr } = payload as JwtPayload & { addr: string };
-  res.json({ address: addr });
+authRouter.post("/logout", (req, res) => {
+  res.clearCookie("auth", { path: "/" });
+  res.json({ ok: true });
 });
 
 export default authRouter;
