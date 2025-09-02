@@ -25,7 +25,6 @@ function List({ address }: { address: `0x${string}` }) {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!data || data.length === 0) return <div>No polls found</div>;
-
   return (
     <ul>
       {data.map((poll) => (
@@ -46,4 +45,5 @@ function List({ address }: { address: `0x${string}` }) {
     </ul>
   );
 }
+
 export default List;

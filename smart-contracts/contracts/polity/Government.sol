@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+// interface ICitizen {
+//     function total() external view returns (uint256);
+// }
+
 contract Government {
+    // ICitizen public citizen;
+
     address public immutable poll;
 
     mapping(string => address) private modules;
@@ -15,19 +21,19 @@ contract Government {
         address moduleAddress;
     }
 
-    constructor(address citizen, address poll_) {
-        require(citizen != address(0) && poll_ != address(0), 'ZERO_ADDR');
-        poll = poll_;
-        _set('citizen', citizen);
-        _set('poll', poll_);
+    constructor(address citizen_) {
+        // default, we need citizen and poll
+        _set('citizen', citizen_);
+        // citizen = ICitizen(citizen_);
     }
 
-    modifier onlyPoll() {
+    // So you need the poll module first
+    modifier onlyThroughPoll() {
         require(msg.sender == poll, 'NOT_POLL');
         _;
     }
 
-    function setModule(string calldata name, address impl) external onlyPoll {
+    function setModule(string calldata name, address impl) external onlyThroughPoll {
         require(bytes(name).length != 0, 'EMPTY_NAME');
         require(impl != address(0) && impl.code.length > 0, 'BAD_IMPL');
         _set(name, impl);
@@ -48,6 +54,11 @@ contract Government {
             string memory nm = moduleNames[i];
             views[i] = GovernanceModuleView(nm, modules[nm]);
         }
+    }
+
+    // ---- citizen ----
+    function totalCitizens() external view returns (uint256) {
+        // return citizen.total();
     }
 
     // ---- internal ----

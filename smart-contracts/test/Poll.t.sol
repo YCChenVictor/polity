@@ -11,7 +11,7 @@ contract ProposeTest is Test {
 
     function setUp() public {
         poll = new Poll(51);
-        poll.create('hello world'); // ensure proposal id=0 exists
+        poll.create('hello world', 100); // ensure proposal id=0 exists
     }
 
     function testProposeAndList() public {

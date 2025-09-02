@@ -37,7 +37,7 @@ function ListImmigrates() {
     };
 
   return (
-    <div>
+    <div className="p-4">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
         Immigration List
       </h2>

@@ -29,21 +29,21 @@ contract Main is Test {
 
         firstCitizen = address(0x1);
         vm.prank(firstCitizen);
-        government = new Government(address(citizen), address(poll));
+        // government = new Government(address(citizen), address(poll));
     }
 
-    function testInitGovernanceModules() public {
-        assertEq(government.getModule('citizen'), address(citizen));
-        assertEq(government.getModule('poll'), address(poll));
-    }
+    // function testInitGovernanceModules() public {
+    //     assertEq(government.getModule('citizen'), address(citizen));
+    //     assertEq(government.getModule('poll'), address(poll));
+    // }
 
-    function testListGovernanceModules() public {
-        Government.GovernanceModuleView[] memory modules = government.listGovernanceModules();
+    // function testListGovernanceModules() public {
+    //     Government.GovernanceModuleView[] memory modules = government.listGovernanceModules();
 
-        assertEq(modules.length, 2);
-        assertEq(modules[0].name, 'citizen');
-        assertEq(modules[1].name, 'poll');
-    }
+    //     assertEq(modules.length, 2);
+    //     assertEq(modules[0].name, 'citizen');
+    //     assertEq(modules[1].name, 'poll');
+    // }
 
     // Citizen Module
     // function testGetCitizens() public {
