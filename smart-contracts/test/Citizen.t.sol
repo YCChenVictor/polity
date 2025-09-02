@@ -15,9 +15,9 @@ contract CitizenTest is Test {
 
     function testCreateCitizen() public {
         citizen.create(addr1, 1);
-        Citizen.Citizen[] memory citizens = citizen.read();
-        assertEq(citizens.length, 1, 'There should be exactly one citizen');
-        assertEq(citizens[0].wallet, addr1, "The citizen's wallet address should match addr1");
+        Citizen.CitizenInfo[] memory citizens = citizen.read();
+        assertEq(citizens.length, 2, 'There should be exactly two citizen, one is deployer');
+        assertEq(citizens[1].wallet, addr1, "The citizen's wallet address should match addr1");
     }
 
     // function testCannotCreateCitizenTwice() public {

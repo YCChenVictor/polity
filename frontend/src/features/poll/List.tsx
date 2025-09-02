@@ -11,9 +11,9 @@ interface PollView {
   no: number;
 }
 
-function List({ address }: { address: `0x${string}` }) {
+function List({ pollAddress }: { pollAddress: `0x${string}` }) {
   const { data, isLoading, error } = useReadContract({
-    address,
+    address: pollAddress,
     abi: pollAbi,
     functionName: "list",
   }) as {
@@ -34,11 +34,11 @@ function List({ address }: { address: `0x${string}` }) {
           </p>
           <p>
             ✅ Yes: {poll.yes}{" "}
-            <Button address={address} id={poll.id} support={true} />
+            <Button address={pollAddress} id={poll.id} support={true} />
           </p>
           <p>
             ❌ No: {poll.no}{" "}
-            <Button address={address} id={poll.id} support={false} />
+            <Button address={pollAddress} id={poll.id} support={false} />
           </p>
         </li>
       ))}

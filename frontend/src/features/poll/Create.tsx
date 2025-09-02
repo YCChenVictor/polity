@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { useWriteContract } from "wagmi";
+// import { useWriteContract } from "wagmi";
 
-import { pollAbi } from "../../generated";
+// import { pollAbi } from "../../generated";
 
-export default function Create({ address }: { address: `0x${string}` }) {
+export default function Create() {
   const [open, setOpen] = useState(false);
   const [context, setContext] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  const { writeContract } = useWriteContract();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -20,12 +18,12 @@ export default function Create({ address }: { address: `0x${string}` }) {
     e.preventDefault();
     setSubmitting(true);
     console.log("Creating poll with context:", context);
-    await writeContract({
-      address: address,
-      abi: pollAbi,
-      functionName: "create",
-      args: [context],
-    });
+    // await writeContract({
+    //   address: address,
+    //   abi: pollAbi,
+    //   functionName: "create",
+    //   args: [context],
+    // });
     // Here you would typically call your backend API or smart contract to create the poll
     // For example:
     // await fetch("/api/polls", { method: "POST", body: JSON.stringify({ context }) });

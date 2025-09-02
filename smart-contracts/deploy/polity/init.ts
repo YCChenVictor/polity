@@ -14,7 +14,7 @@ async function main() {
   console.log("Citizens deployed at:", citizensAddress);
 
   const Poll = await hre.ethers.getContractFactory("Poll");
-  const poll = await Poll.deploy(51, citizensAddress);
+  const poll = await Poll.deploy(51);
   await poll.waitForDeployment();
   const pollAddress = await poll.getAddress()
   console.log("Poll deployed at:", pollAddress);
