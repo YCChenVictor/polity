@@ -32,6 +32,9 @@ const SetCitizenRegistry = ({ governmentAddress }: SetCitizenRegistryProps) => {
 
   return (
     <div className="pt-4">
+      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100 mt-6 mb-3 border-b border-gray-200 pb-2">
+        Governance Modules
+      </h2>
       <input
         value={newAddressForCitizenRegistry}
         onChange={(e) =>

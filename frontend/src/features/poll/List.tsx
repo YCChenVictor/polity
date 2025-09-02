@@ -4,9 +4,6 @@ import Button from "./Button";
 
 import { pollAbi } from "../../generated";
 
-// Create event -> create a record in backend and trigger background job to be evaluated by AI and maybe experts -> Show the status on the list of vote events
-
-// Seems I can get the type through wagmi
 interface PollView {
   id: bigint;
   content: string;
@@ -14,7 +11,7 @@ interface PollView {
   no: number;
 }
 
-function ListVote({ address }: { address: `0x${string}` }) {
+function List({ address }: { address: `0x${string}` }) {
   const { data, isLoading, error } = useReadContract({
     address,
     abi: pollAbi,
@@ -49,4 +46,4 @@ function ListVote({ address }: { address: `0x${string}` }) {
     </ul>
   );
 }
-export default ListVote;
+export default List;

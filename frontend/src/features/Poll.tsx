@@ -13,12 +13,10 @@ function Poll({ address }: { address: `0x${string}` }) {
   }); // keep if you need it elsewhere
 
   return (
-    <>
+    <div className="mt-4">
       <Create address={address} />
-      <div className="mt-4">
-        <List address={address} />
-      </div>
-    </>
+      <List address={address} />
+    </div>
   );
 }
 
