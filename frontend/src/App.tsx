@@ -2,12 +2,13 @@ import { useAccount } from "wagmi";
 import { useCallback, useEffect, useState } from "react";
 
 import Governance, { GovernanceModuleView } from "./features/Governance";
-import Vote from "./features/Poll";
+import Poll from "./features/Poll";
 import SetVoting from "./features/governance/SetVoting";
 import SetCitizen from "./features/governance/SetCitizen";
 import Citizen from "./features/Citizen";
 import Topic from "./features/Topic";
 import Auth from "./features/Auth";
+import Application from "./features/immigrates/Application";
 
 const ZERO = "0x0000000000000000000000000000000000000000" as `0x${string}`;
 const norm = (s: string) => s.trim().toLowerCase();
@@ -59,10 +60,17 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
 
   return (
     <>
-      {!user ? <Auth /> : <Topic />}
-
-      <SetCitizen governmentAddress={governmentAddress} />
-      <SetVoting governmentAddress={governmentAddress} />
+      {!user ? (
+        <Auth />
+      ) : (
+        <>
+          <Topic />
+          <Application pollAddress={addr.poll} />
+          <Poll address={addr.poll} />
+          <SetCitizen governmentAddress={governmentAddress} />
+          <SetVoting governmentAddress={governmentAddress} />
+        </>
+      )}
 
       <Governance
         govAddress={governmentAddress}
@@ -77,7 +85,7 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
               current tab: {tab || "(none)"}
             </p>
 
-            {tab === "poll" && addr[tab] && <Vote address={addr.poll} />}
+            {tab === "poll" && addr[tab] && <Poll address={addr.poll} />}
             {tab === "citizen" && addr.citizen && (
               <Citizen citizenAddress={addr.citizen} />
             )}

@@ -33,23 +33,24 @@ const IPFSFileList: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {files.map((f) => (
-            <tr key={f.cid} className="border-t hover:bg-gray-50">
-              <td className="px-4 py-2">{f.name}</td>
-              <td className="px-4 py-2">{f.type}</td>
-              <td className="px-4 py-2">{f.size} bytes</td>
-              <td className="px-4 py-2">
-                <a
-                  href={`https://ipfs.io/ipfs/${f.cid}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  {f.cid}
-                </a>
-              </td>
-            </tr>
-          ))}
+          {files.length > 0 &&
+            files.map((f) => (
+              <tr key={f.cid} className="border-t hover:bg-gray-50">
+                <td className="px-4 py-2">{f.name}</td>
+                <td className="px-4 py-2">{f.type}</td>
+                <td className="px-4 py-2">{f.size} bytes</td>
+                <td className="px-4 py-2">
+                  <a
+                    href={`https://ipfs.io/ipfs/${f.cid}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    {f.cid}
+                  </a>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
