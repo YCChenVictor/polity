@@ -1,43 +1,43 @@
 import { useAccount } from "wagmi";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import Governance, { GovernanceModuleView } from "./features/Governance";
+// import { GovernanceModuleView } from "./features/Governance";
 import Poll from "./features/Poll";
-import SetVoting from "./features/governance/SetVoting";
-import SetCitizen from "./features/governance/SetCitizen";
+// import SetVoting from "./features/governance/SetVoting";
+// import SetCitizen from "./features/governance/SetCitizen";
 import Citizen from "./features/Citizen";
 import Topic from "./features/Topic";
 import Auth from "./features/Auth";
 import Application from "./features/immigrates/Application";
 
-const ZERO = "0x0000000000000000000000000000000000000000" as `0x${string}`;
-const norm = (s: string) => s.trim().toLowerCase();
+// const ZERO = "0x0000000000000000000000000000000000000000" as `0x${string}`;
+// const norm = (s: string) => s.trim().toLowerCase();
 
-function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
+function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
   const { isConnected } = useAccount();
 
-  const [tab, setTab] = useState<string>("");
+  // const [tab, setTab] = useState<string>("");
   // store all module addresses keyed by normalized name
-  const [addr, setAddr] = useState<Record<string, `0x${string}`>>({});
+  // const [addr, setAddr] = useState<Record<string, `0x${string}`>>({});
 
   // stable: avoids infinite loops
-  const handleModulesLoaded = useCallback((mods: GovernanceModuleView[]) => {
-    setAddr(
-      Object.fromEntries(
-        mods.map((m) => [norm(m.name), m.moduleAddress]),
-      ) as Record<string, `0x${string}`>,
-    );
-  }, []);
+  // const handleModulesLoaded = useCallback((mods: GovernanceModuleView[]) => {
+  //   setAddr(
+  //     Object.fromEntries(
+  //       mods.map((m) => [norm(m.name), m.moduleAddress]),
+  //     ) as Record<string, `0x${string}`>,
+  //   );
+  // }, []);
 
-  const handleModuleClick = useCallback((m: GovernanceModuleView) => {
-    const key = norm(m.name);
-    setTab(key);
+  // const handleModuleClick = useCallback((m: GovernanceModuleView) => {
+  //   const key = norm(m.name);
+  //   setTab(key);
 
-    // ensure clicked module is in addr (handles static/manual entries)
-    if (m.moduleAddress && m.moduleAddress !== ZERO) {
-      setAddr((s) => (s[key] ? s : { ...s, [key]: m.moduleAddress }));
-    }
-  }, []);
+  //   // ensure clicked module is in addr (handles static/manual entries)
+  //   if (m.moduleAddress && m.moduleAddress !== ZERO) {
+  //     setAddr((s) => (s[key] ? s : { ...s, [key]: m.moduleAddress }));
+  //   }
+  // }, []);
 
   const [user, setUser] = useState<{ address: string } | null>(null);
 
@@ -65,18 +65,17 @@ function App({ governmentAddress }: { governmentAddress: `0x${string}` }) {
       ) : (
         <>
           <Topic />
-          <Application pollAddress={addr.poll} />
-          <Poll address={addr.poll} />
-          <SetCitizen governmentAddress={governmentAddress} />
-          <SetVoting governmentAddress={governmentAddress} />
-        </>
-      )}
-
-      <Governance
+          <Application citizenAddress={citizenAddress} />
+          {/* <Poll address={addr.poll} /> */}
+          {/* <SetCitizen governmentAddress={governmentAddress} />
+          <SetVoting governmentAddress={governmentAddress} /> */}
+          {/* <Governance
         govAddress={governmentAddress}
         onModuleClick={handleModuleClick}
         onLoaded={handleModulesLoaded}
-      />
+      /> */}
+        </>
+      )}
 
       {isConnected && (
         <div className="min-h-screen bg-gray-50">

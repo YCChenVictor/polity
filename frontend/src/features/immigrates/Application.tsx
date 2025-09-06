@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { isAddress, type Hash } from "viem";
-import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { pollAbi } from "../../generated";
+import {
+  useReadContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { citizenAbi } from "../../generated";
+import Init from "../poll/Init";
 
 interface ApplicationData {
   name: string;
@@ -9,9 +14,9 @@ interface ApplicationData {
 }
 
 export default function Application({
-  pollAddress,
+  citizenAddress,
 }: {
-  pollAddress: `0x${string}`;
+  citizenAddress: `0x${string}`;
 }) {
   const [newApp, setNewApp] = useState<ApplicationData>({
     name: "",
@@ -21,24 +26,28 @@ export default function Application({
   const [hash, setHash] = useState<Hash | undefined>();
   const [error, setError] = useState<string | null>(null);
 
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { data: poll } = useReadContract({
+    address: citizenAddress,
+    abi: citizenAbi,
+    functionName: "poll",
+  });
+
+  const { isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({ hash });
 
   const handleCreate = async () => {
-    if (!isAddress(pollAddress)) return setError("Bad contract address.");
+    if (!isAddress(citizenAddress)) return setError("Bad contract address.");
     if (!isAddress(newApp.wallet_address))
       return setError("Invalid wallet address.");
     try {
-      // If your ABI is create(address) keep args as below.
-      // If it's create(string,address) -> use: [newApp.name, newApp.wallet_address]
-      const txHash = await writeContractAsync({
-        address: pollAddress,
-        abi: pollAbi,
-        functionName: "create",
-        args: [newApp.wallet_address],
-      });
-      setHash(txHash);
+      // const txHash = await writeContractAsync({
+      //   address: citizenAddress,
+      //   abi: citizenAbi,
+      //   functionName: "propose",
+      //   args: [newApp.wallet_address],
+      // });
+      // setHash(txHash);
     } catch (error) {
       console.log(error);
     }
@@ -55,16 +64,20 @@ export default function Application({
         Immigration system
       </h2>
 
-      <button
-        onClick={() => {
-          setIsModalOpen(true);
-          setHash(undefined);
-          setError(null);
-        }}
-        className="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
-        Create Application
-      </button>
+      {poll && poll !== "0x0000000000000000000000000000000000000000" ? (
+        <button
+          onClick={() => {
+            setIsModalOpen(true);
+            setHash(undefined);
+            setError(null);
+          }}
+          className="mb-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Create Application
+        </button>
+      ) : (
+        <Init citizenAddress={citizenAddress} />
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-500/75 flex justify-center items-center z-50">
