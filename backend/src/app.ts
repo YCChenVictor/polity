@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import "./env";
 
@@ -11,7 +12,7 @@ import eventsRouter from "./routers/events-router";
 import authRouter from "./routers/auth-router";
 
 const app = express();
-
+app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.FRONTEND_ENDPOINT,
@@ -20,7 +21,6 @@ app.use(
   }),
 );
 app.use(express.json());
-
 app.use("/immigrates", immigratesRouter);
 app.use("/contributions", contributionsRouter);
 app.use("/legislators", legislatorRouter);

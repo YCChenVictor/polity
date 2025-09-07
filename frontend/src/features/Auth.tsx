@@ -1,46 +1,75 @@
-import { BrowserProvider } from "ethers";
+"use client";
+
+import { useState } from "react";
+import { useAccount, useConnect, useSignMessage, useChainId } from "wagmi";
 import { SiweMessage } from "siwe";
 
-const signInWithEthereum = async () => {
-  const provider = new BrowserProvider(window.ethereum);
-  const signer = await provider.getSigner();
-  const address = await signer.getAddress();
+const BACKEND = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:5000";
 
-  const { nonce } = await fetch(
-    `${process.env.REACT_APP_BACKEND_URL}/auth/nonce`,
-  ).then((r) => r.json());
+export default function SiweLoginButton({
+  onSuccess,
+}: {
+  onSuccess?: (s: { address: string }) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const chainId = useChainId();
+  const { address, isConnected } = useAccount();
+  const { connectAsync, connectors, isPending: isConnecting } = useConnect();
+  const { signMessageAsync } = useSignMessage();
 
-  const msg = new SiweMessage({
-    domain: window.location.host,
-    address,
-    statement: "Sign in to Polity.",
-    uri: window.location.origin,
-    version: "1",
-    chainId: 1,
-    nonce,
-  });
-  const prepared = msg.prepareMessage();
-  const signature = await signer.signMessage(prepared);
-
-  const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/verify`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: prepared, signature, nonce }),
-  });
-  if (!res.ok) throw new Error("SIWE verify failed");
-  const { token } = await res.json();
-
-  return token;
-};
-
-export default function SiweLoginButton() {
   const handleLogin = async () => {
     try {
-      const token = await signInWithEthereum();
-      localStorage.setItem("authToken", token);
-      console.log("✅ Access token:", token);
-    } catch (err) {
-      console.error("❌ SIWE login failed:", err);
+      setLoading(true);
+
+      // 1) ensure connected
+      let addr = address as `0x${string}` | undefined;
+      if (!addr) {
+        const connector =
+          connectors.find((c) => c.id === "injected" && c.ready) ??
+          connectors.find((c) => c.ready) ??
+          connectors[0];
+        if (!connector) throw new Error("No wallet connector");
+        const { accounts } = await connectAsync({ connector });
+        addr = accounts?.[0] as `0x${string}` | undefined;
+      }
+      if (!addr) throw new Error("No address");
+
+      // 2) nonce
+      const { nonce } = await fetch(`${BACKEND}/auth/nonce`, {
+        credentials: "include",
+      }).then((r) => r.json());
+
+      // 3) build + sign EXACT prepared string
+      const siwe = new SiweMessage({
+        domain: window.location.host,
+        address: addr,
+        statement: "Sign in to Polity.",
+        uri: window.location.origin,
+        version: "1",
+        chainId: chainId || 1,
+        nonce,
+      });
+      const message = siwe.prepareMessage();
+      const signature = await signMessageAsync({ message });
+
+      // 4) verify -> HttpOnly cookie
+      const verify = await fetch(`${BACKEND}/auth/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ message, signature, nonce }),
+      });
+      if (!verify.ok) throw new Error("SIWE verify failed");
+
+      // 5) session
+      const me = await fetch(`${BACKEND}/auth/me`, { credentials: "include" });
+      const sess = me.ok ? await me.json() : { address: addr };
+      onSuccess?.(sess);
+    } catch (e) {
+      console.error(e);
+      alert(e ?? "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,8 +77,13 @@ export default function SiweLoginButton() {
     <button
       onClick={handleLogin}
       className="px-4 py-2 bg-black text-white rounded-lg"
+      disabled={loading || isConnecting}
     >
-      Sign in with Ethereum
+      {loading || isConnecting
+        ? "Signing in..."
+        : isConnected
+          ? "Sign in with Ethereum"
+          : "Connect & Sign in"}
     </button>
   );
 }
