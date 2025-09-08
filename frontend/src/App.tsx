@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import Topic from "./features/Topic";
 import Application from "./features/immigrates/Application";
 import SiweLoginButton from "./features/Auth";
+import List from "./features/poll/List";
+import { citizenAbi } from "./generated";
 
 function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
   const { isConnected } = useAccount();
@@ -18,6 +20,12 @@ function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
       setUser(null);
     }
   }
+
+  const { data: pollAddress } = useReadContract({
+    address: citizenAddress,
+    abi: citizenAbi,
+    functionName: "poll",
+  });
 
   useEffect(() => {
     // on mount
@@ -40,6 +48,7 @@ function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
     <>
       <Topic />
       <Application citizenAddress={citizenAddress} />
+      {pollAddress && <List pollAddress={pollAddress} />}
     </>
   );
 }

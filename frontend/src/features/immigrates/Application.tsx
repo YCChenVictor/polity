@@ -22,6 +22,7 @@ export default function Application({
     name: "",
     wallet_address: "",
   });
+  const { writeContractAsync } = useWriteContract();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hash, setHash] = useState<Hash | undefined>();
   const [error, setError] = useState<string | null>(null);
@@ -41,13 +42,13 @@ export default function Application({
     if (!isAddress(newApp.wallet_address))
       return setError("Invalid wallet address.");
     try {
-      // const txHash = await writeContractAsync({
-      //   address: citizenAddress,
-      //   abi: citizenAbi,
-      //   functionName: "propose",
-      //   args: [newApp.wallet_address],
-      // });
-      // setHash(txHash);
+      const txHash = await writeContractAsync({
+        address: citizenAddress,
+        abi: citizenAbi,
+        functionName: "propose",
+        args: [newApp.wallet_address],
+      });
+      setHash(txHash);
     } catch (error) {
       console.log(error);
     }

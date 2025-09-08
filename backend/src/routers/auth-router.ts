@@ -44,10 +44,7 @@ authRouter.post("/verify", async (req, res) => {
     if (!nonce || !take(nonce))
       return res.status(401).json({ error: "Missing/expired nonce" });
 
-    console.log("zxcvzxcvzvcx");
-    console.log(message);
     const siwe = new SiweMessage(message);
-    console.log("zxcvzxcvzvcx");
     const domain =
       (req.headers.origin
         ? new URL(req.headers.origin as string).host

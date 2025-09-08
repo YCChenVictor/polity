@@ -9,7 +9,9 @@ contract Poll {
     ICitizen public citizen;
 
     struct Proposal {
+        ProposalType ptype;
         string content;
+        address target;
         uint64 deadlineAt;
         uint256 quorumBase;
     }
@@ -31,24 +33,36 @@ contract Poll {
     mapping(uint256 => uint32) public yesVotes;
     mapping(uint256 => uint32) public noVotes;
 
-    event Proposed(uint256 id, string content, uint64 deadline);
+    event Proposed(uint256 id, ProposalType ptype, address target, uint64 deadlineAt);
     event Voted(uint256 id, address voter, bool support);
     event Implemented(uint256 id, address target);
     event Finalized(uint256 id, bool passed);
+
+    // Should change to different types in the future
+    enum ProposalType {
+        None,
+        Text,
+        Target
+    }
 
     constructor(uint256 _minVotesPercent) {
         require(_minVotesPercent <= 100, 'PERCENT_TOO_HIGH');
         minVotesPercent = _minVotesPercent;
     }
 
-    function create(string calldata content, uint256 totalCitizens) external returns (uint256 id) {
-        require(bytes(content).length != 0, 'EMPTY_CONTENT');
+    function create(
+        ProposalType ptype,
+        address target,
+        uint256 totalCitizens
+    ) external returns (uint256 id) {
         id = nextId++;
         Proposal storage p = props[id];
-        p.content = content;
+        p.ptype = ptype;
+        p.target = target;
         p.deadlineAt = uint64(block.timestamp + votingSecs);
         p.quorumBase = totalCitizens;
-        emit Proposed(id, content, p.deadlineAt);
+
+        emit Proposed(id, ptype, target, p.deadlineAt);
     }
 
     function list() public view returns (View[] memory views) {
