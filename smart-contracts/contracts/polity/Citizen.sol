@@ -30,6 +30,7 @@ contract Citizen {
     mapping(uint8 => string) public reasonMap;
 
     event CitizenCreated(address wallet, uint8 reasonCode);
+    event ProposalMade(address indexed proposer, address indexed target, uint256 totalCitizens);
 
     constructor() {
         reasonMap[1] = 'born';
@@ -42,6 +43,7 @@ contract Citizen {
         require(isCitizen(msg.sender), 'NOT_CITIZEN');
         require(address(poll) != address(0), 'PM_NOT_SET');
         poll.create(IPoll.ProposalType.Target, target, _count);
+        emit ProposalMade(msg.sender, target, _count);
     }
 
     function create(address wallet, uint8 reasonCode) external {
