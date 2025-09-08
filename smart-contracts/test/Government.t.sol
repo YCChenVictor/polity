@@ -21,14 +21,6 @@ contract Main is Test {
     address firstCitizen;
 
     function setUp() public {
-        vm.prank(firstCitizen);
-        poll = new Poll(51);
-
-        vm.prank(firstCitizen);
-        citizen = new Citizen();
-
-        firstCitizen = address(0x1);
-        vm.prank(firstCitizen);
         // government = new Government(address(citizen), address(poll));
     }
 

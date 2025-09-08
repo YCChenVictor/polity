@@ -6,10 +6,8 @@ interface ICitizen {
 }
 
 contract Poll {
-    ICitizen public citizen;
-
     struct Proposal {
-        ProposalType ptype;
+        ProposalType proposalType;
         string content;
         address target;
         uint64 deadlineAt;
@@ -22,8 +20,14 @@ contract Poll {
         uint32 no;
     }
 
-    uint64 public constant votingSecs = 10;
-    uint256 public immutable minVotesPercent;
+    enum ProposalType {
+        ConfigChange,
+        Immigration,
+        Custom
+    }
+
+    uint16 public minVotesPercent;
+    uint64 public votingSeconds;
     uint256 public nextId;
 
     mapping(uint256 => bool) public finalized;
@@ -38,31 +42,23 @@ contract Poll {
     event Implemented(uint256 id, address target);
     event Finalized(uint256 id, bool passed);
 
-    // Should change to different types in the future
-    enum ProposalType {
-        None,
-        Text,
-        Target
-    }
-
-    constructor(uint256 _minVotesPercent) {
-        require(_minVotesPercent <= 100, 'PERCENT_TOO_HIGH');
-        minVotesPercent = _minVotesPercent;
+    constructor(uint16 _minVotesPercent, uint32 _votingSeconds) {
+        _setConfig(_minVotesPercent, _votingSeconds);
     }
 
     function create(
-        ProposalType ptype,
+        ProposalType proposalType,
         address target,
         uint256 totalCitizens
     ) external returns (uint256 id) {
         id = nextId++;
         Proposal storage p = props[id];
-        p.ptype = ptype;
+        p.proposalType = proposalType;
         p.target = target;
-        p.deadlineAt = uint64(block.timestamp + votingSecs);
+        p.deadlineAt = uint64(block.timestamp + votingSeconds);
         p.quorumBase = totalCitizens;
 
-        emit Proposed(id, ptype, target, p.deadlineAt);
+        emit Proposed(id, proposalType, target, p.deadlineAt);
     }
 
     function list() public view returns (View[] memory views) {
@@ -95,22 +91,41 @@ contract Poll {
         emit Voted(id, msg.sender, support);
     }
 
-    // function finalize(uint256 id) public {
-    //     require(id < nextId, 'NO_SUCH');
-    //     require(block.timestamp >= props[id].deadlineAt, 'NOT_ENDED');
-    //     require(!finalized[id], 'FINALIZED');
+    function finalize(uint256 id) public {
+        require(id < nextId, 'NO_SUCH');
+        require(block.timestamp >= props[id].deadlineAt, 'NOT_ENDED');
+        require(!finalized[id], 'FINALIZED');
 
-    //     uint256 total = uint256(yesVotes[id]) + uint256(noVotes[id]);
-    //     bool majority = yesVotes[id] > noVotes[id];
-    //     bool quorumOk = (minVotesPercent == 0)
-    //         ? true
-    //         : (props[id].quorumBase > 0 &&
-    //             total * 100 >= minVotesPercent * uint256(props[id].quorumBase));
+        uint256 total = uint256(yesVotes[id]) + uint256(noVotes[id]);
+        bool majority = yesVotes[id] > noVotes[id];
+        bool quorumOk = (minVotesPercent == 0)
+            ? true
+            : (props[id].quorumBase > 0 &&
+                total * 100 >= minVotesPercent * uint256(props[id].quorumBase));
 
-    //     passed[id] = majority && quorumOk;
-    //     finalized[id] = true;
-    //     emit Finalized(id, passed[id]);
-    // }
+        passed[id] = majority && quorumOk;
+        finalized[id] = true;
+        emit Finalized(id, passed[id]);
+
+        // if (passed[id]) {
+        //     if (props[id].ptype == ProposalType.ConfigChange) {
+        //         _setConfig(props[id].newBps, props[id].newSecs);
+        //     } else if (props[id].ptype == ProposalType.Immigration) {
+        //         _addCitizen(props[id].target);
+        //     }
+        // }
+    }
+
+    function currentConfig() external view returns (uint16, uint64) {
+        return (minVotesPercent, votingSeconds);
+    }
+
+    function _setConfig(uint16 _minVotesPercent, uint32 _votingSeconds) internal {
+        require(_minVotesPercent <= 10000, '>100%');
+        require(_votingSeconds > 0, 'DURATION_ZERO');
+        minVotesPercent = _minVotesPercent;
+        votingSeconds = _votingSeconds;
+    }
 
     // function implement(uint256 id) external {
     //     require(id < nextId, "NO_SUCH_PROPOSAL");

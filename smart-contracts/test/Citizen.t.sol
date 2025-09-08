@@ -13,7 +13,7 @@ contract CitizenTest is Test {
 
     function setUp() public {
         citizen = new Citizen();
-        poll = new Poll(51);
+        poll = new Poll(51, 10);
         citizen.setPoll(address(poll));
     }
 
@@ -35,7 +35,7 @@ contract CitizenTest is Test {
     }
 
     function testIsCitizen() public {
-        assertTrue(citizen.isCitizen(address(this)), "Deployer should be a citizen");
+        assertTrue(citizen.isCitizen(address(this)), 'Deployer should be a citizen');
     }
 
     // function testCannotCreateCitizenTwice() public {
