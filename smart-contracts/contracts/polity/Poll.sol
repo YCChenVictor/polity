@@ -95,22 +95,22 @@ contract Poll {
         emit Voted(id, msg.sender, support);
     }
 
-    function finalize(uint256 id) public {
-        require(id < nextId, 'NO_SUCH');
-        require(block.timestamp >= props[id].deadlineAt, 'NOT_ENDED');
-        require(!finalized[id], 'FINALIZED');
+    // function finalize(uint256 id) public {
+    //     require(id < nextId, 'NO_SUCH');
+    //     require(block.timestamp >= props[id].deadlineAt, 'NOT_ENDED');
+    //     require(!finalized[id], 'FINALIZED');
 
-        uint256 total = uint256(yesVotes[id]) + uint256(noVotes[id]);
-        bool majority = yesVotes[id] > noVotes[id];
-        bool quorumOk = (minVotesPercent == 0)
-            ? true
-            : (props[id].quorumBase > 0 &&
-                total * 100 >= minVotesPercent * uint256(props[id].quorumBase));
+    //     uint256 total = uint256(yesVotes[id]) + uint256(noVotes[id]);
+    //     bool majority = yesVotes[id] > noVotes[id];
+    //     bool quorumOk = (minVotesPercent == 0)
+    //         ? true
+    //         : (props[id].quorumBase > 0 &&
+    //             total * 100 >= minVotesPercent * uint256(props[id].quorumBase));
 
-        passed[id] = majority && quorumOk;
-        finalized[id] = true;
-        emit Finalized(id, passed[id]);
-    }
+    //     passed[id] = majority && quorumOk;
+    //     finalized[id] = true;
+    //     emit Finalized(id, passed[id]);
+    // }
 
     // function implement(uint256 id) external {
     //     require(id < nextId, "NO_SUCH_PROPOSAL");

@@ -3,21 +3,39 @@ pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
 import '../../contracts/polity/Citizen.sol';
+import '../../contracts/polity/Poll.sol';
 
 contract CitizenTest is Test {
     Citizen citizen;
+    Poll poll;
     address addr1 = address(0x123);
-    address addr2 = address(0x456);
+    address proposal = address(0xCAFE);
 
     function setUp() public {
         citizen = new Citizen();
+        poll = new Poll(51);
+        citizen.setPoll(address(poll));
     }
 
-    function testCreateCitizen() public {
+    function testCreate() public {
         citizen.create(addr1, 1);
         Citizen.CitizenInfo[] memory citizens = citizen.read();
         assertEq(citizens.length, 2, 'There should be exactly two citizen, one is deployer');
         assertEq(citizens[1].wallet, addr1, "The citizen's wallet address should match addr1");
+    }
+
+    function testPropose() public {
+        vm.expectEmit(true, true, true, true);
+        emit Citizen.ProposalMade(address(this), proposal, 1);
+        citizen.propose(proposal);
+    }
+
+    function testTotal() public {
+        assertEq(citizen.total(), 1);
+    }
+
+    function testIsCitizen() public {
+        assertTrue(citizen.isCitizen(address(this)), "Deployer should be a citizen");
     }
 
     // function testCannotCreateCitizenTwice() public {
