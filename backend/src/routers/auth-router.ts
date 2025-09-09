@@ -69,8 +69,6 @@ authRouter.post("/verify", async (req, res) => {
 
     res.json({ ok: true, address: data.address }); // no token in body
   } catch (error) {
-    console.log("zxcvzxcv");
-    console.log(error);
     res.status(400).json({ error });
   }
 });

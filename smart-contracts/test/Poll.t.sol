@@ -11,8 +11,8 @@ contract ProposeTest is Test {
     address B = address(0xB11CE);
 
     function setUp() public {
-        poll = new Poll(51);
-        poll.create(Poll.ProposalType.Target, B, 100); // ensure proposal id=0 exists
+        poll = new Poll(51, 10);
+        poll.create(Poll.ProposalType.Immigration, B, 100); // ensure proposal id=0 exists
     }
 
     function testProposeAndList() public {
@@ -37,5 +37,13 @@ contract ProposeTest is Test {
         poll.vote(0, false);
         assertEq(poll.noVotes(0), 1);
         assertEq(poll.yesVotes(0), 0);
+    }
+
+    function testCurrentConfig() public {
+        Poll poll = new Poll(51, 10);
+        (uint16 percent, uint64 votingSeconds) = poll.currentConfig();
+
+        assertEq(percent, 51, "minVotesPercent mismatch");
+        assertEq(votingSeconds, 10, "votingSeconds mismatch");
     }
 }

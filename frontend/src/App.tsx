@@ -3,8 +3,9 @@ import { useAccount, useReadContract } from "wagmi";
 import Topic from "./features/Topic";
 import Application from "./features/immigrates/Application";
 import SiweLoginButton from "./features/Auth";
-import List from "./features/poll/List";
+import Poll from "./features/Poll";
 import { citizenAbi } from "./generated";
+import Citizen from "./features/Citizen";
 
 function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
   const { isConnected } = useAccount();
@@ -48,7 +49,8 @@ function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
     <>
       <Topic />
       <Application citizenAddress={citizenAddress} />
-      {pollAddress && <List pollAddress={pollAddress} />}
+      {pollAddress && <Poll pollAddress={pollAddress} />}
+      <Citizen citizenAddress={citizenAddress} />
     </>
   );
 }

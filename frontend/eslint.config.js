@@ -15,6 +15,13 @@ export default [
     },
     rules: {
       "prettier/prettier": "error",
+      // "no-console": ["error"],
     },
   },
+  // {
+  //   files: [""],
+  //   rules: {
+  //     "no-console": "off",
+  //   },
+  // },
 ];

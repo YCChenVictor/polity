@@ -7,7 +7,7 @@ async function main() {
   console.log("Deploying Poll from:", deployer.address);
 
   const poll = await hre.ethers.getContractFactory("Poll");
-  const registry = await poll.deploy(51); // At least 51%
+  const registry = await poll.deploy(51, 10); // At least 51% and vote span now 10 seconds
   await registry.waitForDeployment();
 
   const address = await registry.getAddress();
