@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { isAddress, type Hash } from "viem";
-import {
-  useReadContract,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
+import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { citizenAbi } from "../../generated";
 import Init from "../poll/Init";
 
@@ -15,8 +11,10 @@ interface ApplicationData {
 
 export default function Application({
   citizenAddress,
+  pollAddress,
 }: {
   citizenAddress: `0x${string}`;
+  pollAddress: `0x${string}`;
 }) {
   const [newApp, setNewApp] = useState<ApplicationData>({
     name: "",
@@ -26,12 +24,6 @@ export default function Application({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [hash, setHash] = useState<Hash | undefined>();
   const [error, setError] = useState<string | null>(null);
-
-  const { data: poll } = useReadContract({
-    address: citizenAddress,
-    abi: citizenAbi,
-    functionName: "poll",
-  });
 
   const { isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -65,7 +57,7 @@ export default function Application({
         Immigration system
       </h2>
 
-      {poll && poll !== "0x0000000000000000000000000000000000000000" ? (
+      {pollAddress ? (
         <button
           onClick={() => {
             setIsModalOpen(true);

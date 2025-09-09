@@ -4,28 +4,37 @@ pragma solidity ^0.8.24;
 import 'forge-std/Test.sol';
 
 import '../../contracts/polity/Poll.sol';
+import '../../contracts/polity/Citizen.sol';
 
 contract ProposeTest is Test {
     Poll poll;
+    Citizen citizen;
     address A = address(0xA11CE);
     address B = address(0xB11CE);
 
     function setUp() public {
-        poll = new Poll(51, 10);
-        poll.create(Poll.ProposalType.Immigration, B, 100); // ensure proposal id=0 exists
+        citizen = new Citizen();
+        poll = new Poll(address(citizen), 51, 10);
+        citizen.setPoll(address(poll));
     }
 
+    //// Immigrations
+    // Create
+    function testCreate() public {
+        uint256 id = poll.create(Poll.ProposalType.Immigration, B, 100);
+        assertEq(id, 0);
+    }
+
+    // Read
     function testProposeAndList() public {
-        // already created in setUp
-        Poll.View[] memory views = poll.list();
+        poll.create(Poll.ProposalType.Immigration, B, 100);
+        Poll.View[] memory views = poll.listImmigrationPolls();
         assertEq(views.length, 1);
-        // assertEq(views[0].id, 0);
-        // assertEq(views[0].content, 'hello world');
-        // assertEq(views[0].yes, 0);
-        // assertEq(views[0].no, 0);
     }
 
+    // Update
     function testYesIncrements() public {
+        poll.create(Poll.ProposalType.Immigration, B, 100);
         vm.prank(A);
         poll.vote(0, true);
         assertEq(poll.yesVotes(0), 1);
@@ -33,14 +42,26 @@ contract ProposeTest is Test {
     }
 
     function testNoIncrements() public {
+        poll.create(Poll.ProposalType.Immigration, B, 100);
         vm.prank(A);
         poll.vote(0, false);
         assertEq(poll.noVotes(0), 1);
         assertEq(poll.yesVotes(0), 0);
     }
 
+    // Destroy
+    function testFinalize() public {
+        uint256 id = poll.create(Poll.ProposalType.Immigration, B, 1);
+        poll.vote(0, true);
+
+        vm.warp(block.timestamp + 2 days);
+
+        poll.finalize(id);
+    }
+
+    //// Config
     function testCurrentConfig() public {
-        Poll poll = new Poll(51, 10);
+        poll.create(Poll.ProposalType.Immigration, B, 100);
         (uint16 percent, uint64 votingSeconds) = poll.currentConfig();
 
         assertEq(percent, 51, 'minVotesPercent mismatch');

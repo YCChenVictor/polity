@@ -22,19 +22,21 @@ function Root() {
   const { connectors, connect, error, isPending } = useConnect();
 
   const [clickedUid, setClickedUid] = React.useState<string | null>(null); // track which button was pressed
-  const [addr, setAddr] = React.useState<`0x${string}` | null>(null);
+  const KEY = "citizenAddress";
+
+  const [address, setAddress] = React.useState<`0x${string}` | null>(null);
   const [input, setInput] = React.useState("");
 
   React.useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("citizen");
-    const fromStore = localStorage.getItem("citizenAddress");
+    const fromStore = localStorage.getItem(KEY);
     const val = (fromUrl ?? fromStore) as `0x${string}` | null;
-    if (val && isAddress(val)) setAddr(val);
-  }, []);
+    if (val && isAddress(val)) setAddress(val);
+  }, [KEY]);
 
   React.useEffect(() => {
-    if (addr) localStorage.setItem("citizenAddress", addr);
-  }, [addr]);
+    if (address) localStorage.setItem(KEY, address);
+  }, [address, KEY]);
 
   const valid = isAddress(input as `0x${string}`);
 
@@ -66,7 +68,7 @@ function Root() {
   }
 
   // Step 2: ask for citizen contract
-  if (!addr) {
+  if (!address) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-2">
         <h1 className="text-xl">Enter Citizen Contract Address</h1>
@@ -76,13 +78,13 @@ function Root() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) =>
-            e.key === "Enter" && valid && setAddr(input as `0x${string}`)
+            e.key === "Enter" && valid && setAddress(input as `0x${string}`)
           }
         />
         <div className="flex gap-2">
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            onClick={() => setAddr(input as `0x${string}`)}
+            onClick={() => setAddress(input as `0x${string}`)}
             disabled={!valid}
             title={valid ? "" : "Invalid address"}
           >
@@ -91,8 +93,10 @@ function Root() {
           <button
             className="px-4 py-2 border rounded"
             onClick={() => {
+              // clear both generic and namespaced in case of old data
               localStorage.removeItem("citizenAddress");
               setInput("");
+              setAddress(null);
             }}
           >
             Reset
@@ -103,7 +107,7 @@ function Root() {
   }
 
   // Step 3: app
-  return <App citizenAddress={addr} />;
+  return <App citizenAddress={address} />;
 }
 
 root.render(

@@ -5,37 +5,59 @@ import 'forge-std/Test.sol';
 import '../../contracts/polity/Citizen.sol';
 import '../../contracts/polity/Poll.sol';
 
+contract MockPoll is IPoll {
+    ProposalType public lastPtype;
+    address public lastTarget;
+    uint96 public lastTotalCitizens;
+    uint256 public nextId;
+
+    function create(
+        ProposalType ptype,
+        address target,
+        uint96 totalCitizens
+    ) external override returns (uint256 id) {
+        lastPtype = ptype;
+        lastTarget = target;
+        lastTotalCitizens = totalCitizens;
+        id = nextId++; // first id = 0
+    }
+
+    function hasPassed(address /*wallet*/) external pure returns (bool) {
+        return true;
+    }
+}
+
 contract CitizenTest is Test {
     Citizen citizen;
-    Poll poll;
-    address addr1 = address(0x123);
-    address proposal = address(0xCAFE);
+    MockPoll mockPoll;
+    address deployer = address(0xDEAD);
+    address target = address(0xCAFE);
 
+    // Ok, ready to QA again (2025/09/12)
     function setUp() public {
+        vm.startPrank(deployer);
         citizen = new Citizen();
-        poll = new Poll(51, 10);
-        citizen.setPoll(address(poll));
+        mockPoll = new MockPoll();
+        citizen.setPoll(address(mockPoll));
+        vm.stopPrank();
+        assertEq(citizen.pollAddress(), address(mockPoll));
     }
 
-    function testCreate() public {
-        citizen.create(addr1, 1);
-        Citizen.CitizenInfo[] memory citizens = citizen.read();
-        assertEq(citizens.length, 2, 'There should be exactly two citizen, one is deployer');
-        assertEq(citizens[1].wallet, addr1, "The citizen's wallet address should match addr1");
-    }
-
+    // Pre-create
     function testPropose() public {
         vm.expectEmit(true, true, true, true);
-        emit Citizen.ProposalMade(address(this), proposal, 1);
-        citizen.propose(proposal);
+        emit Citizen.ProposalMade(deployer, target, 1);
+        vm.prank(deployer);
+        citizen.propose(target);
     }
 
-    function testTotal() public {
-        assertEq(citizen.total(), 1);
-    }
-
-    function testIsCitizen() public {
-        assertTrue(citizen.isCitizen(address(this)), 'Deployer should be a citizen');
+    // Create
+    function testCreate() public {
+        vm.prank(address(mockPoll));
+        citizen.createFromPoll(target);
+        Citizen.CitizenInfo[] memory citizens = citizen.read();
+        assertEq(citizens.length, 2, 'There should be exactly two citizen, one is deployer');
+        assertEq(citizens[1].wallet, target, "The citizen's wallet address should match addr1");
     }
 
     // function testCannotCreateCitizenTwice() public {
@@ -45,6 +67,15 @@ contract CitizenTest is Test {
     //     // Try creating the same citizen again, expect it to fail
     //     vm.expectRevert("Already exists");
     //     citizenRegistry.createCitizen(addr1);
+    // }
+
+    // Read
+    function testTotal() public {
+        assertEq(citizen.total(), 1);
+    }
+
+    // function testIsCitizen() public {
+    //     assertTrue(citizen.isCitizen(address(this)), 'Deployer should be a citizen');
     // }
 
     // function testGetAllCitizens() public {

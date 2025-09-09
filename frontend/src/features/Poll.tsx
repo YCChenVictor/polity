@@ -14,10 +14,6 @@ function Poll({ pollAddress }: { pollAddress: `0x${string}` }) {
   if (error) return <p className="text-red-500">Error: {String(error)}</p>;
   if (!data) return null;
 
-  console.log("xzcvzxcvzxcv");
-  console.log(pollAddress);
-  console.log(data);
-
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold text-gray-800">Poll</h2>
