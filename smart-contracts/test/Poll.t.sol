@@ -43,7 +43,7 @@ contract ProposeTest is Test {
         Poll poll = new Poll(51, 10);
         (uint16 percent, uint64 votingSeconds) = poll.currentConfig();
 
-        assertEq(percent, 51, "minVotesPercent mismatch");
-        assertEq(votingSeconds, 10, "votingSeconds mismatch");
+        assertEq(percent, 51, 'minVotesPercent mismatch');
+        assertEq(votingSeconds, 10, 'votingSeconds mismatch');
     }
 }
