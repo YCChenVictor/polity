@@ -7,12 +7,13 @@ import { citizenAbi } from "../../generated";
 function Init({ citizenAddress }: { citizenAddress: `0x${string}` }) {
   const [, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
+  // The problem is that why this address is undefined
   const { address } = useAccount();
 
   const { data: poll } = useReadContract({
     address: citizenAddress,
     abi: citizenAbi,
-    functionName: "poll",
+    functionName: "pollAddress",
   });
   const { data: bootstrapOwner } = useReadContract({
     address: citizenAddress,
@@ -27,7 +28,8 @@ function Init({ citizenAddress }: { citizenAddress: `0x${string}` }) {
     poll === "0x0000000000000000000000000000000000000000" &&
     address?.toLowerCase() === bootstrapOwner?.toLowerCase();
 
-  console.log(citizenAddress);
+  console.log("zxcvzvxczvzvc");
+  console.log(show);
   console.log(poll);
   console.log(address);
   console.log(bootstrapOwner);
