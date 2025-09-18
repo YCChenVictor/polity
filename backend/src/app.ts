@@ -4,10 +4,10 @@ import cookieParser from "cookie-parser";
 
 import "./env";
 
-import immigratesRouter from "./routers/immigrates-router";
-import contributionsRouter from "./routers/contribution-router";
-import legislatorRouter from "./routers/legislator-router";
-import bullRouter from "./routers/bill-router";
+// import immigratesRouter from "./routers/immigrates-router";
+// import contributionsRouter from "./routers/contribution-router";
+// import legislatorRouter from "./routers/legislator-router";
+// import bullRouter from "./routers/bill-router";
 import eventsRouter from "./routers/events-router";
 import authRouter from "./routers/auth-router";
 
@@ -29,7 +29,7 @@ app.get("/", async (req: Request, res: Response) => {
 
 app.use("/auth", authRouter);
 
-// app.use("/events", eventsRouter);
+app.use("/events", eventsRouter);
 
 // app.use("/immigrates", immigratesRouter);
 // app.use("/contributions", contributionsRouter);
