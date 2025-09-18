@@ -1,4 +1,4 @@
-import { create, type IPFSHTTPClient } from "ipfs-http-client";
+import { create, IPFSHTTPClient } from "ipfs-http-client";
 
 export interface UploadResult {
   cid: string;
