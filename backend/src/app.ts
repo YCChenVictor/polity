@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -21,11 +21,19 @@ app.use(
   }),
 );
 app.use(express.json());
-app.use("/immigrates", immigratesRouter);
-app.use("/contributions", contributionsRouter);
-app.use("/legislators", legislatorRouter);
-app.use("/bills", bullRouter);
-app.use("/events", eventsRouter);
+
+app.get("/", async (req: Request, res: Response) => {
+  res.send("Hello, World!");
+  return;
+});
+
 app.use("/auth", authRouter);
+
+// app.use("/events", eventsRouter);
+
+// app.use("/immigrates", immigratesRouter);
+// app.use("/contributions", contributionsRouter);
+// app.use("/legislators", legislatorRouter);
+// app.use("/bills", bullRouter);
 
 export default app;

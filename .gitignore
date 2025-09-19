@@ -13,7 +13,7 @@ generated.ts
 tmp/
 
 node_modules
-.env
+*.env
 
 # Hardhat files
 /cache
@@ -39,3 +39,4 @@ smart-contracts/cache/
 smart-contracts/coverage.json
 smart-contracts/typechain-types/
 
+*.csv
