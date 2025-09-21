@@ -1,4 +1,5 @@
-FROM node:20-alpine
+ARG NODE_VERSION
+FROM --platform=linux/amd64 node:${NODE_VERSION}-alpine AS base
 WORKDIR /app
 
 RUN apk add --no-cache netcat-openbsd
