@@ -69,11 +69,6 @@ class IpfsService {
   //   return this.ipfs.files.stat(p);
   // }
 
-  // async mfsMkdir(path: string, parents = true): Promise<void> {
-  //   const p = this.normalizePath(path);
-  //   await this.ipfs.files.mkdir(p, { parents });
-  // }
-
   // async mfsWrite(path: string, data: Uint8Array | Buffer): Promise<void> {
   //   const p = this.normalizePath(path);
   //   await this.ipfs.files.write(p, data, {
