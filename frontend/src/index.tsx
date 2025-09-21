@@ -1,9 +1,10 @@
 // index.tsx
-import React, { StrictMode } from "react";
+// http://localhost:3000/
+import React from "react";
 import { createRoot } from "react-dom/client";
-import { WagmiProvider, useAccount, useConnect } from "wagmi";
+import { WagmiProvider, useAccount, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { isAddress } from "viem";
+import { isAddress, getAddress } from "viem";
 import { Buffer } from "buffer";
 
 import wagmiConfig from "./wagmiConfig";
@@ -16,32 +17,54 @@ const queryClient = new QueryClient();
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root container not found");
 const root = createRoot(rootEl);
+const SESSION_KEY = "polity:sessionConnected";
 
 function Root() {
-  const { isConnected } = useAccount();
-  const { connectors, connect, error, isPending } = useConnect();
-
-  const [clickedUid, setClickedUid] = React.useState<string | null>(null); // track which button was pressed
-  const KEY = "citizenAddress";
-
-  const [address, setAddress] = React.useState<`0x${string}` | null>(null);
+  const { isConnected, connector: active } = useAccount();
+  const { disconnectAsync } = useDisconnect();
+  const { connectors, connectAsync, error, isPending } = useConnect();
+  const [sessionConnected, setSessionConnected] = React.useState(false);
+  const [citizenAddress, setCitizenAddress] = React.useState<
+    `0x${string}` | null
+  >(null);
   const [input, setInput] = React.useState("");
 
   React.useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("citizen");
-    const fromStore = localStorage.getItem(KEY);
-    const val = (fromUrl ?? fromStore) as `0x${string}` | null;
-    if (val && isAddress(val)) setAddress(val);
-  }, [KEY]);
+    if (sessionStorage.getItem(SESSION_KEY) === "1" && isConnected) {
+      setSessionConnected(true);
+    }
+  }, [isConnected]);
 
+  // Load from URL param once on mount
   React.useEffect(() => {
-    if (address) localStorage.setItem(KEY, address);
-  }, [address, KEY]);
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const raw = url.searchParams.get("citizen")?.trim();
+    if (raw && isAddress(raw)) {
+      setCitizenAddress(raw);
+    }
+  }, []);
 
-  const valid = isAddress(input as `0x${string}`);
+  const markSession = (on: boolean) => {
+    setSessionConnected(on);
+    if (on) sessionStorage.setItem(SESSION_KEY, "1");
+    else sessionStorage.removeItem(SESSION_KEY);
+  };
+
+  // When you set a new address, also update the URL param
+  const handleSetAddress = React.useCallback((addr: `0x${string}`) => {
+    setCitizenAddress(addr);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("citizen", addr);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, []);
+
+  const valid = isAddress(input.trim());
 
   // Step 1: connect wallet
-  if (!isConnected) {
+  if (!sessionConnected) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-3">
         <h1 className="text-xl">Connect Wallet</h1>
@@ -49,26 +72,41 @@ function Root() {
           {connectors.map((c) => (
             <button
               key={c.uid}
-              onClick={() => {
-                setClickedUid(c.uid);
-                connect({ connector: c });
+              className="px-3 py-2 border rounded disabled:opacity-50"
+              disabled={isPending}
+              onClick={async () => {
+                try {
+                  // already on this connector → continue
+                  if (active && active.id === c.id) {
+                    markSession(true);
+                    return;
+                  }
+                  if (active && active.id !== c.id)
+                    await disconnectAsync().catch(() => {
+                      "";
+                    });
+                  await connectAsync({ connector: c });
+                  markSession(true);
+                } catch (e) {
+                  const msg = String(e);
+                  if (msg.includes("already connected")) {
+                    markSession(true);
+                    return;
+                  }
+                }
               }}
-              className="px-3 py-2 border rounded"
-              disabled={isPending && clickedUid === c.uid}
             >
-              {isPending && clickedUid === c.uid
-                ? `Connecting with ${c.name}…`
-                : `Connect with ${c.name}`}
+              {isPending ? "Connecting…" : `Connect with ${c.name}`}
             </button>
           ))}
         </div>
-        <small className="text-red-600">{error?.message ?? ""}</small>
+        {error && <small className="text-red-600">{error.message}</small>}
       </div>
     );
   }
 
   // Step 2: ask for citizen contract
-  if (!address) {
+  if (!citizenAddress) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-2">
         <h1 className="text-xl">Enter Citizen Contract Address</h1>
@@ -77,14 +115,17 @@ function Root() {
           placeholder="0x..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) =>
-            e.key === "Enter" && valid && setAddress(input as `0x${string}`)
-          }
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && valid)
+              handleSetAddress(getAddress(input.trim()) as `0x${string}`);
+          }}
         />
         <div className="flex gap-2">
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
-            onClick={() => setAddress(input as `0x${string}`)}
+            onClick={() =>
+              handleSetAddress(getAddress(input.trim()) as `0x${string}`)
+            }
             disabled={!valid}
             title={valid ? "" : "Invalid address"}
           >
@@ -93,10 +134,13 @@ function Root() {
           <button
             className="px-4 py-2 border rounded"
             onClick={() => {
-              // clear both generic and namespaced in case of old data
-              localStorage.removeItem("citizenAddress");
               setInput("");
-              setAddress(null);
+              setCitizenAddress(null);
+              if (typeof window !== "undefined") {
+                const url = new URL(window.location.href);
+                url.searchParams.delete("citizen");
+                window.history.replaceState({}, "", url.toString());
+              }
             }}
           >
             Reset
@@ -107,15 +151,13 @@ function Root() {
   }
 
   // Step 3: app
-  return <App citizenAddress={address} />;
+  return <App citizenAddress={citizenAddress} />;
 }
 
 root.render(
-  <StrictMode>
+  <WagmiProvider config={wagmiConfig} reconnectOnMount={true}>
     <QueryClientProvider client={queryClient}>
-      <WagmiProvider config={wagmiConfig}>
-        <Root />
-      </WagmiProvider>
+      <Root />
     </QueryClientProvider>
-  </StrictMode>,
+  </WagmiProvider>,
 );
