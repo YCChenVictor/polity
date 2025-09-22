@@ -32,15 +32,5 @@ services:
         NODE_VERSION: *node_version
     ports:
       - "8545:8545"
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NODE_VERSION: *node_version
-    env_file: ./frontend/.env
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
 volumes:
   ipfs-data:
