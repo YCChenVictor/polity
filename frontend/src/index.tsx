@@ -17,23 +17,15 @@ const queryClient = new QueryClient();
 const rootEl = document.getElementById("root");
 if (!rootEl) throw new Error("Root container not found");
 const root = createRoot(rootEl);
-const SESSION_KEY = "polity:sessionConnected";
 
 function Root() {
-  const { isConnected, connector: active } = useAccount();
+  const { address } = useAccount();
   const { disconnectAsync } = useDisconnect();
   const { connectors, connectAsync, error, isPending } = useConnect();
-  const [sessionConnected, setSessionConnected] = React.useState(false);
   const [citizenAddress, setCitizenAddress] = React.useState<
     `0x${string}` | null
   >(null);
   const [input, setInput] = React.useState("");
-
-  React.useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === "1" && isConnected) {
-      setSessionConnected(true);
-    }
-  }, [isConnected]);
 
   // Load from URL param once on mount
   React.useEffect(() => {
@@ -44,12 +36,6 @@ function Root() {
       setCitizenAddress(raw);
     }
   }, []);
-
-  const markSession = (on: boolean) => {
-    setSessionConnected(on);
-    if (on) sessionStorage.setItem(SESSION_KEY, "1");
-    else sessionStorage.removeItem(SESSION_KEY);
-  };
 
   // When you set a new address, also update the URL param
   const handleSetAddress = React.useCallback((addr: `0x${string}`) => {
@@ -63,43 +49,41 @@ function Root() {
 
   const valid = isAddress(input.trim());
 
+  const handleDisconnect = async () => {
+    await disconnectAsync(); // clears wagmi cached connector/address
+    try {
+      await window.ethereum?.request?.({
+        method: "wallet_revokePermissions",
+        params: [{ eth_accounts: {} }],
+      });
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const disconnectButton = (
+    <button
+      onClick={handleDisconnect}
+      className="px-3 py-1 border rounded text-sm"
+    >
+      Disconnect
+    </button>
+  );
+
   // Step 1: connect wallet
-  if (!sessionConnected) {
+  if (!address) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-3">
-        <h1 className="text-xl">Connect Wallet</h1>
-        <div className="flex flex-col gap-2">
-          {connectors.map((c) => (
-            <button
-              key={c.uid}
-              className="px-3 py-2 border rounded disabled:opacity-50"
-              disabled={isPending}
-              onClick={async () => {
-                try {
-                  // already on this connector → continue
-                  if (active && active.id === c.id) {
-                    markSession(true);
-                    return;
-                  }
-                  if (active && active.id !== c.id)
-                    await disconnectAsync().catch(() => {
-                      "";
-                    });
-                  await connectAsync({ connector: c });
-                  markSession(true);
-                } catch (e) {
-                  const msg = String(e);
-                  if (msg.includes("already connected")) {
-                    markSession(true);
-                    return;
-                  }
-                }
-              }}
-            >
-              {isPending ? "Connecting…" : `Connect with ${c.name}`}
-            </button>
-          ))}
-        </div>
+      <div className="flex gap-2">
+        {connectors.map((c) => (
+          <button
+            key={c.uid ?? c.id}
+            onClick={() => connectAsync({ connector: c })}
+            disabled={isPending}
+            className="px-3 py-2 border rounded"
+          >
+            {isPending ? "Connecting…" : `Connect with ${c.name}`}
+          </button>
+        ))}
         {error && <small className="text-red-600">{error.message}</small>}
       </div>
     );
@@ -109,6 +93,7 @@ function Root() {
   if (!citizenAddress) {
     return (
       <div className="flex flex-col items-center justify-center h-screen gap-2">
+        {disconnectButton}
         <h1 className="text-xl">Enter Citizen Contract Address</h1>
         <input
           className="border rounded p-2 w-80"
@@ -151,11 +136,16 @@ function Root() {
   }
 
   // Step 3: app
-  return <App citizenAddress={citizenAddress} />;
+  return (
+    <>
+      {disconnectButton}
+      <App citizenAddress={citizenAddress} />
+    </>
+  );
 }
 
 root.render(
-  <WagmiProvider config={wagmiConfig} reconnectOnMount={true}>
+  <WagmiProvider config={wagmiConfig}>
     <QueryClientProvider client={queryClient}>
       <Root />
     </QueryClientProvider>
