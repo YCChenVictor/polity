@@ -5,7 +5,7 @@ import IpfsService from "../services/ipfs";
 // import LLMService from "../services/llm";
 
 const router = express.Router();
-const ipfsService = new IpfsService();
+const ipfs = await IpfsService.init();
 
 if (!process.env.IPFS_API) {
   throw new Error("Missing IPFS_API in environment");
@@ -31,7 +31,7 @@ router.post("/", upload.single("file"), async (req, res) => {
   try {
     if (!req.file)
       return res.status(400).json({ error: "file required (field: file)" });
-    const result = await ipfsService.mfsCreate(req.file as Express.Multer.File);
+    const result = await ipfs.mfsCreate(req.file as Express.Multer.File);
     res.json(result);
   } catch (error) {
     console.log(error);
@@ -42,9 +42,9 @@ router.post("/", upload.single("file"), async (req, res) => {
 // curl http://localhost:5000/events/
 router.get("/", async (_req, res) => {
   try {
-    await ipfsService.mfsList("/staging");
+    await ipfs.mfsList("/staging");
 
-    const entries = await ipfsService.mfsList("/staging");
+    const entries = await ipfs.mfsList("/staging");
     res.json(entries);
   } catch (error) {
     console.error("Error listing /staging:", error);
