@@ -6,7 +6,12 @@ interface ICitizen {
     function createFromPoll(address wallet) external;
 }
 
-contract Poll {
+contract DeprecableGovernment {
+    error OnlyTimelock();
+    error OnlyCitizen();
+
+    address public immutable timelock;
+
     ICitizen public citizen;
 
     struct Proposal {
@@ -54,7 +59,13 @@ contract Poll {
     event Implemented(uint256 id, address target);
     event Finalized(uint256 id, bool passed);
 
-    constructor(address _citizen, uint16 _minVotesPercent, uint32 _votingSeconds) {
+    constructor(
+        address _timelock,
+        address _citizen,
+        uint16 _minVotesPercent,
+        uint32 _votingSeconds
+    ) {
+        timelock = _timelock;
         citizen = ICitizen(_citizen);
         _setConfig(_minVotesPercent, _votingSeconds);
     }
@@ -178,17 +189,4 @@ contract Poll {
         minVotesPercent = _minVotesPercent;
         votingSeconds = _votingSeconds;
     }
-
-    // function implement(uint256 id) external {
-    //     require(id < nextId, "NO_SUCH_PROPOSAL");
-    //     require(passed[id], "NOT_PASSED");
-    //     require(!implemented[id], "ALREADY_IMPLEMENTED");
-    //     implemented[id] = true;
-
-    //     address who = props[id].target;
-    //     require(who != address(0), "NO_TARGET");
-    //     registry.addCitizen(who);
-
-    //     emit Implemented(id, who);
-    // }
 }

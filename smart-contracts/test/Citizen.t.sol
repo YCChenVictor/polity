@@ -3,9 +3,10 @@ pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
 import '../../contracts/polity/Citizen.sol';
-import '../../contracts/polity/Poll.sol';
+import '../../contracts/polity/DeprecableGovernment.sol';
+import "../../contracts/polity/Timelock.sol";
 
-contract MockPoll is IPoll {
+contract MockDeprecableGovernment is IDeprecableGovernment {
     ProposalType public lastPtype;
     address public lastTarget;
     uint96 public lastTotalCitizens;
@@ -29,18 +30,18 @@ contract MockPoll is IPoll {
 
 contract CitizenTest is Test {
     Citizen citizen;
-    MockPoll mockPoll;
+    MockDeprecableGovernment mockDeprecableGovernment;
     address deployer = address(0xDEAD);
     address target = address(0xCAFE);
 
-    // Ok, ready to QA again (2025/09/12)
     function setUp() public {
         vm.startPrank(deployer);
-        citizen = new Citizen();
-        mockPoll = new MockPoll();
-        citizen.setPoll(address(mockPoll));
+        timelock = new Timelock();
+        citizen = new Citizen(address(timelock));
+        mockDeprecableGovernment = new MockDeprecableGovernment();
+        citizen.setDeprecableGovernment(address(mockDeprecableGovernment));
         vm.stopPrank();
-        assertEq(citizen.pollAddress(), address(mockPoll));
+        assertEq(citizen.deprecableGovernmentAddress(), address(mockDeprecableGovernment));
     }
 
     // Pre-create
@@ -53,8 +54,8 @@ contract CitizenTest is Test {
 
     // Create
     function testCreate() public {
-        vm.prank(address(mockPoll));
-        citizen.createFromPoll(target);
+        vm.prank(address(mockDeprecableGovernment));
+        citizen.create(target);
         Citizen.CitizenInfo[] memory citizens = citizen.read();
         assertEq(citizens.length, 2, 'There should be exactly two citizen, one is deployer');
         assertEq(citizens[1].wallet, target, "The citizen's wallet address should match addr1");

@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-interface IPoll {
+interface ITimelock {
+    function propose() external returns (uint256);
+}
+
+interface IDeprecableGovernment {
     enum ProposalType {
         Text,
         Target
@@ -15,14 +19,21 @@ interface IPoll {
 }
 
 contract Citizen {
+    error OnlyTimelock();
+    error NotCitizen();
+
     struct CitizenInfo {
         uint256 id;
         address wallet;
         uint8 reasonCode;
     }
-    address public pollAddress;
-    IPoll public pollMechanism;
     address public bootstrapOwner = msg.sender;
+
+    IDeprecableGovernment public deprecableGovernment;
+    address public deprecableGovernmentAddress;
+
+    ITimelock public immutable timelock;
+    address public timelockAddress;
 
     mapping(address => CitizenInfo) public citizens;
     address[] public citizenList;
@@ -36,7 +47,8 @@ contract Citizen {
 
     error OnlyPoll();
 
-    constructor() {
+    constructor(address _timelock) {
+        timelock = ITimelock(_timelock);
         reasonMap[1] = 'born';
         reasonMap[2] = 'immigrate';
         _create(msg.sender, 1); // deployer becomes citizen
@@ -45,14 +57,19 @@ contract Citizen {
     // Citizens
     function propose(address target) external {
         require(isCitizen(msg.sender), 'NOT_CITIZEN');
-        require(pollAddress != address(0), 'PM_NOT_SET');
-        pollMechanism.create(IPoll.ProposalType.Target, target, _count);
+        require(deprecableGovernmentAddress != address(0), 'Deprecable Government NOT SET');
+        deprecableGovernment.create(IDeprecableGovernment.ProposalType.Target, target, _count);
         emit ProposalMade(msg.sender, target, _count);
     }
 
-    function createFromPoll(address wallet) external {
-        if (msg.sender != pollAddress) revert OnlyPoll();
-        require(pollMechanism.hasPassed(wallet), 'POLL_NOT_PASSED');
+    // Deprecable Government
+    function proposeGovernment(address newGov) external returns (uint256 proposalId) {
+        if (!isCitizen(msg.sender)) revert NotCitizen();
+        proposalId = timelock.propose();
+    }
+
+    function createFromDeprecableGovernment(address wallet) external {
+        require(msg.sender == timelockAddress, 'OnlyTimelock');
         _create(wallet, 2);
     }
 
@@ -69,27 +86,14 @@ contract Citizen {
         return citizens[a].wallet != address(0);
     }
 
-    // Polls
-    function setPoll(address _poll) external {
-        require(_poll != address(0), 'ZERO');
-
-        if (pollAddress == address(0)) {
-            require(msg.sender == bootstrapOwner, 'BOOTSTRAP_ONLY');
-        } else {
-            require(msg.sender == pollAddress, 'PM_ONLY');
-        }
-
-        address old = pollAddress;
-        pollAddress = _poll;
-        pollMechanism = IPoll(_poll);
-        emit PollSet(old, _poll);
-
-        if (bootstrapOwner != address(0)) {
-            bootstrapOwner = address(0);
-        }
+    // Deprecable Government
+    function setDeprecableGovernment(address _newDeprecableGovernment) external {
+        if (msg.sender != timelockAddress) revert OnlyTimelock();
+        deprecableGovernmentAddress = _newDeprecableGovernment;
     }
 
     function _create(address wallet, uint8 reasonCode) internal {
+        require(msg.sender == deprecableGovernmentAddress, 'OnlyTimelock');
         require(wallet != address(0), 'ZERO_WALLET');
         require(citizens[wallet].wallet == address(0), 'ALREADY_EXISTS');
         require(bytes(reasonMap[reasonCode]).length > 0, 'BAD_REASON');
