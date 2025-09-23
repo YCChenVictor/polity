@@ -28,12 +28,6 @@ function Init({ citizenAddress }: { citizenAddress: `0x${string}` }) {
     poll === "0x0000000000000000000000000000000000000000" &&
     address?.toLowerCase() === bootstrapOwner?.toLowerCase();
 
-  console.log("zxcvzvxczvzvc");
-  console.log(show);
-  console.log(poll);
-  console.log(address);
-  console.log(bootstrapOwner);
-
   if (!show) return null;
 
   async function onSet() {

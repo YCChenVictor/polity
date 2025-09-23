@@ -30,6 +30,7 @@ const IPFSFileList: React.FC = () => {
             <th className="px-4 py-2 text-left">Type</th>
             <th className="px-4 py-2 text-left">Size</th>
             <th className="px-4 py-2 text-left">CID</th>
+            <th className="px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +49,14 @@ const IPFSFileList: React.FC = () => {
                   >
                     {f.cid}
                   </a>
+                </td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => console.log(f)}
+                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Raise Vote
+                  </button>
                 </td>
               </tr>
             ))}
