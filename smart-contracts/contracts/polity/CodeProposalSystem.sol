@@ -2,6 +2,8 @@
 // 1. Governors need to deploy their rules on chain
 // 2. Governors can purpose this contract to the rule proposal system and raise votes
 
+pragma solidity ^0.8.24;
+
 import './BaseGovernance.sol';
 
 // This is actually on chain rules
