@@ -2,8 +2,8 @@
 pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
-import '../../contracts/polity/Citizen.sol';
-import '../../contracts/polity/Poll.sol';
+import { Citizen, IPoll } from '../contracts/polity/Citizen.sol';
+import { Poll } from '../contracts/polity/Poll.sol';
 
 contract MockPoll is IPoll {
     ProposalType public lastPtype;

@@ -1,30 +1,42 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
-import "@openzeppelin/hardhat-upgrades";
-import "solidity-coverage";
-import dotenv from "dotenv";
+import type { HardhatUserConfig } from "hardhat/config";
 
-dotenv.config();
+import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
+import { configVariable } from "hardhat/config";
 
-let config: HardhatUserConfig;
-
-if (process.env.NODE_ENV === "test") {
-  config = {
-    solidity: "0.8.24",
-  };
-} else {
-  config = {
-    solidity: "0.8.24",
-    networks: {
-      hardhat: {
-        mining: {
-          auto: true,
+const config: HardhatUserConfig = {
+  plugins: [hardhatToolboxViemPlugin],
+  solidity: {
+    profiles: {
+      default: {
+        version: "0.8.28",
+      },
+      production: {
+        version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
         },
       },
     },
-  };
-}
-
-// Add mainnet when we are ready
+  },
+  networks: {
+    hardhatMainnet: {
+      type: "edr-simulated",
+      chainType: "l1",
+    },
+    hardhatOp: {
+      type: "edr-simulated",
+      chainType: "op",
+    },
+    sepolia: {
+      type: "http",
+      chainType: "l1",
+      url: configVariable("SEPOLIA_RPC_URL"),
+      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+    },
+  },
+};
 
 export default config;

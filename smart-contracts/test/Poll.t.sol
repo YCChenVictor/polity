@@ -3,8 +3,8 @@ pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
 
-import '../../contracts/polity/Poll.sol';
-import '../../contracts/polity/Citizen.sol';
+import { Poll } from '../contracts/polity/Poll.sol';
+import { Citizen } from '../contracts/polity/Citizen.sol';
 
 contract ProposeTest is Test {
     Poll poll;
