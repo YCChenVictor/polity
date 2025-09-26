@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import 'forge-std/Test.sol';
 
-import '../../contracts/polity/Government.sol';
-import '../../contracts/polity/Poll.sol';
-import '../../contracts/polity/Citizen.sol';
+import { Government } from '../contracts/polity/Government.sol';
+import { Poll } from '../contracts/polity/Poll.sol';
+import { Citizen } from '../contracts/polity/Citizen.sol';
 
 contract MockUUPS {
     address public currentImpl;
