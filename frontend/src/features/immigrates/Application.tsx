@@ -69,7 +69,7 @@ export default function Application({
           Create Application
         </button>
       ) : (
-        <Init citizenAddress={citizenAddress} />
+        <Init />
       )}
 
       {isModalOpen && (

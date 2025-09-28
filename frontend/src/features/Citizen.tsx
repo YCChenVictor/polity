@@ -1,9 +1,9 @@
 import List from "./citizens/List";
 
-function Citizen({ citizenAddress }: { citizenAddress: `0x${string}` }) {
+function Citizen() {
   return (
     <div>
-      <List address={citizenAddress} />
+      <List />
     </div>
   );
 }

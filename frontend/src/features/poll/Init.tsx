@@ -2,9 +2,12 @@
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { isAddress } from "viem";
 import { useState } from "react";
+
+import { useCitizenAddress } from "../../CitizenAddressContext";
 import { citizenAbi } from "../../generated";
 
-function Init({ citizenAddress }: { citizenAddress: `0x${string}` }) {
+function Init() {
+  const citizenAddress = useCitizenAddress();
   const [, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
   // The problem is that why this address is undefined

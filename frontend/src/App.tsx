@@ -6,13 +6,14 @@ import SiweLoginButton from "./features/Auth";
 import Poll from "./features/Poll";
 import Citizen from "./features/Citizen";
 
-function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
+function App() {
   const router = createBrowserRouter([
+    { path: "/", element: <>hello</> },
     { path: "/topics", element: <Topic /> },
-    { path: "/polls/", element: <Poll citizenAddress={citizenAddress} /> },
+    { path: "/polls/", element: <Poll /> },
     {
       path: "/citizens/",
-      element: <Citizen citizenAddress={citizenAddress} />,
+      element: <Citizen />,
     },
   ]);
 
@@ -36,9 +37,7 @@ function App({ citizenAddress }: { citizenAddress: `0x${string}` }) {
   return !user ? (
     <SiweLoginButton onSuccess={refreshSession} />
   ) : (
-    <>
-      <RouterProvider router={router} />
-    </>
+    <RouterProvider router={router} />
   );
 }
 
