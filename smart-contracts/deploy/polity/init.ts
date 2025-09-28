@@ -1,35 +1,9 @@
-// deploy/polity/init.ts
-// npx hardhat run deploy/polity/init.ts --network localhost
+// ignition/modules/DeployModule.ts
+// npx hardhat ignition deploy ignition/modules/DeployModule.ts --network sepolia
+import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-import hre from "hardhat";
-
-async function main() {
-  const [deployer] = await hre.ethers.getSigners();
-  console.log("Deploying from:", deployer.address);
-
-  const Citizens = await hre.ethers.getContractFactory("Citizen");
-  const citizens = await Citizens.deploy();
-  await citizens.waitForDeployment();
-  const citizensAddress = await citizens.getAddress()
-  console.log("Citizens deployed at:", citizensAddress);
-
-  const Poll = await hre.ethers.getContractFactory("Poll");
-  const poll = await Poll.deploy(citizensAddress, 51, 10);
-  await poll.waitForDeployment();
-  const pollAddress = await poll.getAddress()
-  console.log("Poll deployed at:", pollAddress);
-
-  // Seems like we do not need government
-  // const Polity = await hre.ethers.getContractFactory("Government");
-  // const government = await Polity.deploy(
-  //   citizensAddress,
-  // );
-  // await government.waitForDeployment();
-  // const governmentAddress = await government.getAddress()
-  // console.log("PolityGovernment deployed at:", await government.getAddress());
-}
-
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
+export default buildModule("DeployModule", (m) => {
+  const citizen = m.contract("Citizen");
+  const poll = m.contract("Poll", [citizen, 51, 10]);
+  return { citizen, poll };
 });

@@ -20,3 +20,5 @@
 /coverage
 
 out/
+
+ignition/deployments/
