@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useReadContract, useWriteContract, useAccount } from "wagmi";
+
+import { pollAbi, citizenRegistryAbi } from "../../generated";
+import { useCitizenAddress } from "../../CitizenAddressContext";
 
 interface IPFSFile {
   name: string;
@@ -8,8 +12,37 @@ interface IPFSFile {
 }
 
 const IPFSFileList: React.FC = () => {
+  const { address } = useAccount();
+
+  const citizenAddress = useCitizenAddress();
+  const { writeContract, isPending } = useWriteContract();
+
   const [files, setFiles] = useState<IPFSFile[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { data: pollAddress } = useReadContract({
+    address: citizenAddress,
+    abi: citizenRegistryAbi,
+    functionName: "pollAddress",
+  });
+
+  async function onClickRaiseVote(cid: string) {
+    if (!pollAddress) {
+      console.error("Poll not set");
+      return;
+    }
+    if (!address) {
+      console.error("No current account");
+      return;
+    }
+
+    writeContract({
+      address: pollAddress,
+      abi: pollAbi,
+      functionName: "createIPFS",
+      args: [address, cid],
+    });
+  }
 
   useEffect(() => {
     fetch("http://localhost:5000/events/")
@@ -52,7 +85,8 @@ const IPFSFileList: React.FC = () => {
                 </td>
                 <td className="px-4 py-2">
                   <button
-                    onClick={() => console.log(f)}
+                    onClick={() => onClickRaiseVote(f.cid)}
+                    disabled={isPending}
                     className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
                     Raise Vote

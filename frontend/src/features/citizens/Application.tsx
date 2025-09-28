@@ -3,7 +3,7 @@ import { isAddress, type Hash } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { useReadContract } from "wagmi";
 
-import { citizenAbi } from "../../generated";
+import { citizenRegistryAbi } from "../../generated";
 
 import { useCitizenAddress } from "../../CitizenAddressContext";
 
@@ -16,7 +16,7 @@ export default function Application() {
   const citizenAddress = useCitizenAddress();
   const { data: pollAddress } = useReadContract({
     address: citizenAddress,
-    abi: citizenAbi,
+    abi: citizenRegistryAbi,
     functionName: "pollAddress",
   });
   const [newApp, setNewApp] = useState<ApplicationData>({
@@ -38,7 +38,7 @@ export default function Application() {
     try {
       const txHash = await writeContractAsync({
         address: citizenAddress,
-        abi: citizenAbi,
+        abi: citizenRegistryAbi,
         functionName: "propose",
         args: [newApp.wallet_address],
       });

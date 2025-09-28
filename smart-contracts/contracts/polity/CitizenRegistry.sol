@@ -14,21 +14,29 @@ interface IPoll {
     function hasPassed(address wallet) external view returns (bool);
 }
 
-contract Citizen {
+contract CitizenRegistry {
+    address public pollAddress;
+    address public bootstrapOwner = msg.sender;
+
+    IPoll public poll;
+
     struct CitizenInfo {
         uint256 id;
         address wallet;
         uint8 reasonCode;
     }
-    address public pollAddress;
-    IPoll public poll;
-    address public bootstrapOwner = msg.sender;
+    struct EventMeta {
+        address proposer;
+        uint64 executedAt;
+    }
 
     mapping(address => CitizenInfo) public citizens;
     address[] public citizenList;
     uint96 private _count;
     uint256 public nextCitizenId = 1;
     mapping(uint8 => string) public reasonMap;
+
+    mapping(bytes32 => EventMeta) public passedEvents;
 
     event CitizenCreated(address wallet, uint8 reasonCode);
     event ProposalMade(address indexed proposer, address indexed target, uint256 totalCitizens);
@@ -104,5 +112,11 @@ contract Citizen {
         citizenList.push(wallet);
         _count++;
         emit CitizenCreated(wallet, reasonCode);
+    }
+
+    // Rules for all citizens
+    function recordApprovedEvent(address proposer, string calldata cid) external {
+        bytes32 cidHash = keccak256(bytes(cid));
+        passedEvents[cidHash] = EventMeta(proposer, uint64(block.timestamp));
     }
 }

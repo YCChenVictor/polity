@@ -4,7 +4,7 @@ import { isAddress } from "viem";
 import { useState } from "react";
 
 import { useCitizenAddress } from "../../CitizenAddressContext";
-import { citizenAbi } from "../../generated";
+import { citizenRegistryAbi } from "../../generated";
 
 function Init() {
   const citizenAddress = useCitizenAddress();
@@ -15,12 +15,12 @@ function Init() {
 
   const { data: poll } = useReadContract({
     address: citizenAddress,
-    abi: citizenAbi,
+    abi: citizenRegistryAbi,
     functionName: "pollAddress",
   });
   const { data: bootstrapOwner } = useReadContract({
     address: citizenAddress,
-    abi: citizenAbi,
+    abi: citizenRegistryAbi,
     functionName: "bootstrapOwner",
   });
 
@@ -38,7 +38,7 @@ function Init() {
     try {
       const hash = await writeContractAsync({
         address: citizenAddress,
-        abi: citizenAbi,
+        abi: citizenRegistryAbi,
         functionName: "setPoll",
         args: [addr as `0x${string}`],
       });

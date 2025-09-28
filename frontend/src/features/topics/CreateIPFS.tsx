@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useAccount } from "wagmi";
 
 export default function UploadEvent() {
   const [file, setFile] = useState<File | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
+  const { address } = useAccount();
+
   const handleUpload = async () => {
     if (!file) return;
+    if (!address) {
+      setStatus("❌ Wallet not connected");
+      return;
+    }
+
     setStatus("Uploading...");
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("proposer", address);
 
     try {
-      const res = await fetch("http://localhost:5000/events/", {
+      console.log("zxcvzxcvzxcv");
+      console.log(formData);
+      const res = await fetch(`http://localhost:5000/events/`, {
         method: "POST",
         body: formData,
       });

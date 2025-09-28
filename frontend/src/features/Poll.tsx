@@ -1,6 +1,6 @@
 import { useReadContract } from "wagmi";
 
-import { citizenAbi } from "../generated";
+import { citizenRegistryAbi } from "../generated";
 import { useCitizenAddress } from "../CitizenAddressContext";
 import List from "./poll/List";
 import Init from "./poll/Init";
@@ -9,7 +9,7 @@ function Poll() {
   const citizenAddress = useCitizenAddress();
   const { data: pollAddress } = useReadContract({
     address: citizenAddress,
-    abi: citizenAbi,
+    abi: citizenRegistryAbi,
     functionName: "pollAddress",
   });
 
