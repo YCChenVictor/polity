@@ -1,6 +1,9 @@
 import type { Address } from "viem";
 import { useReadContract } from "wagmi";
+
 import { citizenAbi } from "../../generated";
+
+import { useCitizenAddress } from "../../CitizenAddressContext";
 
 interface CitizenView {
   id: bigint; // uint256 -> bigint
@@ -8,9 +11,10 @@ interface CitizenView {
   reasonCode: number; // uint8 -> number
 }
 
-function ListCitizens({ address }: { address: Address }) {
+function ListCitizens() {
+  const citizenAddress = useCitizenAddress();
   const { data, isLoading, error } = useReadContract({
-    address,
+    address: citizenAddress,
     abi: citizenAbi,
     functionName: "read",
   }) as {
