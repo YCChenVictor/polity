@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
+import AppLayout from "./AppLayout";
 import Topic from "./features/Topic";
 import SiweLoginButton from "./features/Auth";
 import Poll from "./features/Poll";
@@ -8,12 +9,15 @@ import Citizen from "./features/Citizen";
 
 function App() {
   const router = createBrowserRouter([
-    { path: "/", element: <>hello</> },
-    { path: "/topics", element: <Topic /> },
-    { path: "/polls/", element: <Poll /> },
     {
-      path: "/citizens/",
-      element: <Citizen />,
+      path: "/",
+      element: <AppLayout />, // header/nav etc.
+      children: [
+        { index: true, element: <>hello</> },
+        { path: "topics", element: <Topic /> },
+        { path: "polls", element: <Poll /> },
+        { path: "citizens", element: <Citizen /> },
+      ],
     },
   ]);
 
