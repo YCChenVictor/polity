@@ -33,9 +33,11 @@ contract ProposeTest is Test {
         bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = abi.encodeWithSignature('addCitizen(address)', address(citizen));
 
-        vm.expectEmit(true, true, true, true);
-        emit Poll.Proposed(Poll.ProposalType.Immigration);
-        poll.create(targets, values, calldatas, Poll.ProposalType.Immigration);
+        poll.createCitizen(targets, values, calldatas);
+
+        Poll.Proposal[] memory page = poll.proposals(0, 100);
+
+        assertEq(page.length, 1);
     }
 
     // Read

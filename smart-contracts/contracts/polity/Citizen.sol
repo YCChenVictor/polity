@@ -6,11 +6,11 @@ interface IPoll {
         Text,
         Target
     }
-    function create(
-        ProposalType ptype,
-        address target,
-        uint96 totalCitizens
-    ) external returns (uint256 id);
+    function createCitizen(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata calldatas
+    ) external;
     function hasPassed(address wallet) external view returns (bool);
 }
 
@@ -21,7 +21,7 @@ contract Citizen {
         uint8 reasonCode;
     }
     address public pollAddress;
-    IPoll public pollMechanism;
+    IPoll public poll;
     address public bootstrapOwner = msg.sender;
 
     mapping(address => CitizenInfo) public citizens;
@@ -45,15 +45,22 @@ contract Citizen {
     // Citizens
     function propose(address target) external {
         require(isCitizen(msg.sender), 'NOT_CITIZEN');
-        require(pollAddress != address(0), 'PM_NOT_SET');
-        pollMechanism.create(IPoll.ProposalType.Target, target, _count);
+
+        address[] memory targets = new address[](1);
+        targets[0] = address(this);
+        uint[] memory values = new uint[](1);
+        values[0] = 0;
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature('createFromPoll(address)', address(this));
+
+        poll.createCitizen(targets, values, calldatas);
         emit ProposalMade(msg.sender, target, _count);
     }
 
-    function createFromPoll(address wallet) external {
+    function createFromPoll(address target) external {
         if (msg.sender != pollAddress) revert OnlyPoll();
-        require(pollMechanism.hasPassed(wallet), 'POLL_NOT_PASSED');
-        _create(wallet, 2);
+        require(poll.hasPassed(target), 'POLL_NOT_PASSED');
+        _create(target, 2);
     }
 
     function read() external view returns (CitizenInfo[] memory list) {
@@ -81,7 +88,7 @@ contract Citizen {
 
         address old = pollAddress;
         pollAddress = _poll;
-        pollMechanism = IPoll(_poll);
+        poll = IPoll(_poll);
         emit PollSet(old, _poll);
 
         if (bootstrapOwner != address(0)) {

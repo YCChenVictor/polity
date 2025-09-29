@@ -1,21 +1,24 @@
 import { useState } from "react";
 import { isAddress, type Hash } from "viem";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useReadContract } from "wagmi";
+
 import { citizenAbi } from "../../generated";
-import Init from "../poll/Init";
+
+import { useCitizenAddress } from "../../CitizenAddressContext";
 
 interface ApplicationData {
   name: string;
   wallet_address: string;
 }
 
-export default function Application({
-  citizenAddress,
-  pollAddress,
-}: {
-  citizenAddress: `0x${string}`;
-  pollAddress: `0x${string}`;
-}) {
+export default function Application() {
+  const citizenAddress = useCitizenAddress();
+  const { data: pollAddress } = useReadContract({
+    address: citizenAddress,
+    abi: citizenAbi,
+    functionName: "pollAddress",
+  });
   const [newApp, setNewApp] = useState<ApplicationData>({
     name: "",
     wallet_address: "",
@@ -30,7 +33,6 @@ export default function Application({
     useWaitForTransactionReceipt({ hash });
 
   const handleCreate = async () => {
-    if (!isAddress(citizenAddress)) return setError("Bad contract address.");
     if (!isAddress(newApp.wallet_address))
       return setError("Invalid wallet address.");
     try {
@@ -53,11 +55,8 @@ export default function Application({
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-100 mt-6 mb-3 border-b pb-2">
-        Immigration system
-      </h2>
-
-      {pollAddress ? (
+      {pollAddress &&
+      pollAddress !== "0x0000000000000000000000000000000000000000" ? (
         <button
           onClick={() => {
             setIsModalOpen(true);
@@ -69,7 +68,7 @@ export default function Application({
           Create Application
         </button>
       ) : (
-        <Init />
+        <div className="text-gray-500 text-sm">Poll address not set</div>
       )}
 
       {isModalOpen && (
