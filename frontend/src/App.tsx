@@ -13,10 +13,10 @@ function App() {
       path: "/",
       element: <AppLayout />, // header/nav etc.
       children: [
+        { path: "citizens", element: <Citizen /> },
         { index: true, element: <>hello</> },
         { path: "topics", element: <Topic /> },
         { path: "polls", element: <Poll /> },
-        { path: "citizens", element: <Citizen /> },
       ],
     },
   ]);

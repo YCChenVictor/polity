@@ -20,6 +20,18 @@ contract Poll is
     GovernorVotes,
     GovernorVotesQuorumFraction
 {
+    struct Proposal {
+        uint256 id;
+        ProposalType kind;
+        address proposer;
+        uint64 startBlock;
+        uint64 endBlock;
+    }
+
+    Proposal[] private _proposals;
+
+    mapping(uint256 => uint256) private _indexOf;
+
     enum ProposalType {
         ConfigChange,
         Immigration,
@@ -36,7 +48,32 @@ contract Poll is
         GovernorVotesQuorumFraction(4) // 4% quorum (example)
     {}
 
-    function create(
+    function createCitizen(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas
+    ) external {
+        this._create(targets, values, calldatas, ProposalType.Immigration);
+    }
+
+    function proposals(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (Proposal[] memory page) {
+        uint256 n = _proposals.length;
+        if (offset > n) offset = n; // clamp offset so we don’t revert
+
+        uint256 to = offset + limit;
+        if (to > n) to = n;
+
+        uint256 size = to - offset;
+        page = new Proposal[](size);
+        for (uint256 i = 0; i < size; i++) {
+            page[i] = _proposals[offset + i];
+        }
+    }
+
+    function _create(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
@@ -45,7 +82,23 @@ contract Poll is
         if (proposalType == ProposalType.Immigration) {
             require(targets.length > 0 && targets[0] != address(0), 'TARGET_REQUIRED');
         }
+
         id = super.propose(targets, values, calldatas, 'Pure signalling vote');
+
+        uint64 start = uint64(proposalSnapshot(id));
+        uint64 end = uint64(proposalDeadline(id));
+
+        _indexOf[id] = _proposals.length + 1;
+        _proposals.push(
+            Proposal({
+                id: id,
+                kind: proposalType,
+                proposer: _msgSender(),
+                startBlock: start,
+                endBlock: end
+            })
+        );
+
         emit Proposed(proposalType);
     }
 
