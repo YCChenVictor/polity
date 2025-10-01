@@ -11,7 +11,7 @@ export default buildModule("PolityModule", (m) => {
   m.call(vote, "mint", [deployer, mintAmount]);
   m.call(vote, "delegate", [deployer]);
 
-  const citizen = m.contract("Citizen");
+  const citizen = m.contract("CitizenRegistry");
   const poll = m.contract("Poll", [vote]);
 
   return { vote, citizen, poll };

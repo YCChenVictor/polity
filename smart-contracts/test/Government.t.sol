@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 
 import { Government } from '../contracts/polity/Government.sol';
 import { Poll } from '../contracts/polity/Poll.sol';
-import { Citizen } from '../contracts/polity/Citizen.sol';
+import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
 
 contract MockUUPS {
     address public currentImpl;
@@ -13,7 +13,7 @@ contract MockUUPS {
 
 contract Main is Test {
     Poll poll;
-    Citizen citizen;
+    CitizenRegistry citizen;
     Government government;
 
     address public deployer;

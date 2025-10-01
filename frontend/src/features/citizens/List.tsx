@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 import { useReadContract } from "wagmi";
 
-import { citizenAbi } from "../../generated";
+import { citizenRegistryAbi } from "../../generated";
 
 import { useCitizenAddress } from "../../CitizenAddressContext";
 
@@ -15,7 +15,7 @@ function ListCitizens() {
   const citizenAddress = useCitizenAddress();
   const { data, isLoading, error } = useReadContract({
     address: citizenAddress,
-    abi: citizenAbi,
+    abi: citizenRegistryAbi,
     functionName: "read",
   }) as {
     data?: readonly CitizenView[];

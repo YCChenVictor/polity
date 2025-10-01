@@ -5,15 +5,15 @@ pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
 import { Poll } from '../contracts/polity/Poll.sol';
-import { Citizen } from '../contracts/polity/Citizen.sol';
+import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
 import { Vote } from '../contracts/polity/Vote.sol';
 
 contract ProposeTest is Test {
     Poll poll;
-    Citizen citizen = new Citizen();
-    address citizenAddr = address(citizen);
+    CitizenRegistry citizenRegistry = new CitizenRegistry();
+    address citizenRegistryAddress = address(citizenRegistry);
     Vote token;
-    // address A = address(0xA11CE);
+    address A = address(0xA11CE);
     address B = address(0xB11CE);
 
     function setUp() public {
@@ -24,16 +24,18 @@ contract ProposeTest is Test {
 
     // Immigrations
     // Create
-    function testCreate() public {
-        // This is a crazy array format that need to be followed
-        address[] memory targets = new address[](1);
-        targets[0] = citizenAddr;
-        uint[] memory values = new uint[](1);
-        values[0] = 0;
-        bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature('addCitizen(address)', address(citizen));
+    function testCreateCitizen() public {
+        address newCitizen = address(0x1234);
 
-        poll.createCitizen(targets, values, calldatas);
+        poll.createCitizen(newCitizen);
+
+        Poll.Proposal[] memory page = poll.proposals(0, 100);
+
+        assertEq(page.length, 1);
+    }
+
+    function testCreateIPFS() public {
+        poll.createIPFS(A, 'bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu');
 
         Poll.Proposal[] memory page = poll.proposals(0, 100);
 

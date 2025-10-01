@@ -11,6 +11,7 @@ import { IVotes } from '@openzeppelin/contracts/governance/utils/IVotes.sol';
 interface ICitizen {
     function total() external view returns (uint256);
     function isCitizen(address) external returns (bool);
+    function recordApprovedEvent(address proposer, string calldata cid) external;
 }
 
 contract Poll is
@@ -35,7 +36,7 @@ contract Poll is
     enum ProposalType {
         ConfigChange,
         Immigration,
-        Custom
+        Event
     }
     event Proposed(ProposalType kind);
 
@@ -48,12 +49,20 @@ contract Poll is
         GovernorVotesQuorumFraction(4) // 4% quorum (example)
     {}
 
-    function createCitizen(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas
-    ) external {
-        this._create(targets, values, calldatas, ProposalType.Immigration);
+    function createCitizen(address newCitizenAddress) external {
+        uint[] memory values = new uint[](1);
+        values[0] = 0; // Should need different amount of ETH
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeWithSignature('addCitizen(address)', newCitizenAddress);
+        _create(values, calldatas, ProposalType.Immigration);
+    }
+
+    function createIPFS(address proposer, string calldata cid) external {
+        uint[] memory values = new uint[](1);
+        values[0] = 0; // Should need different amount of ETH
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (proposer, cid));
+        _create(values, calldatas, ProposalType.Event);
     }
 
     function proposals(
@@ -71,35 +80,6 @@ contract Poll is
         for (uint256 i = 0; i < size; i++) {
             page[i] = _proposals[offset + i];
         }
-    }
-
-    function _create(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        ProposalType proposalType
-    ) external returns (uint256 id) {
-        if (proposalType == ProposalType.Immigration) {
-            require(targets.length > 0 && targets[0] != address(0), 'TARGET_REQUIRED');
-        }
-
-        id = super.propose(targets, values, calldatas, 'Pure signalling vote');
-
-        uint64 start = uint64(proposalSnapshot(id));
-        uint64 end = uint64(proposalDeadline(id));
-
-        _indexOf[id] = _proposals.length + 1;
-        _proposals.push(
-            Proposal({
-                id: id,
-                kind: proposalType,
-                proposer: _msgSender(),
-                startBlock: start,
-                endBlock: end
-            })
-        );
-
-        emit Proposed(proposalType);
     }
 
     // ===== required overrides =====
@@ -124,6 +104,38 @@ contract Poll is
         returns (uint256)
     {
         return super.proposalThreshold();
+    }
+
+    // Internal
+    function _create(
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        ProposalType proposalType
+    ) internal returns (uint256 id) {
+        address[] memory targets = new address[](1);
+        targets[0] = address(this);
+
+        if (proposalType == ProposalType.Immigration) {
+            require(targets.length > 0 && targets[0] != address(0), 'TARGET_REQUIRED');
+        }
+
+        id = super.propose(targets, values, calldatas, 'Pure signalling vote');
+
+        uint64 start = uint64(proposalSnapshot(id));
+        uint64 end = uint64(proposalDeadline(id));
+
+        _indexOf[id] = _proposals.length + 1;
+        _proposals.push(
+            Proposal({
+                id: id,
+                kind: proposalType,
+                proposer: _msgSender(),
+                startBlock: start,
+                endBlock: end
+            })
+        );
+
+        emit Proposed(proposalType);
     }
 }
 
