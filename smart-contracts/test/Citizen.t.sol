@@ -3,7 +3,7 @@
 
 import 'forge-std/Test.sol';
 import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
-import { IAgora } from '../contracts/interfaces/IAgora.sol';
+import { IAgora } from '../contracts/polity/interfaces/IAgora.sol';
 // import { Poll } from '../contracts/polity/Poll.sol';
 
 contract MockAgora is IAgora {

@@ -1,39 +1,47 @@
-// import { useWriteContract } from "wagmi";
-// import { pollAbi } from "../../generated";
+import { useWriteContract, useTransactionReceipt } from "wagmi";
 
-function Button() {
-  // const { writeContract, isPending, isSuccess, isError, error } =
-  //   useWriteContract();
+import { agoraAbi } from "../../generated";
 
-  // const handleVote = () => {
-  //   writeContract({
-  //     address,
-  //     abi: pollAbi,
-  //     functionName: "vote",
-  //     args: [id, support],
-  //   });
-  // };
+type Support = 0 | 1 | 2;
+
+export default function VoteButton({
+  address,
+  id,
+  support,
+  reason,
+  onVoted,
+}: {
+  address: `0x${string}`;
+  id: bigint;
+  support: Support; // 0 no, 1 yes, 2 abstain
+  reason?: string;
+  onVoted?: () => void; // e.g. refetch votes
+}) {
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { isLoading: waiting, isSuccess } = useTransactionReceipt({ hash });
+
+  const click = () =>
+    writeContract({
+      address,
+      abi: agoraAbi,
+      functionName: reason ? "castVoteWithReason" : "castVote",
+      args: reason ? [id, support, reason] : [id, support],
+    });
+
+  if (isSuccess && onVoted) onVoted();
+
+  const label =
+    support === 1 ? "👍 Yes" : support === 0 ? "👎 No" : "🤷 Abstain";
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      {/* <button
-        onClick={handleVote}
-        disabled={isPending}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-      >
-        {isPending ? "Voting..." : support ? "Vote Yes" : "Vote No"}
-      </button>
-
-      {isSuccess && (
-        <span className="text-green-600 text-sm">Vote submitted!</span>
-      )}
-      {isError && (
-        <span className="text-red-600 text-sm">
-          {error?.message ?? "Something went wrong"}
-        </span>
-      )} */}
-    </div>
+    <button
+      className="px-3 py-1 rounded-xl border disabled:opacity-50"
+      onClick={click}
+      disabled={isPending || waiting}
+      title={reason}
+    >
+      {isPending || waiting ? "Voting…" : label}
+      {error ? <span className="ml-2 text-red-600">Failed</span> : null}
+    </button>
   );
 }
-
-export default Button;

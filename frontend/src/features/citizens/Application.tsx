@@ -14,7 +14,7 @@ interface ApplicationData {
 
 export default function Application() {
   const citizenAddress = useCitizenAddress();
-  const { data: pollAddress } = useReadContract({
+  const { data: agoraAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
     functionName: "agoraAddress",
@@ -55,8 +55,8 @@ export default function Application() {
 
   return (
     <div className="p-4">
-      {pollAddress &&
-      pollAddress !== "0x0000000000000000000000000000000000000000" ? (
+      {agoraAddress &&
+      agoraAddress !== "0x0000000000000000000000000000000000000000" ? (
         <button
           onClick={() => {
             setIsModalOpen(true);

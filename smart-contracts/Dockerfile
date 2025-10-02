@@ -13,6 +13,9 @@ COPY hardhat.config.* tsconfig.* ./
 COPY contracts ./contracts
 COPY deploy ./deploy
 
+# Copy configuration files
+COPY .env .env
+
 # ✅ download compiler & compile during image build
 RUN npx hardhat compile
 

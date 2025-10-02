@@ -4,7 +4,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import AppLayout from "./AppLayout";
 import Topic from "./features/Topic";
 import SiweLoginButton from "./features/Auth";
-import Poll from "./features/Poll";
+import Poll from "./features/Agora";
 import Citizen from "./features/Citizen";
 
 function App() {
