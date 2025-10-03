@@ -17,7 +17,7 @@ export default function Application() {
   const { data: pollAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
-    functionName: "pollAddress",
+    functionName: "agoraAddress",
   });
   const [newApp, setNewApp] = useState<ApplicationData>({
     name: "",

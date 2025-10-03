@@ -12,7 +12,7 @@ export default buildModule("PolityModule", (m) => {
   m.call(vote, "delegate", [deployer]);
 
   const citizen = m.contract("CitizenRegistry");
-  const poll = m.contract("Poll", [vote]);
+  const agora = m.contract("Agora", [vote]);
 
-  return { vote, citizen, poll };
+  return { vote, citizen, agora };
 });

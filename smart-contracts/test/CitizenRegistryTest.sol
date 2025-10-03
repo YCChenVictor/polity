@@ -2,41 +2,43 @@
 // pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
-// import { Citizen, IPoll } from '../contracts/polity/Citizen.sol';
+import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
+import { IAgora } from '../contracts/interfaces/IAgora.sol';
 // import { Poll } from '../contracts/polity/Poll.sol';
 
-// contract MockPoll is IPoll {
-//     ProposalType public lastPtype;
-//     address public lastTarget;
-//     uint96 public lastTotalCitizens;
-//     uint256 public nextId;
+contract MockAgora is IAgora {
+    ProposalType public lastPtype;
+    address public lastTarget;
+    uint96 public lastTotalCitizens;
+    uint256 public nextId;
 
-//     function hasPassed(address /*wallet*/) external pure returns (bool) {
-//         return true;
-//     }
-// }
+    function createCitizen(address target) external {}
+    function hasPassed(address /*wallet*/) external pure returns (bool) {
+        return true;
+    }
+}
 
-contract CitizenTest is Test {
-    //     Citizen citizen;
-    //     IPoll mockPoll;
-    //     address deployer = address(0xDEAD);
-    //     address target = address(0xCAFE);
-    //     // Ok, ready to QA again (2025/09/12)
-    //     function setUp() public {
-    //         vm.startPrank(deployer);
-    //         citizen = new Citizen();
-    //         mockPoll = new MockPoll();
-    //         citizen.setPoll(address(mockPoll));
-    //         vm.stopPrank();
-    //         assertEq(citizen.pollAddress(), address(mockPoll));
-    //     }
-    //     // Pre-create
-    //     function testPropose() public {
-    //         vm.expectEmit(true, true, true, true);
-    //         emit Citizen.ProposalMade(deployer, target, 1);
-    //         vm.prank(deployer);
-    //         citizen.propose(target);
-    //     }
+contract CitizenRegistryTest is Test {
+    CitizenRegistry citizenREgistry;
+    IAgora mockAgora;
+    address deployer = address(0xDEAD);
+    address target = address(0xCAFE);
+
+    function setUp() public {
+        vm.startPrank(deployer);
+        citizenREgistry = new CitizenRegistry();
+        mockAgora = new MockAgora();
+        citizenREgistry.setAgora(address(mockAgora));
+        vm.stopPrank();
+        //         assertEq(citizen.pollAddress(), address(mockPoll));
+    }
+    // Pre-create
+    function testPropose() public {
+        vm.expectEmit(true, true, true, true);
+        emit CitizenRegistry.ProposalMade(deployer, target, 1);
+        vm.prank(deployer);
+        citizenREgistry.propose(target);
+    }
     //     // Create
     //     function testCreate() public {
     //         vm.prank(address(mockPoll));

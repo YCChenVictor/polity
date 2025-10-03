@@ -3,7 +3,7 @@ import { useReadContract } from "wagmi";
 // import VoteButton from "./VoteButton";
 // import FinalizeButton from "./FinalizeButton";
 
-import { pollAbi } from "../../generated";
+import { agoraAbi } from "../../generated";
 
 // interface PollView {
 //   id: bigint;
@@ -20,7 +20,7 @@ function List({ pollAddress }: { pollAddress: `0x${string}` }) {
     error,
   } = useReadContract({
     address: pollAddress,
-    abi: pollAbi,
+    abi: agoraAbi,
     functionName: "proposals",
     args: [0n, 10n], // offset 0, limit 10, use BigInt
   }) as {

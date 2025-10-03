@@ -4,12 +4,12 @@ pragma solidity ^0.8.24;
 // import 'forge-std/Test.sol';
 
 import 'forge-std/Test.sol';
-import { Poll } from '../contracts/polity/Poll.sol';
+import { Agora } from '../contracts/polity/Agora.sol';
 import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
 import { Vote } from '../contracts/polity/Vote.sol';
 
 contract ProposeTest is Test {
-    Poll poll;
+    Agora agora;
     CitizenRegistry citizenRegistry = new CitizenRegistry();
     address citizenRegistryAddress = address(citizenRegistry);
     Vote token;
@@ -18,7 +18,7 @@ contract ProposeTest is Test {
 
     function setUp() public {
         token = new Vote();
-        poll = new Poll(token);
+        agora = new Agora(token);
         // citizen.setPoll(address(poll));
     }
 
@@ -27,17 +27,17 @@ contract ProposeTest is Test {
     function testCreateCitizen() public {
         address newCitizen = address(0x1234);
 
-        poll.createCitizen(newCitizen);
+        agora.createCitizen(newCitizen);
 
-        Poll.Proposal[] memory page = poll.proposals(0, 100);
+        Agora.Proposal[] memory page = agora.proposals(0, 100);
 
         assertEq(page.length, 1);
     }
 
     function testCreateIPFS() public {
-        poll.createIPFS(A, 'bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu');
+        agora.createIPFS(A, 'bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu');
 
-        Poll.Proposal[] memory page = poll.proposals(0, 100);
+        Agora.Proposal[] memory page = agora.proposals(0, 100);
 
         assertEq(page.length, 1);
     }

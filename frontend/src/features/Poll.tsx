@@ -10,7 +10,7 @@ function Poll() {
   const { data: pollAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
-    functionName: "pollAddress",
+    functionName: "agoraAddress",
   });
 
   if (

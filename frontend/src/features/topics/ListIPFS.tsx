@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useReadContract, useWriteContract, useAccount } from "wagmi";
 
-import { pollAbi, citizenRegistryAbi } from "../../generated";
+import { agoraAbi, citizenRegistryAbi } from "../../generated";
 import { useCitizenAddress } from "../../CitizenAddressContext";
 
 interface IPFSFile {
@@ -23,7 +23,7 @@ const IPFSFileList: React.FC = () => {
   const { data: pollAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
-    functionName: "pollAddress",
+    functionName: "agoraAddress",
   });
 
   async function onClickRaiseVote(cid: string) {
@@ -38,7 +38,7 @@ const IPFSFileList: React.FC = () => {
 
     writeContract({
       address: pollAddress,
-      abi: pollAbi,
+      abi: agoraAbi,
       functionName: "createIPFS",
       args: [address, cid],
     });

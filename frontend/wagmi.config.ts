@@ -8,6 +8,7 @@ export default defineConfig({
     react(),
     hardhat({
       project: "../smart-contracts",
+      exclude: ["**/test/**"],
     }),
   ],
 });
