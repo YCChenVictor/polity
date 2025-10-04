@@ -1,24 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-interface IPoll {
-    enum ProposalType {
-        Text,
-        Target
-    }
-    function createCitizen(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas
-    ) external;
-    function hasPassed(address wallet) external view returns (bool);
-}
+import { IAgora } from '../interfaces/IAgora.sol';
 
 contract CitizenRegistry {
-    address public pollAddress;
+    address public agoraAddress;
     address public bootstrapOwner = msg.sender;
 
-    IPoll public poll;
+    IAgora public agora;
 
     struct CitizenInfo {
         uint256 id;
@@ -61,13 +50,13 @@ contract CitizenRegistry {
         bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = abi.encodeWithSignature('createFromPoll(address)', address(this));
 
-        poll.createCitizen(targets, values, calldatas);
+        agora.createCitizen(target);
         emit ProposalMade(msg.sender, target, _count);
     }
 
     function createFromPoll(address target) external {
-        if (msg.sender != pollAddress) revert OnlyPoll();
-        require(poll.hasPassed(target), 'POLL_NOT_PASSED');
+        if (msg.sender != agoraAddress) revert OnlyPoll();
+        require(agora.hasPassed(target), 'POLL_NOT_PASSED');
         _create(target, 2);
     }
 
@@ -85,19 +74,19 @@ contract CitizenRegistry {
     }
 
     // Polls
-    function setPoll(address _poll) external {
-        require(_poll != address(0), 'ZERO');
+    function setAgora(address _agora) external {
+        require(_agora != address(0), 'ZERO');
 
-        if (pollAddress == address(0)) {
+        if (agoraAddress == address(0)) {
             require(msg.sender == bootstrapOwner, 'BOOTSTRAP_ONLY');
         } else {
-            require(msg.sender == pollAddress, 'PM_ONLY');
+            require(msg.sender == agoraAddress, 'PM_ONLY');
         }
 
-        address old = pollAddress;
-        pollAddress = _poll;
-        poll = IPoll(_poll);
-        emit PollSet(old, _poll);
+        address old = agoraAddress;
+        agoraAddress = _agora;
+        agora = IAgora(_agora);
+        emit PollSet(old, _agora);
 
         if (bootstrapOwner != address(0)) {
             bootstrapOwner = address(0);

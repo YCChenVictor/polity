@@ -14,7 +14,7 @@ interface ICitizen {
     function recordApprovedEvent(address proposer, string calldata cid) external;
 }
 
-contract Poll is
+contract Agora is
     Governor,
     GovernorSettings,
     GovernorCountingSimple,

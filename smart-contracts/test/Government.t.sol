@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import 'forge-std/Test.sol';
 
 import { Government } from '../contracts/polity/Government.sol';
-import { Poll } from '../contracts/polity/Poll.sol';
+import { Agora } from '../contracts/polity/Agora.sol';
 import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
 
 contract MockUUPS {
@@ -12,7 +12,7 @@ contract MockUUPS {
 }
 
 contract Main is Test {
-    Poll poll;
+    Agora agora;
     CitizenRegistry citizen;
     Government government;
 

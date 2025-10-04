@@ -16,7 +16,7 @@ function Init() {
   const { data: poll } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
-    functionName: "pollAddress",
+    functionName: "agoraAddress",
   });
   const { data: bootstrapOwner } = useReadContract({
     address: citizenAddress,
@@ -39,7 +39,7 @@ function Init() {
       const hash = await writeContractAsync({
         address: citizenAddress,
         abi: citizenRegistryAbi,
-        functionName: "setPoll",
+        functionName: "setAgora",
         args: [addr as `0x${string}`],
       });
       setTxHash(hash);
