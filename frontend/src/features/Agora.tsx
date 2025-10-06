@@ -7,15 +7,15 @@ import Init from "./poll/Init";
 
 function Poll() {
   const citizenAddress = useCitizenAddress();
-  const { data: pollAddress } = useReadContract({
+  const { data: agoraAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
     functionName: "agoraAddress",
   });
 
   if (
-    !pollAddress ||
-    pollAddress === "0x0000000000000000000000000000000000000000"
+    !agoraAddress ||
+    agoraAddress === "0x0000000000000000000000000000000000000000"
   ) {
     return <Init />;
   }
@@ -33,7 +33,7 @@ function Poll() {
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold text-gray-800">Poll</h2>
-      <List pollAddress={pollAddress} />
+      <List agoraAddress={agoraAddress} />
       {/* <div className="mt-4 space-y-2 text-gray-700">
         {isLoading && <p>Loading config…</p>}
         {error && <p className="text-red-500">Error loading config</p>}

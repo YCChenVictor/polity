@@ -13,7 +13,7 @@ function Init() {
   // The problem is that why this address is undefined
   const { address } = useAccount();
 
-  const { data: poll } = useReadContract({
+  const { data: agoraAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
     functionName: "agoraAddress",
@@ -28,7 +28,7 @@ function Init() {
 
   const [addr, setAddr] = useState("");
   const show =
-    poll === "0x0000000000000000000000000000000000000000" &&
+    agoraAddress === "0x0000000000000000000000000000000000000000" &&
     address?.toLowerCase() === bootstrapOwner?.toLowerCase();
 
   if (!show) return null;

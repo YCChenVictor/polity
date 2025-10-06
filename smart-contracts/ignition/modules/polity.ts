@@ -3,11 +3,10 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 export default buildModule("PolityModule", (m) => {
-  const vote = m.contract("Vote");
-
   const deployer = m.getAccount(0);
   const mintAmount = m.getParameter("mintAmount", 1_000_000n * 10n ** 18n);
 
+  const vote = m.contract("Vote");
   m.call(vote, "mint", [deployer, mintAmount]);
   m.call(vote, "delegate", [deployer]);
 

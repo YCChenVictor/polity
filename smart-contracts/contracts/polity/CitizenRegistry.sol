@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { IAgora } from '../interfaces/IAgora.sol';
+import { IAgora } from './interfaces/IAgora.sol';
 
 contract CitizenRegistry {
     address public agoraAddress;
@@ -43,16 +43,16 @@ contract CitizenRegistry {
     function propose(address target) external {
         require(isCitizen(msg.sender), 'NOT_CITIZEN');
 
-        address[] memory targets = new address[](1);
-        targets[0] = address(this);
-        uint[] memory values = new uint[](1);
-        values[0] = 0;
-        bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeWithSignature('createFromPoll(address)', address(this));
-
         agora.createCitizen(target);
         emit ProposalMade(msg.sender, target, _count);
     }
+
+    // function proposals(
+    //     uint256 offset,
+    //     uint256 limit
+    // ) external view returns (IAgora.Proposal[] memory) {
+    //     return agora.proposals(IAgora.ProposalType.Immigration, offset, limit);
+    // }
 
     function createFromPoll(address target) external {
         if (msg.sender != agoraAddress) revert OnlyPoll();

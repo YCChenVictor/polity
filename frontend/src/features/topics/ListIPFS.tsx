@@ -20,14 +20,14 @@ const IPFSFileList: React.FC = () => {
   const [files, setFiles] = useState<IPFSFile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { data: pollAddress } = useReadContract({
+  const { data: agoraAddress } = useReadContract({
     address: citizenAddress,
     abi: citizenRegistryAbi,
     functionName: "agoraAddress",
   });
 
   async function onClickRaiseVote(cid: string) {
-    if (!pollAddress) {
+    if (!agoraAddress) {
       console.error("Poll not set");
       return;
     }
@@ -36,12 +36,16 @@ const IPFSFileList: React.FC = () => {
       return;
     }
 
-    writeContract({
-      address: pollAddress,
-      abi: agoraAbi,
-      functionName: "createIPFS",
-      args: [address, cid],
-    });
+    try {
+      writeContract({
+        address: agoraAddress,
+        abi: agoraAbi,
+        functionName: "createIPFS",
+        args: [address, cid],
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   useEffect(() => {

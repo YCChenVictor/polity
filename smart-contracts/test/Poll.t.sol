@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-// import 'forge-std/Test.sol';
-
 import 'forge-std/Test.sol';
+import { IAgora } from '../contracts/polity/interfaces/IAgora.sol';
 import { Agora } from '../contracts/polity/Agora.sol';
 import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
 import { Vote } from '../contracts/polity/Vote.sol';
