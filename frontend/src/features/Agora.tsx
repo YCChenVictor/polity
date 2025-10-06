@@ -2,10 +2,10 @@ import { useReadContract } from "wagmi";
 
 import { citizenRegistryAbi } from "../generated";
 import { useCitizenAddress } from "../CitizenAddressContext";
-import List from "./poll/List";
-import Init from "./poll/Init";
+import List from "./agora/List";
+import Init from "./agora/Init";
 
-function Poll() {
+function Agora() {
   const citizenAddress = useCitizenAddress();
   const { data: agoraAddress } = useReadContract({
     address: citizenAddress,
@@ -32,7 +32,7 @@ function Poll() {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold text-gray-800">Poll</h2>
+      <h2 className="text-2xl font-bold text-gray-800">Agoras</h2>
       <List agoraAddress={agoraAddress} />
       {/* <div className="mt-4 space-y-2 text-gray-700">
         {isLoading && <p>Loading config…</p>}
@@ -49,4 +49,4 @@ function Poll() {
   );
 }
 
-export default Poll;
+export default Agora;

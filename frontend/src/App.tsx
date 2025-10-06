@@ -6,6 +6,7 @@ import Topic from "./features/Topic";
 import SiweLoginButton from "./features/Auth";
 import Poll from "./features/Agora";
 import Citizen from "./features/Citizen";
+import Home from "./features/Home";
 
 function App() {
   const router = createBrowserRouter([
@@ -14,9 +15,9 @@ function App() {
       element: <AppLayout />, // header/nav etc.
       children: [
         { path: "citizens", element: <Citizen /> },
-        { index: true, element: <>hello</> },
+        { index: true, element: <Home /> },
         { path: "topics", element: <Topic /> },
-        { path: "polls", element: <Poll /> },
+        { path: "agoras", element: <Poll /> },
       ],
     },
   ]);
