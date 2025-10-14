@@ -73,7 +73,6 @@ contract CitizenRegistry {
         return citizens[a].wallet != address(0);
     }
 
-    // Polls
     function setAgora(address _agora) external {
         require(_agora != address(0), 'ZERO');
 

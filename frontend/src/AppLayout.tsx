@@ -10,7 +10,7 @@ const AppLayout: React.FC = () => (
         {" | "}
         <Link to="/topics">Topics</Link>
         {" | "}
-        <Link to="/polls">Polls</Link>
+        <Link to="/agoras">Agoras</Link>
         {" | "}
         <Link to="/citizens">Citizens</Link>
       </nav>

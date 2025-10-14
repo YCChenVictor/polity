@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useReadContract, useReadContracts } from "wagmi";
+import { useMemo, useState } from "react";
+import { useReadContract, useReadContracts, usePublicClient } from "wagmi";
 
 import VoteButton from "./VoteButton";
 // import FinalizeButton from "./FinalizeButton";
@@ -17,7 +17,12 @@ import { agoraAbi } from "../../generated";
 type Votes = readonly [bigint, bigint, bigint];
 
 function List({ agoraAddress }: { agoraAddress: `0x${string}` }) {
-  // ---- hooks first
+  const publicClient = usePublicClient();
+  const [thresholds, setThresholds] = useState<
+    Record<string, bigint | "ns" | "err">
+  >({});
+  const [loading] = useState<Record<string, boolean>>({});
+
   const { data, isLoading, error, refetch } = useReadContract({
     address: agoraAddress,
     abi: agoraAbi,
@@ -36,7 +41,7 @@ function List({ agoraAddress }: { agoraAddress: `0x${string}` }) {
         }[]
       | undefined) ?? [];
 
-  const contracts = useMemo(
+  const votes = useMemo(
     () =>
       agoras.map((a) => ({
         address: agoraAddress as `0x${string}`,
@@ -47,7 +52,7 @@ function List({ agoraAddress }: { agoraAddress: `0x${string}` }) {
     [agoraAddress, agoras],
   );
 
-  const votesReads = useReadContracts({ contracts });
+  const votesReads = useReadContracts({ contracts: votes });
 
   // cast once to avoid huge generic explosions
   const votesData = votesReads.data as
@@ -57,9 +62,19 @@ function List({ agoraAddress }: { agoraAddress: `0x${string}` }) {
   const getVotes = (data: typeof votesData, i: number): Votes =>
     data?.[i]?.result ?? ([0n, 0n, 0n] as const);
 
-  // ---- branch AFTER hooks
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
+  async function handleLoadThreshold(id: bigint) {
+    if (!publicClient) return;
+    const res = await publicClient.readContract({
+      address: agoraAddress,
+      abi: agoraAbi,
+      functionName: "votesThresholdOf",
+      args: [id],
+    });
+    setThresholds((p) => ({ ...p, [id.toString()]: res as bigint }));
+  }
 
   return (
     <ul>
@@ -91,6 +106,27 @@ function List({ agoraAddress }: { agoraAddress: `0x${string}` }) {
                 support={2}
                 onVoted={() => refetch()}
               />
+            </div>
+            <div className="mt-2">
+              {thresholds[a.id.toString()] ? (
+                thresholds[a.id.toString()] === "ns" ? (
+                  <span className="opacity-70">Threshold: not started</span>
+                ) : thresholds[a.id.toString()] === "err" ? (
+                  <span className="text-red-600">Threshold: error</span>
+                ) : (
+                  <span>
+                    Threshold: {thresholds[a.id.toString()].toString()}
+                  </span>
+                )
+              ) : (
+                <button
+                  onClick={() => handleLoadThreshold(a.id)}
+                  disabled={loading[a.id.toString()]}
+                  className="mt-1 border rounded px-2 py-1"
+                >
+                  {loading[a.id.toString()] ? "Loading…" : "Show threshold"}
+                </button>
+              )}
             </div>
           </li>
         );

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import 'forge-std/console.sol';
+
 import { Governor } from '@openzeppelin/contracts/governance/Governor.sol';
 import { GovernorSettings } from '@openzeppelin/contracts/governance/extensions/GovernorSettings.sol';
 import { GovernorCountingSimple } from '@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol';
@@ -73,6 +75,14 @@ contract Agora is
         return true;
     }
 
+    function votesThresholdOf(uint256 id) public view returns (uint256) {
+        uint256 snap = proposalSnapshot(id);
+        console.log('block.number:', block.number);
+        console.log('snapshot:', snap);
+        require(block.number > snap, 'Voting not started');
+        return quorum(snap); // OZ Governor value at snapshot
+    }
+
     // ===== required overrides =====
     function votingDelay() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.votingDelay();
@@ -82,6 +92,7 @@ contract Agora is
         return super.votingPeriod();
     }
 
+    // Quorum = the minimum total number of votes (for + against + abstain) required for a proposal to be valid.
     function quorum(
         uint256 blockNumber
     ) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
@@ -113,6 +124,10 @@ contract Agora is
         id = super.propose(targets, values, calldatas, 'Pure signalling vote');
 
         uint64 start = uint64(proposalSnapshot(id));
+        // start records the block number when voters’ token balances are snapshotted for that proposal.
+        // block number = the sequential ID of a block created by the blockchain network — a global counter marking when events happen.
+        // Then you can use getPastVotes(address account, uint256 blockNumber) returns how many votes (token power) that address had at that specific block.
+
         uint64 end = uint64(proposalDeadline(id));
 
         _indexOf[id] = _proposals.length + 1;

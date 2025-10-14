@@ -2,7 +2,10 @@
 pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
+
 import { IAgora } from '../contracts/polity/interfaces/IAgora.sol';
+import { ICitizen } from '../contracts/polity/interfaces/ICitizen.sol';
+
 import { Agora } from '../contracts/polity/Agora.sol';
 import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
 import { Vote } from '../contracts/polity/Vote.sol';
@@ -39,6 +42,24 @@ contract ProposeTest is Test {
         Agora.Proposal[] memory page = agora.proposals(0, 100);
 
         assertEq(page.length, 1);
+    }
+
+    function testVotesThresholdOf() public {
+        uint[] memory values = new uint[](1);
+        values[0] = 0;
+        address[] memory targets = new address[](1);
+        targets[0] = address(this);
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (address(0x1234), 'DUMMY_CID'));
+
+        uint256 id = agora.propose(targets, values, calldatas, 'test');
+        uint256 snap = agora.proposalSnapshot(id);
+
+        vm.expectRevert(bytes('Voting not started'));
+        agora.votesThresholdOf(id);
+
+        vm.roll(snap + 1); // vm.roll(n) instantly sets the next block number to n in Forge tests.
+        assertEq(agora.votesThresholdOf(id), agora.quorum(snap));
     }
 
     // Read
