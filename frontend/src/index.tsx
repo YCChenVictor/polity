@@ -4,14 +4,11 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { WagmiProvider, useAccount, useConnect, useDisconnect } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Buffer } from "buffer";
 
 import { CitizenAddressProvider } from "./CitizenAddressContext";
 import wagmiConfig from "./wagmiConfig";
 
 import App from "./App";
-
-window.Buffer = Buffer;
 
 const queryClient = new QueryClient();
 const rootEl = document.getElementById("root");

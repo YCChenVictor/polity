@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import 'forge-std/console.sol';
-
 import { Governor } from '@openzeppelin/contracts/governance/Governor.sol';
 import { GovernorSettings } from '@openzeppelin/contracts/governance/extensions/GovernorSettings.sol';
 import { GovernorCountingSimple } from '@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol';
@@ -77,8 +75,6 @@ contract Agora is
 
     function votesThresholdOf(uint256 id) public view returns (uint256) {
         uint256 snap = proposalSnapshot(id);
-        console.log('block.number:', block.number);
-        console.log('snapshot:', snap);
         require(block.number > snap, 'Voting not started');
         return quorum(snap); // OZ Governor value at snapshot
     }
