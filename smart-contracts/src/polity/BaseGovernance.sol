@@ -15,7 +15,7 @@ contract BaseGovernance {
 
     // Create
     function addGovernor(address newGovernor) public onlyGovernor {
-        require(!isGovernor(newGovernor), 'Already a governor');
+        require(!isGovernor(newGovernor), "Already a governor");
         governors.push(newGovernor);
     }
 
@@ -30,7 +30,7 @@ contract BaseGovernance {
 
     // hooks
     modifier onlyGovernor() {
-        require(isGovernor(msg.sender), 'Not a governor');
+        require(isGovernor(msg.sender), "Not a governor");
         _;
     }
 

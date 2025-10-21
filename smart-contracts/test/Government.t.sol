@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import 'forge-std/Test.sol';
+import "forge-std/Test.sol";
 
-import { Government } from '../contracts/polity/Government.sol';
-import { Agora } from '../contracts/polity/Agora.sol';
-import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
+import {Government} from "../src/polity/Government.sol";
+import {Agora} from "../src/polity/Agora.sol";
+import {CitizenRegistry} from "../src/polity/CitizenRegistry.sol";
 
 contract MockUUPS {
     address public currentImpl;

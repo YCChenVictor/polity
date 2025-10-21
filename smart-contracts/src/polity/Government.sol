@@ -23,19 +23,19 @@ contract Government {
 
     constructor(address citizen_) {
         // default, we need citizen and poll
-        _set('citizen', citizen_);
+        _set("citizen", citizen_);
         // citizen = ICitizen(citizen_);
     }
 
     // So you need the poll module first
     modifier onlyThroughPoll() {
-        require(msg.sender == poll, 'NOT_POLL');
+        require(msg.sender == poll, "NOT_POLL");
         _;
     }
 
     function setModule(string calldata name, address impl) external onlyThroughPoll {
-        require(bytes(name).length != 0, 'EMPTY_NAME');
-        require(impl != address(0) && impl.code.length > 0, 'BAD_IMPL');
+        require(bytes(name).length != 0, "EMPTY_NAME");
+        require(impl != address(0) && impl.code.length > 0, "BAD_IMPL");
         _set(name, impl);
     }
 
@@ -48,9 +48,9 @@ contract Government {
     }
 
     function listGovernanceModules() external view returns (GovernanceModuleView[] memory views) {
-        uint n = moduleNames.length;
+        uint256 n = moduleNames.length;
         views = new GovernanceModuleView[](n);
-        for (uint i = 0; i < n; i++) {
+        for (uint256 i = 0; i < n; i++) {
             string memory nm = moduleNames[i];
             views[i] = GovernanceModuleView(nm, modules[nm]);
         }
@@ -85,10 +85,11 @@ contract Government {
     // ─────────────────────── Law Level ───────────────────────
     string[] public lawLevels;
     mapping(string => bool) public isLawLevel;
+
     event LawLevelAdded(string level);
 
     function addLawLevel(string memory level) public {
-        require(!isLawLevel[level], 'Exists');
+        require(!isLawLevel[level], "Exists");
         lawLevels.push(level);
         isLawLevel[level] = true;
         emit LawLevelAdded(level);
