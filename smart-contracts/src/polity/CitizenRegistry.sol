@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { IAgora } from './interfaces/IAgora.sol';
+import {IAgora} from "./interfaces/IAgora.sol";
 
 contract CitizenRegistry {
     address public agoraAddress;
@@ -14,6 +14,7 @@ contract CitizenRegistry {
         address wallet;
         uint8 reasonCode;
     }
+
     struct EventMeta {
         address proposer;
         uint64 executedAt;
@@ -34,14 +35,14 @@ contract CitizenRegistry {
     error OnlyPoll();
 
     constructor() {
-        reasonMap[1] = 'born';
-        reasonMap[2] = 'immigrate';
+        reasonMap[1] = "born";
+        reasonMap[2] = "immigrate";
         _create(msg.sender, 1); // deployer becomes citizen
     }
 
     // Citizens
     function propose(address target) external {
-        require(isCitizen(msg.sender), 'NOT_CITIZEN');
+        require(isCitizen(msg.sender), "NOT_CITIZEN");
 
         agora.createCitizen(target);
         emit ProposalMade(msg.sender, target, _count);
@@ -56,13 +57,15 @@ contract CitizenRegistry {
 
     function createFromPoll(address target) external {
         if (msg.sender != agoraAddress) revert OnlyPoll();
-        require(agora.hasPassed(target), 'POLL_NOT_PASSED');
+        require(agora.hasPassed(target), "POLL_NOT_PASSED");
         _create(target, 2);
     }
 
     function read() external view returns (CitizenInfo[] memory list) {
         list = new CitizenInfo[](citizenList.length);
-        for (uint i = 0; i < citizenList.length; i++) list[i] = citizens[citizenList[i]];
+        for (uint256 i = 0; i < citizenList.length; i++) {
+            list[i] = citizens[citizenList[i]];
+        }
     }
 
     function total() external view returns (uint96) {
@@ -74,12 +77,12 @@ contract CitizenRegistry {
     }
 
     function setAgora(address _agora) external {
-        require(_agora != address(0), 'ZERO');
+        require(_agora != address(0), "ZERO");
 
         if (agoraAddress == address(0)) {
-            require(msg.sender == bootstrapOwner, 'BOOTSTRAP_ONLY');
+            require(msg.sender == bootstrapOwner, "BOOTSTRAP_ONLY");
         } else {
-            require(msg.sender == agoraAddress, 'PM_ONLY');
+            require(msg.sender == agoraAddress, "PM_ONLY");
         }
 
         address old = agoraAddress;
@@ -93,9 +96,9 @@ contract CitizenRegistry {
     }
 
     function _create(address wallet, uint8 reasonCode) internal {
-        require(wallet != address(0), 'ZERO_WALLET');
-        require(citizens[wallet].wallet == address(0), 'ALREADY_EXISTS');
-        require(bytes(reasonMap[reasonCode]).length > 0, 'BAD_REASON');
+        require(wallet != address(0), "ZERO_WALLET");
+        require(citizens[wallet].wallet == address(0), "ALREADY_EXISTS");
+        require(bytes(reasonMap[reasonCode]).length > 0, "BAD_REASON");
         citizens[wallet] = CitizenInfo(nextCitizenId++, wallet, reasonCode);
         citizenList.push(wallet);
         _count++;

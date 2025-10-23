@@ -16,8 +16,5 @@ COPY deploy ./deploy
 # Copy configuration files
 COPY .env .env
 
-# ✅ download compiler & compile during image build
-RUN npx hardhat compile
-
 # start node + deploy (no compile at runtime)
 CMD ["yarn", "start"]

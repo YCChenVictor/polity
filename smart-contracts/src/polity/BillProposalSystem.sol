@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './BaseGovernance.sol';
+import "./BaseGovernance.sol";
 
 abstract contract OffChainRuleProposalSystem is BaseGovernance {
     struct OffChainRuleProposal {
@@ -30,11 +30,7 @@ abstract contract OffChainRuleProposalSystem is BaseGovernance {
     event Updated(uint256 id, string billId, uint256 updateTimestamp);
 
     // Create
-    function proposeOffChainRule(
-        address rule,
-        string memory billNumber,
-        string memory billId
-    ) external onlyGovernor {
+    function proposeOffChainRule(address rule, string memory billNumber, string memory billId) external onlyGovernor {
         uint256 id = offChainRuleProposalCount;
         OffChainRuleProposal storage p = offChainRuleProposals[id];
         p.proposed = rule;
@@ -51,21 +47,15 @@ abstract contract OffChainRuleProposalSystem is BaseGovernance {
         views = new OffChainRuleProposalView[](n);
         for (uint256 i = 0; i < n; i++) {
             OffChainRuleProposal storage p = offChainRuleProposals[i];
-            views[i] = OffChainRuleProposalView(
-                p.proposed,
-                p.billNumber,
-                p.billId,
-                p.votes,
-                p.updateTimestamp
-            );
+            views[i] = OffChainRuleProposalView(p.proposed, p.billNumber, p.billId, p.votes, p.updateTimestamp);
         }
     }
 
     // Update
     function voteRuleFromBill(uint256 id) external onlyGovernor {
         OffChainRuleProposal storage p = offChainRuleProposals[id];
-        require(!p.executed, 'Already executed');
-        require(!p.hasVoted[msg.sender], 'Already voted');
+        require(!p.executed, "Already executed");
+        require(!p.hasVoted[msg.sender], "Already voted");
         p.hasVoted[msg.sender] = true;
         p.votes += 1;
         emit OffChainRuleVoteCast(id, msg.sender, p.votes);

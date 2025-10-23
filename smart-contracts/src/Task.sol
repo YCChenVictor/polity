@@ -18,11 +18,7 @@ contract TaskManager {
     Task[] public tasks;
     mapping(uint256 => uint256) private backendIdToIndex;
 
-    function createTask(
-        uint256 backendId,
-        address payable workerAddress,
-        uint256 paymentAmount
-    ) public {
+    function createTask(uint256 backendId, address payable workerAddress, uint256 paymentAmount) public {
         tasks.push(Task(backendId, false, workerAddress, paymentAmount));
         uint256 index = tasks.length - 1;
         backendIdToIndex[backendId] = index;
@@ -31,6 +27,7 @@ contract TaskManager {
     error TaskIndexOutOfBounds();
     error TaskAlreadyCompleted();
     error InsufficientContractBalance();
+
     function markTaskCompleted(uint256 backendId) public {
         uint256 index = backendIdToIndex[backendId];
         if (index >= tasks.length) {

@@ -1,10 +1,10 @@
 [profile.default]
-src = "contracts"
-test = "test"
-libs = ["lib", "node_modules"]   # let forge see lib/ and node_modules/
-solc_version = "0.8.24"          # match OZ v5 / mcopy
+optimizer = true
+optimizer_runs = 500
+libs = ["lib"]   # let forge see lib/ and node_modules/
+solc_version = "0.8.25"          # match OZ v5 / mcopy
 
 remappings = [
   "forge-std/=lib/forge-std/src/",
-  "contracts/=contracts/"
+  "@openzeppelin/=lib/openzeppelin-contracts/"
 ]

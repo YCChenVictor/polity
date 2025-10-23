@@ -4,6 +4,7 @@ interface IAgora {
         Immigration,
         Event
     }
+
     struct Proposal {
         uint256 id;
         ProposalType kind;
@@ -11,6 +12,7 @@ interface IAgora {
         uint64 startBlock;
         uint64 endBlock;
     }
+
     function createCitizen(address newCitizenAddress) external;
     // function proposals(
     //     ProposalType proposalType,

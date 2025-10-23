@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // pragma solidity ^0.8.24;
 
-import 'forge-std/Test.sol';
-import { CitizenRegistry } from '../contracts/polity/CitizenRegistry.sol';
-import { IAgora } from '../contracts/polity/interfaces/IAgora.sol';
+import "forge-std/Test.sol";
+import {CitizenRegistry} from "../src/polity/CitizenRegistry.sol";
+import {IAgora} from "../src/polity/interfaces/IAgora.sol";
 // import { Poll } from '../contracts/polity/Poll.sol';
 
 contract MockAgora is IAgora {
@@ -13,7 +13,14 @@ contract MockAgora is IAgora {
     uint256 public nextId;
 
     function createCitizen(address target) external {}
-    function hasPassed(address /*wallet*/) external pure returns (bool) {
+
+    function hasPassed(
+        address /*wallet*/
+    )
+        external
+        pure
+        returns (bool)
+    {
         return true;
     }
 }
@@ -32,6 +39,7 @@ contract CitizenRegistryTest is Test {
         vm.stopPrank();
         //         assertEq(citizen.pollAddress(), address(mockPoll));
     }
+
     // Pre-create
     function testPropose() public {
         vm.expectEmit(true, true, true, true);

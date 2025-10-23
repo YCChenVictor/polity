@@ -1,9 +1,7 @@
 name: polity CI
-
 on:
   pull_request:
     branches: [ main ]
-
 jobs:
   frontend:
     runs-on: ubuntu-24.04
@@ -21,7 +19,6 @@ jobs:
       run: yarn lint
     - name: Run tests
       run: yarn test:fix
-
   backend:
     runs-on: ubuntu-24.04
     defaults:
@@ -36,28 +33,21 @@ jobs:
       run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
     - name: Lint Code
       run: yarn lint
-
   smart-contracts:
     runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: ./smart-contracts
-    env:
-      DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
         node-version: 22
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
-    - name: Lint Code
-      run: yarn format:check
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
         version: stable
-    - name: Install forge-std
-      run: forge install foundry-rs/forge-std
+    - name: Lint Code
+      run: forge fmt --check
     - name: Run tests
-      run: yarn test
+      run: forge test

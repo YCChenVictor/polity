@@ -40,3 +40,5 @@ smart-contracts/coverage.json
 smart-contracts/typechain-types/
 
 *.csv
+
+polity-ui/

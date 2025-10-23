@@ -4,7 +4,7 @@
 
 pragma solidity ^0.8.24;
 
-import './BaseGovernance.sol';
+import "./BaseGovernance.sol";
 
 // This is actually on chain rules
 abstract contract RuleProposalSystem is BaseGovernance {
@@ -51,8 +51,8 @@ abstract contract RuleProposalSystem is BaseGovernance {
     // Update
     function voteRuleFromCode(uint256 id) external onlyGovernor {
         RuleProposal storage p = ruleProposals[id];
-        require(!p.executed, 'Already executed');
-        require(!p.hasVoted[msg.sender], 'Already voted');
+        require(!p.executed, "Already executed");
+        require(!p.hasVoted[msg.sender], "Already voted");
         p.hasVoted[msg.sender] = true;
         p.votes += 1;
         emit RuleVoteCast(id, msg.sender, p.votes);
