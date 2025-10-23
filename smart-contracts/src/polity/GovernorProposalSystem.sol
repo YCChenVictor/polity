@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './BaseGovernance.sol';
+import "./BaseGovernance.sol";
 
 contract GovernorProposalSystem {
     struct GovernorProposal {
@@ -28,7 +28,7 @@ contract GovernorProposalSystem {
 
     // Create
     function proposeGovernor(address newGovernor) external {
-        require(!isGovernorProposed[newGovernor], 'Governor already proposed');
+        require(!isGovernorProposed[newGovernor], "Governor already proposed");
         uint256 id = governorProposalCount++;
         GovernorProposal storage p = governorProposals[id];
         p.proposed = newGovernor;
