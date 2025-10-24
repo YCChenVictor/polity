@@ -2,9 +2,9 @@
 // pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
-import {CitizenRegistry} from "../src/polity/CitizenRegistry.sol";
-import {IAgora} from "../src/polity/interfaces/IAgora.sol";
-// import { Poll } from '../contracts/polity/Poll.sol';
+import {CitizenRegistry} from "../src/CitizenRegistry.sol";
+import {IAgora} from "../src/interfaces/IAgora.sol";
+// import { Poll } from '../contracts/Poll.sol';
 
 contract MockAgora is IAgora {
     ProposalType public lastPtype;

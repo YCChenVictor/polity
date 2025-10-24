@@ -2,6 +2,8 @@ import { createHelia } from "helia";
 import { mfs } from "@helia/mfs";
 import type { MFS } from "@helia/mfs";
 
+// mfs = Mutable File System
+
 interface UploadResult {
   cid: string;
   name: string;

@@ -1,0 +1,1 @@
+All power within Polity originates from citizens, and every rule must trace its authority to their collective will.

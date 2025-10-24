@@ -3,12 +3,12 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 
-import {IAgora} from "../src/polity/interfaces/IAgora.sol";
-import {ICitizen} from "../src/polity/interfaces/ICitizen.sol";
+import {IAgora} from "../src/interfaces/IAgora.sol";
+import {ICitizen} from "../src/interfaces/ICitizen.sol";
 
-import {Agora} from "../src/polity/Agora.sol";
-import {CitizenRegistry} from "../src/polity/CitizenRegistry.sol";
-import {Vote} from "../src/polity/Vote.sol";
+import {Agora} from "../src/Agora.sol";
+import {CitizenRegistry} from "../src/CitizenRegistry.sol";
+import {Vote} from "../src/Vote.sol";
 
 contract ProposeTest is Test {
     Agora agora;
