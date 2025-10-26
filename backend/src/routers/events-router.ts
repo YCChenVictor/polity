@@ -1,11 +1,12 @@
-import express from "express";
+import { Router, Request, Response } from "express";
 import multer from "multer";
-import IpfsService from "../services/ipfs";
+import { check, validationResult } from "express-validator";
+
+import { mfsCreate, mfsList } from "../services/ipfs";
 
 // import LLMService from "../services/llm";
 
-const router = express.Router();
-const ipfs = await IpfsService.init();
+const router = Router();
 
 if (!process.env.IPFS_API) {
   throw new Error("Missing IPFS_API in environment");
@@ -27,24 +28,44 @@ const upload = multer({
 });
 
 // curl -X POST http://localhost:5000/events/ -F "file=@tmp/test.txt"
-router.post("/", upload.single("file"), async (req, res) => {
-  try {
-    if (!req.file)
-      return res.status(400).json({ error: "file required (field: file)" });
-    const result = await ipfs.mfsCreate(req.file as Express.Multer.File);
-    res.json(result);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: String(error) });
-  }
-});
+router.post(
+  "/",
+  upload.single("file"), // upload.single("file") is a Multer middleware that processes a single uploaded file whose form-field name is "file", placing its info into req.file
+  [
+    check("dir").isString().withMessage("dir must be a string"),
+    check("file").custom((_, { req }) => {
+      if (!req.file) {
+        throw new Error("file required (field: file)");
+      }
+      return true;
+    }),
+  ],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const dir = req.body.dir; // get dir from body
+    const file = req.file as Express.Multer.File; // get file from req.file
+
+    try {
+      const result = await mfsCreate(file, dir);
+
+      res.status(201).json(result);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: String(error) });
+    }
+  },
+);
 
 // curl http://localhost:5000/events/
 router.get("/", async (_req, res) => {
   try {
-    await ipfs.mfsList("/staging");
+    await mfsList("/staging");
 
-    const entries = await ipfs.mfsList("/staging");
+    const entries = await mfsList("/staging");
     res.json(entries);
   } catch (error) {
     console.error("Error listing /staging:", error);
