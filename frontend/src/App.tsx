@@ -7,6 +7,7 @@ import SiweLoginButton from "./features/Auth";
 import Poll from "./features/Agora";
 import Citizen from "./features/Citizen";
 import Home from "./features/Home";
+import Constitution from "./Constitution";
 
 function App() {
   const router = createBrowserRouter([
@@ -23,6 +24,7 @@ function App() {
   ]);
 
   const [user, setUser] = useState<{ address: string } | null>(null);
+  const [initialized, setInitialized] = useState<boolean>(false);
 
   const BACKEND = process.env.REACT_APP_BACKEND_URL;
 
@@ -35,15 +37,32 @@ function App() {
     }
   }
 
+  async function checkInitialized() {
+    try {
+      const res = await fetch(`${BACKEND}/events/init`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setInitialized(data.initialized);
+    } catch {
+      setInitialized(false);
+    }
+  }
+
   useEffect(() => {
     refreshSession();
+    checkInitialized();
   }, []);
 
-  return !user ? (
-    <SiweLoginButton onSuccess={refreshSession} />
-  ) : (
-    <RouterProvider router={router} />
-  );
+  if (!user) {
+    return <SiweLoginButton onSuccess={refreshSession} />;
+  }
+
+  if (!initialized) {
+    return <Constitution />;
+  }
+
+  return <RouterProvider router={router} />;
 }
 
 export default App;

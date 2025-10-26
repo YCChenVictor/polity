@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { check, validationResult } from "express-validator";
 
-import { mfsCreate, mfsList } from "../services/ipfs";
+import { mutableFS, mfsCreate, mfsList } from "../services/ipfs";
 
 // import LLMService from "../services/llm";
 
@@ -69,6 +69,27 @@ router.get("/", async (_req, res) => {
     res.json(entries);
   } catch (error) {
     console.error("Error listing /staging:", error);
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+// curl http://localhost:5000/events/init
+router.get("/init", async (_req, res) => {
+  try {
+    const path = "/staging/constitution.md";
+    let initialized = false;
+
+    try {
+      await mutableFS.stat(path);
+      initialized = true;
+    } catch (err) {
+      if (String(err).includes("does not exist")) initialized = false;
+      else throw err;
+    }
+
+    res.json({ initialized, path });
+  } catch (error) {
+    console.error("Error checking initialization:", error);
     res.status(500).json({ error: String(error) });
   }
 });
