@@ -8,8 +8,9 @@ import "./env";
 // import contributionsRouter from "./routers/contribution-router";
 // import legislatorRouter from "./routers/legislator-router";
 // import bullRouter from "./routers/bill-router";
-import eventsRouter from "./routers/events-router";
+import eventsRouter from "./routers/event-router";
 import authRouter from "./routers/auth-router";
+import judgesRouter from "./routers/judge-router";
 
 const app = express();
 app.use(cookieParser());
@@ -31,9 +32,6 @@ app.use("/auth", authRouter);
 
 app.use("/events", eventsRouter);
 
-// app.use("/immigrates", immigratesRouter);
-// app.use("/contributions", contributionsRouter);
-// app.use("/legislators", legislatorRouter);
-// app.use("/bills", bullRouter);
+app.use("/judges", judgesRouter);
 
 export default app;

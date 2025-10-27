@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useReadContract, useWriteContract, useAccount } from "wagmi";
 
+import { postJSON } from "../../api"
 import { agoraAbi, citizenRegistryAbi } from "../../generated";
 import { useCitizenAddress } from "../../CitizenAddressContext";
 
@@ -26,7 +27,7 @@ const IPFSFileList: React.FC = () => {
     functionName: "agoraAddress",
   });
 
-  async function onClickRaiseVote(cid: string) {
+  const onClickRaiseVote = async (cid: string) => {
     if (!agoraAddress) {
       console.error("Poll not set");
       return;
@@ -46,7 +47,24 @@ const IPFSFileList: React.FC = () => {
     } catch (e) {
       console.log(e);
     }
-  }
+  };
+
+  const onClickCheckCompliance = async (cid: string) => {
+    try {
+      const r = await postJSON(
+        "/judges",
+        {
+          contentFile: "constitution.md",
+          ruleFile: "constitution.md",
+        },
+        undefined,
+      );
+      console.log(r)
+    } catch (e) {
+      console.error(e);
+      // TODO: surface error UI
+    }
+  };
 
   useEffect(() => {
     fetch("http://localhost:5000/events/")
@@ -88,6 +106,13 @@ const IPFSFileList: React.FC = () => {
                   </a>
                 </td>
                 <td className="px-4 py-2">
+                  <button
+                    onClick={() => onClickCheckCompliance(f.cid)}
+                    disabled={isPending}
+                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Check Compliance
+                  </button>
                   <button
                     onClick={() => onClickRaiseVote(f.cid)}
                     disabled={isPending}

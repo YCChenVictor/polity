@@ -1,6 +1,8 @@
+import { posix as pathPosix } from "path";
 import { createHelia } from "helia";
 import { mfs } from "@helia/mfs";
 import type { MFS } from "@helia/mfs";
+import { toString } from "uint8arrays/to-string";
 
 // mfs = Mutable File System
 
@@ -24,22 +26,46 @@ const normalizeDir = (d: string) => {
   return d.startsWith("/") ? d : `/${d}`;
 };
 
+const ensureDir = async (dir: string) => {
+  type MkdirOpts = Parameters<MFS["mkdir"]>[1];
+  try {
+    await mutableFS.mkdir(dir, { parents: true } as MkdirOpts);
+  } catch (err: unknown) {
+    const e = err as { name?: string; code?: string } | null;
+    if (
+      !(
+        e &&
+        (e.name === "AlreadyExistsError" || e.code === "ERR_ALREADY_EXISTS")
+      )
+    ) {
+      throw err;
+    }
+  }
+};
+
 // mfs
 const mfsCreate = async (
   file: Express.Multer.File,
   dir: string,
 ): Promise<UploadResult> => {
-  if (!file) throw new Error("file required");
-  const base = normalizeDir(dir);
+  if (!file?.buffer) throw new Error("file required");
 
-  type MkdirOpts = Parameters<MFS["mkdir"]>[1]; // use method’s param type to avoid clashes
-  await mutableFS.mkdir(base, { parents: true } as MkdirOpts);
+  const base = dir?.startsWith("/") ? dir : `/${dir || ""}`;
+  await ensureDir(base);
 
-  const safeName = file.originalname.replace(/[/\\]/g, "_");
-  const fullPath = `${base}/${safeName}`;
+  const safeName = file.originalname.replace(/[\\/]/g, "_");
+  const fullPath = pathPosix.join(base, safeName);
 
-  await mutableFS.writeBytes(file.buffer, fullPath); // swap args if your version requires
+  const bytes: Uint8Array = Buffer.isBuffer(file.buffer)
+    ? file.buffer
+    : Buffer.from(file.buffer);
+
+  await mutableFS.writeBytes(bytes, fullPath);
+
   const stat = await mutableFS.stat(fullPath);
+  if (stat.type === "directory") {
+    throw new Error(`Path is a directory: ${fullPath}`);
+  }
 
   return {
     cid: stat.cid.toString(),
@@ -62,10 +88,16 @@ const mfsList = async (path = "/"): Promise<MfsEntry[]> => {
   return out;
 };
 
-// async mfsStat(path: string) {
-//   const p = this.normalizePath(path);
-//   return this.ipfs.files.stat(p);
-// }
+const readFileFromMfs = async (path: string): Promise<string> => {
+  if (!path.startsWith("/")) path = "/" + path;
+
+  let data = "";
+  for await (const chunk of mutableFS.cat(path)) {
+    // ✅ direct path
+    data += toString(chunk);
+  }
+  return data;
+};
 
 // async mfsWrite(path: string, data: Uint8Array | Buffer): Promise<void> {
 //   const p = this.normalizePath(path);
@@ -106,4 +138,4 @@ const mfsList = async (path = "/"): Promise<MfsEntry[]> => {
 //   return out;
 // }
 
-export { mutableFS, mfsCreate, mfsList };
+export { mutableFS, mfsCreate, mfsList, readFileFromMfs };
