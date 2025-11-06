@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger";
 
 import "./env";
 
@@ -12,6 +14,10 @@ import eventsRouter from "./routers/events-router";
 import authRouter from "./routers/auth-router";
 
 const app = express();
+
+app.get("/openapi.json", (_req, res) => res.json(swaggerSpec));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 app.use(cookieParser());
 app.use(
   cors({
