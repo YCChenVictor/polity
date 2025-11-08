@@ -26,11 +26,9 @@ function App() {
   const [user, setUser] = useState<{ address: string } | null>(null);
   const [initialized, setInitialized] = useState<boolean>(false);
 
-  const BACKEND = process.env.REACT_APP_BACKEND_URL;
-
   async function refreshSession() {
     try {
-      const res = await fetch(`${BACKEND}/auth/me`, { credentials: "include" });
+      const res = await fetch("/api/me", { credentials: "include" });
       setUser(res.ok ? await res.json() : null);
     } catch {
       setUser(null);
@@ -39,11 +37,11 @@ function App() {
 
   async function checkInitialized() {
     try {
-      const res = await fetch(`${BACKEND}/events/init`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      setInitialized(data.initialized);
+      // // const res = await fetch(`${BACKEND}/events/init`, {
+      //   credentials: "include",
+      // });
+      // const data = await res.json();
+      // setInitialized(data.initialized);
     } catch {
       setInitialized(false);
     }
