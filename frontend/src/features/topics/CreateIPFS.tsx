@@ -9,30 +9,28 @@ export default function UploadEvent() {
 
   const handleUpload = async () => {
     if (!file) return;
-    if (!address) {
-      setStatus("❌ Wallet not connected");
-      return;
-    }
+    if (!address) return setStatus("❌ Wallet not connected");
 
     setStatus("Uploading...");
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("proposer", address);
-
     try {
-      console.log("zxcvzxcvzxcv");
-      console.log(formData);
-      const res = await fetch(`http://localhost:5000/events/`, {
-        method: "POST",
-        body: formData,
-      });
+      const fd = new FormData();
+      fd.set("file", file);
+      fd.set("proposer", address);
 
-      if (!res.ok) throw new Error(`Upload failed (${res.status})`);
-      const data = await res.json();
-      setStatus(`✅ Uploaded! CID: ${data.cid ?? "no cid returned"}`);
-    } catch (error) {
-      setStatus(`❌ Error: ${error}`);
+      const res = await fetch("/api/ipfs/file", {
+        method: "POST",
+        credentials: "include",
+        body: fd,
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      const data: { cid: string; gateway: string } = await res.json();
+      console.log(data);
+      setStatus(`✅ Uploaded: ${data.cid}`);
+    } catch (err: any) {
+      console.log(err);
+      setStatus(`❌ Error: ${err.message ?? String(err)}`);
     }
   };
 

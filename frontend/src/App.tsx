@@ -24,7 +24,6 @@ function App() {
   ]);
 
   const [user, setUser] = useState<{ address: string } | null>(null);
-  const [initialized, setInitialized] = useState<boolean>(false);
 
   async function refreshSession() {
     try {
@@ -35,29 +34,12 @@ function App() {
     }
   }
 
-  async function checkInitialized() {
-    try {
-      // // const res = await fetch(`${BACKEND}/events/init`, {
-      //   credentials: "include",
-      // });
-      // const data = await res.json();
-      // setInitialized(data.initialized);
-    } catch {
-      setInitialized(false);
-    }
-  }
-
   useEffect(() => {
     refreshSession();
-    checkInitialized();
   }, []);
 
   if (!user) {
     return <SiweLoginButton onSuccess={refreshSession} />;
-  }
-
-  if (!initialized) {
-    return <Constitution />;
   }
 
   return <RouterProvider router={router} />;

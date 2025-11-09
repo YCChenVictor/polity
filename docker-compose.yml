@@ -1,0 +1,19 @@
+services:
+  ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - "4001:4001/tcp"   # swarm (tcp)
+      - "4001:4001/udp"   # swarm (quic/udp)
+      - "5001:5001"       # API
+      - "8080:8080"       # Gateway
+    volumes:
+      - ipfs-data:/data/ipfs
+    command: >
+      sh -lc '
+        test -f /data/ipfs/config || ipfs init --profile=server;
+        ipfs config Addresses.API --json "\"/ip4/0.0.0.0/tcp/5001\"";
+        ipfs config Addresses.Gateway --json "\"/ip4/0.0.0.0/tcp/8080\"";
+        exec ipfs daemon --migrate=true --init=false
+      '
+volumes:
+  ipfs-data:

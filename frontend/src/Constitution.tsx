@@ -24,12 +24,12 @@ function Constitution() {
     formData.append("dir", "/staging");
 
     try {
-      const r = await fetch("http://localhost:5000/events/", {
-        method: "POST",
-        body: formData,
-      });
-      const json = await r.json().catch(() => ({}));
-      setRes(json);
+      // const r = await fetch("http://localhost:5000/events/", {
+      //   method: "POST",
+      //   body: formData,
+      // });
+      // const json = await r.json().catch(() => ({}));
+      // setRes(json);
     } catch (err) {
       console.error(err);
       alert("Upload failed");

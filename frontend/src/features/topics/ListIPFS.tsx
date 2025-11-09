@@ -49,11 +49,11 @@ const IPFSFileList: React.FC = () => {
   }
 
   useEffect(() => {
-    fetch("http://localhost:5000/events/")
-      .then((res) => res.json())
-      .then((data) => setFiles(data))
-      .catch((err) => console.error("❌ Fetch error:", err))
-      .finally(() => setLoading(false));
+    // fetch("http://localhost:5000/events/")
+    //   .then((res) => res.json())
+    //   .then((data) => setFiles(data))
+    //   .catch((err) => console.error("❌ Fetch error:", err))
+    //   .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div>Loading…</div>;
