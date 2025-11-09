@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useAccount, useConnect, useSignMessage, useChainId } from "wagmi";
 import { SiweMessage } from "siwe";
 
-const BACKEND = process.env.REACT_APP_BACKEND_URL ?? "http://localhost:5000";
-
 export default function SiweLoginButton({
   onSuccess,
 }: {
@@ -35,9 +33,9 @@ export default function SiweLoginButton({
       if (!addr) throw new Error("No address");
 
       // 2) nonce
-      const { nonce } = await fetch(`${BACKEND}/auth/nonce`, {
-        credentials: "include",
-      }).then((r) => r.json());
+      const { nonce } = await (
+        await fetch("/api/nonce", { credentials: "include" })
+      ).json();
 
       // 3) build + sign EXACT prepared string
       const siwe = new SiweMessage({
@@ -53,16 +51,16 @@ export default function SiweLoginButton({
       const signature = await signMessageAsync({ message });
 
       // 4) verify -> HttpOnly cookie
-      const verify = await fetch(`${BACKEND}/auth/verify`, {
+      const verify = await fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message, signature, nonce }),
+        body: JSON.stringify({ message, signature }),
       });
       if (!verify.ok) throw new Error("SIWE verify failed");
 
       // 5) session
-      const me = await fetch(`${BACKEND}/auth/me`, { credentials: "include" });
+      const me = await fetch("/api/me", { credentials: "include" });
       const sess = me.ok ? await me.json() : { address: addr };
       onSuccess?.(sess);
     } catch (e) {
