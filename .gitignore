@@ -40,3 +40,11 @@ smart-contracts/coverage.json
 smart-contracts/typechain-types/
 
 *.csv
+
+**/build/**
+
+.DS_Store
+
+.env.**
+
+.vercel

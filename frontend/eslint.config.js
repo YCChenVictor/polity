@@ -7,7 +7,13 @@ export default [
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   {
-    ignores: ["tsconfig.json", "dist/", "src/generated.ts"],
+    ignores: [
+      "tsconfig.json",
+      "dist/",
+      "src/generated.ts",
+      ".vercel/",
+      "node_modules/",
+    ],
   },
   {
     plugins: {

@@ -1,68 +1,81 @@
-"use client";
-
 import { useState } from "react";
-import { useAccount, useConnect, useSignMessage, useChainId } from "wagmi";
-import { SiweMessage } from "siwe";
+import {
+  useAccount,
+  useConnect,
+  useSignMessage,
+  useChainId,
+  Connector,
+} from "wagmi";
+import { getAddress, Address } from "viem";
 
-export default function SiweLoginButton({
-  onSuccess,
+const ensureAddress = async ({
+  address,
+  connectors,
+  connectAsync,
 }: {
-  onSuccess?: (s: { address: string }) => void;
-}) {
+  address?: Address;
+  connectors: readonly Connector[];
+  connectAsync: (args: {
+    connector: Connector;
+    chainId?: number;
+  }) => Promise<{ accounts: readonly Address[] }>;
+}): Promise<Address> => {
+  let addr = address as Address | undefined;
+
+  if (!addr) {
+    const connector =
+      connectors.find((c) => c.id === "injected" && c.ready) ??
+      connectors.find((c) => c.ready);
+    if (!connector) throw new Error("No wallet connector");
+
+    const { accounts } = await connectAsync({ connector });
+    addr = accounts?.[0] as Address | undefined;
+  }
+
+  if (!addr) throw new Error("No address");
+  return getAddress(addr); // normalize to checksum
+};
+
+export default function SiweLoginButton() {
   const [loading, setLoading] = useState(false);
   const chainId = useChainId();
   const { address, isConnected } = useAccount();
-  const { connectAsync, connectors, isPending: isConnecting } = useConnect();
   const { signMessageAsync } = useSignMessage();
+  const { connectAsync, connectors, isPending: isConnecting } = useConnect();
+
+  const okJson = async (r: Response) => {
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  };
 
   const handleLogin = async () => {
     try {
       setLoading(true);
 
-      // 1) ensure connected
-      let addr = address as `0x${string}` | undefined;
-      if (!addr) {
-        const connector =
-          connectors.find((c) => c.id === "injected" && c.ready) ??
-          connectors.find((c) => c.ready) ??
-          connectors[0];
-        if (!connector) throw new Error("No wallet connector");
-        const { accounts } = await connectAsync({ connector });
-        addr = accounts?.[0] as `0x${string}` | undefined;
-      }
-      if (!addr) throw new Error("No address");
+      // ensure connected
+      const addr = await ensureAddress({ address, connectors, connectAsync });
 
-      // 2) nonce
-      const { nonce } = await (
-        await fetch("/api/nonce", { credentials: "include" })
-      ).json();
+      // ask server for challenge (sets httpOnly nonce cookie)
+      const { message } = await fetch("/api/challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ address: addr, chainId }),
+      }).then(okJson);
 
-      // 3) build + sign EXACT prepared string
-      const siwe = new SiweMessage({
-        domain: window.location.host,
-        address: addr,
-        statement: "Sign in to Polity.",
-        uri: window.location.origin,
-        version: "1",
-        chainId: chainId || 1,
-        nonce,
-      });
-      const message = siwe.prepareMessage();
+      // sign
       const signature = await signMessageAsync({ message });
 
-      // 4) verify -> HttpOnly cookie
-      const verify = await fetch("/api/verify", {
+      // verify (server consumes nonce + sets session)
+      await fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ message, signature }),
-      });
-      if (!verify.ok) throw new Error("SIWE verify failed");
+      }).then(okJson);
 
-      // 5) session
-      const me = await fetch("/api/me", { credentials: "include" });
-      const sess = me.ok ? await me.json() : { address: addr };
-      onSuccess?.(sess);
+      // use session
+      await fetch("/api/me", { credentials: "include" }).then(okJson);
     } catch (e) {
       console.error(e);
       alert(e ?? "Login failed");

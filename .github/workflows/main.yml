@@ -19,6 +19,9 @@ jobs:
       run: yarn lint
     - name: Run tests
       run: yarn test:fix
+    env:
+      NONCE_SECRET: ${{ secrets.NONCE_SECRET }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
   backend:
     runs-on: ubuntu-24.04
     defaults:

@@ -108,13 +108,11 @@
   },
   "include": [
     "src",
-    "tests", "api", "apis"],
+    "tests",
+  ],
   "exclude": [
+    ".vercel",
     "node_modules",
     "**/*.test.ts"
-  ],
-  "tsc-alias": {
-    "resolveFullPaths": true,
-    "verbose": false
-  }
+  ]
 }

@@ -1,1 +1,7 @@
-{ "devCommand": "react-scripts start", "framework": null }
+{
+  "version": 2,
+  "framework": "create-react-app",
+  "buildCommand": "react-scripts build",
+  "outputDirectory": "build",
+  "devCommand": "react-scripts start"
+}
