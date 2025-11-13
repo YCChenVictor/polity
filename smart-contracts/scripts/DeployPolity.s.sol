@@ -32,7 +32,6 @@ contract DeployPolity is Script {
 
         vm.stopBroadcast();
 
-        // 3) Log addresses
         console2.log("Deployer:", deployer);
         console2.log("Vote:    ", address(vote));
         console2.log("Citizen: ", address(citizen));

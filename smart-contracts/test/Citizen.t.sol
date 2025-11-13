@@ -25,7 +25,7 @@ contract MockAgora is IAgora {
     }
 }
 
-contract CitizenRegistryTest is Test {
+contract CitizenTest is Test {
     CitizenRegistry citizenREgistry;
     IAgora mockAgora;
     address deployer = address(0xDEAD);
