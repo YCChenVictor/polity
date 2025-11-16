@@ -1,0 +1,21 @@
+version: "3.9"
+x-node-version: &node_version "22.12.0"
+services:
+  ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ipfs-data:/data/ipfs
+    entrypoint: >
+      sh -lc '
+        if [ ! -d /data/ipfs/config ]; then
+          ipfs init --profile=server
+        fi &&
+        ipfs config Addresses.API --json "\"/ip4/0.0.0.0/tcp/5001\"" &&
+        ipfs config Addresses.Gateway --json "\"/ip4/0.0.0.0/tcp/8080\"" &&
+        exec /sbin/tini -- ipfs daemon --migrate=true
+      '
+volumes:
+  ipfs-data:
