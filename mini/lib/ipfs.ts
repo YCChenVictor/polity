@@ -1,14 +1,25 @@
-import { createHelia } from "helia";
-import { mfs } from "@helia/mfs";
-import type { MFS } from "@helia/mfs";
+import { create } from 'ipfs-http-client';
+
+const ipfs = create({
+  host: '127.0.0.1',
+  port: 5001,
+  protocol: 'http',
+});
 
 // mfs = Mutable File System
+
+type StoredFile = {
+  buffer: Buffer;
+  name: string;
+  size: number;
+};
+
 
 interface UploadResult {
   cid: string;
   name: string;
   size: number;
-}
+} 
 
 interface MfsEntry {
   name: string;
@@ -17,34 +28,49 @@ interface MfsEntry {
   cid: string;
 }
 
-const helia = await createHelia();
-const mutableFS = mfs(helia);
+const mutableFS = {
+  async mkdir(path: string, opts?: { parents?: boolean }) {
+    await ipfs.files.mkdir(path, { parents: opts?.parents ?? false });
+  },
+
+  async writeBytes(bytes: Uint8Array | Buffer, path: string) {
+    await ipfs.files.write(path, bytes, {
+      create: true,
+      parents: true,
+      truncate: true,
+    });
+  },
+
+  async stat(path: string) {
+    return ipfs.files.stat(path); // returns { cid, size, ... }
+  },
+};
 
 const normalizeDir = (d: string) => {
   return d.startsWith("/") ? d : `/${d}`;
 };
 
-// mfs
-const mfsCreate = async (
-  file: Express.Multer.File,
+// Each time you “change” a file via MFS, IPFS creates a new immutable CID without deleting the old one, so storage keeps growing unless you explicitly clean up or run garbage collection.
+const store = async (
+  buffer: Buffer,
+  name: string,
+  size: number,
   dir: string,
 ): Promise<UploadResult> => {
-  if (!file) throw new Error("file required");
   const base = normalizeDir(dir);
 
-  type MkdirOpts = Parameters<MFS["mkdir"]>[1]; // use method’s param type to avoid clashes
-  await mutableFS.mkdir(base, { parents: true } as MkdirOpts);
+  await mutableFS.mkdir(base, { parents: true });
 
-  const safeName = file.originalname.replace(/[/\\]/g, "_");
+  const safeName = name.replace(/[/\\]/g, '_');
   const fullPath = `${base}/${safeName}`;
 
-  await mutableFS.writeBytes(file.buffer, fullPath); // swap args if your version requires
+  await mutableFS.writeBytes(buffer, fullPath);
   const stat = await mutableFS.stat(fullPath);
 
   return {
     cid: stat.cid.toString(),
-    name: file.originalname,
-    size: file.size,
+    name,
+    size,
   };
 };
 
@@ -106,4 +132,4 @@ const mfsList = async (path = "/"): Promise<MfsEntry[]> => {
 //   return out;
 // }
 
-export { mutableFS, mfsCreate, mfsList };
+export { mutableFS, store, mfsList };

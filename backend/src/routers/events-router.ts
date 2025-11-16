@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { check, validationResult } from "express-validator";
 
-import { mutableFS, mfsCreate, mfsList } from "../services/ipfs";
+import { mutableFS, create, mfsList } from "../../../mini/lib/ipfs";
 
 // import LLMService from "../services/llm";
 
@@ -50,7 +50,7 @@ router.post(
     const file = req.file as Express.Multer.File; // get file from req.file
 
     try {
-      const result = await mfsCreate(file, dir);
+      const result = await create(file, dir);
 
       res.status(201).json(result);
     } catch (error) {
