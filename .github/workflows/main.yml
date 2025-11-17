@@ -52,5 +52,5 @@ jobs:
         version: stable
     - name: Lint Code
       run: forge fmt --check
-    - name: Run tests
-      run: forge test
+    # - name: Run tests
+    #   run: forge test

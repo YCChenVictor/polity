@@ -1,29 +1,44 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from "supertest";
-import { create as createIpfs } from 'ipfs-http-client';
 
 import { fromVercel } from './setup';
-import handler from "../api/upload"
+import handler from "../api/ipfs"
 
-// Start the docker first
-describe('IPFS E2E', () => {
-  it('calls /api/ipfs/add and stores data in Docker IPFS', async () => {
-    const ipfs = createIpfs({ url: 'http://127.0.0.1:5001/api/v0' });
+// Start the docker first: docker compose up --build
+describe("IPFS files API", () => {
+  const dir = "/perm/users/1/files";
 
+  it("stores a file and then lists it", async () => {
     const app = fromVercel(handler);
+    const fileName = "test.txt";
+    const body = "hello world";
+    const fileContent = "hello world";
 
-    const res = await request(app).post("/").attach('file', Buffer.from('hello world'), 'test.txt');
+    // POST store
+    const uploadRes = await request(app)
+      .post("/")
+      .query({ name: fileName, dir })
+      .send(fileContent);
 
-    expect(res.status).toBe(200);
+    expect(uploadRes.status).toBe(200);
 
-    const path = res.body.path ?? '/perm/users/1/files/test.txt';
-    expect(path).toBe('/perm/users/1/files/test.txt');
+    // GET list
+    const listRes = await request(app)
+      .get("/")
+      .query({ dir });
 
-    const chunks: Uint8Array[] = [];
-    for await (const chunk of ipfs.files.read(path)) {
-      chunks.push(chunk);
-    }
-    const content = Buffer.concat(chunks).toString('utf8');
-    expect(content).toBe('hello world');
+    console.log(listRes.body)
+
+    expect(listRes.status).toBe(200);
+    expect(Array.isArray(listRes.body)).toBe(true);
+    expect(listRes.body).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        name: fileName,
+        size: fileContent.length,   // 👈 same variable
+        cid: uploadRes.body.cid,
+      }),
+    ]),
+  );
   });
 });

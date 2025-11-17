@@ -11,9 +11,21 @@ import {
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {IAgora} from "./interfaces/IAgora.sol";
 import {ICitizen} from "./interfaces/ICitizen.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 // Agora was the central public space in ancient Greek city-states.
-contract Agora is IAgora, Governor, GovernorCountingSimple, GovernorVotes {
+// UUPS: UUPS is an upgradeable proxy pattern where a fixed proxy contract holds all the state and delegates calls to a logic contract that can be swapped out via an upgradeTo function controlled by your access control (e.g. onlyOwner).
+contract Agora is
+    Initializable,
+    UUPSUpgradeable,
+    OwnableUpgradeable,
+    IAgora,
+    Governor,
+    GovernorCountingSimple,
+    GovernorVotes
+{
     Proposal[] private _proposals;
 
     mapping(uint256 => uint256) private _indexOf;

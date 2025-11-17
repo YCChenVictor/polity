@@ -1,9 +1,24 @@
 import * as Client from "./frontendClient";
+import { ipfsClient } from "./ipfsClient";
 
-(Object.assign(window as any, { Client }));
-console.log(`
-Client loaded on window.Client
+declare global {
+  interface Window {
+    ipfsClient: typeof ipfsClient;
+  }
+}
 
-Try in DevTools:
-  await Client.getGreeting()
-`);
+Object.assign(window, { ipfsClient });
+Object.assign(window, { Client, ipfsClient });
+
+const helpers = { Client, ipfsClient };
+const lines = Object.entries(helpers).flatMap(([name, obj]) =>
+  Object.keys(obj as Record<string, unknown>).map(
+    (method) => `  await ${name}.${method}(/* ... */)`
+  )
+);
+
+// ifps
+// await ipfsClient.add(new File(["hi"], "test.txt"))
+// await ipfsClient.list()
+
+console.log(`Dev helpers loaded:\n\n${lines.join("\n")}\n`);
