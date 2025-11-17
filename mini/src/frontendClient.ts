@@ -16,3 +16,14 @@ export async function getGreeting(): Promise<string> {
   console.log(result);
   return result as string;
 }
+
+const createAgora = async () => {
+  await writeContract({
+      address: address,
+      abi: pollAbi,
+      functionName: "create",
+      args: [context],
+    });
+}
+
+export { createAgora };

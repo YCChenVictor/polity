@@ -104,4 +104,50 @@ contract ProposeTest is Test {
     //     assertEq(percent, 51, 'minVotesPercent mismatch');
     //     assertEq(votingSeconds, 10, 'votingSeconds mismatch');
     // }
+
+    // function test_initial_state() public {
+    //     assertEq(agora.name(), "Polity Agora");
+    //     assertEq(agora.pollCount(), 0);
+    //     assertEq(agora.owner(), owner);
+    // }
+
+    // function test_onlyOwnerCanUpgrade() public {
+    //     // Deploy V2 implementation
+    //     implV2 = new AgoraUpgradeableV2();
+
+    //     // Non-owner should NOT be able to upgrade
+    //     vm.prank(user);
+    //     vm.expectRevert(); // from _authorizeUpgrade -> onlyOwner
+    //     AgoraUpgradeableV2(address(agora)).upgradeTo(address(implV2));
+    // }
+
+    // function test_upgradeAndKeepState() public {
+    //     // Arrange: create a poll via proxy (V1 logic)
+    //     vm.prank(user);
+    //     agora.create("hello");
+    //     assertEq(agora.pollCount(), 1);
+
+    //     // Deploy V2 implementation
+    //     implV2 = new AgoraUpgradeableV2();
+
+    //     // Act: owner upgrades proxy to V2
+    //     vm.prank(owner);
+    //     AgoraUpgradeableV2(address(agora)).upgradeTo(address(implV2));
+
+    //     // Assert: proxy address stays the same
+    //     assertEq(address(agora), address(proxy));
+
+    //     // Assert: state is preserved
+    //     assertEq(agora.pollCount(), 1);
+    //     assertEq(agora.name(), "Polity Agora");
+
+    //     // Assert: new logic is available
+    //     string memory v = AgoraUpgradeableV2(address(agora)).version();
+    //     assertEq(v, "v2");
+
+    //     // And old functions still work
+    //     vm.prank(user);
+    //     agora.create("world");
+    //     assertEq(agora.pollCount(), 2);
+    // }
 }

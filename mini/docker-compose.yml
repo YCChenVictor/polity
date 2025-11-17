@@ -10,7 +10,7 @@ services:
       - ipfs-data:/data/ipfs
     entrypoint: >
       sh -lc '
-        if [ ! -d /data/ipfs/config ]; then
+        if [ ! -f /data/ipfs/config ]; then
           ipfs init --profile=server
         fi &&
         ipfs config Addresses.API --json "\"/ip4/0.0.0.0/tcp/5001\"" &&

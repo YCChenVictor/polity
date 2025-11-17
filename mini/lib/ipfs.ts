@@ -1,9 +1,13 @@
-import { create } from 'ipfs-http-client';
+import ipfsClient from "ipfs-http-client";
+import axios from "axios";
+import FormData from "form-data";
 
-const ipfs = create({
-  host: '127.0.0.1',
+const IPFS_API_URL = process.env.IPFS_API_URL ?? "http://127.0.0.1:5001";
+
+const ipfs = ipfsClient({
+  host: "127.0.0.1",
   port: 5001,
-  protocol: 'http',
+  protocol: "http",
 });
 
 // mfs = Mutable File System
@@ -28,27 +32,50 @@ interface MfsEntry {
   cid: string;
 }
 
-const mutableFS = {
-  async mkdir(path: string, opts?: { parents?: boolean }) {
-    await ipfs.files.mkdir(path, { parents: opts?.parents ?? false });
-  },
-
-  async writeBytes(bytes: Uint8Array | Buffer, path: string) {
-    await ipfs.files.write(path, bytes, {
-      create: true,
-      parents: true,
-      truncate: true,
-    });
-  },
-
-  async stat(path: string) {
-    return ipfs.files.stat(path); // returns { cid, size, ... }
-  },
-};
-
 const normalizeDir = (d: string) => {
   return d.startsWith("/") ? d : `/${d}`;
 };
+
+const mfsLs = (path: string) => {
+  return ipfs.files.ls(path);
+};
+
+
+const mfsWrite = async (data: Buffer, path: string) => {
+  if (!Buffer.isBuffer(data) || data.length === 0) {
+    throw new Error("mfsWrite: data buffer is empty");
+  }
+
+  const url =
+    `${IPFS_API_URL}/api/v0/files/write` +
+    `?arg=${encodeURIComponent(path)}` +
+    `&create=true&parents=true&truncate=true`;
+
+  const form = new FormData();
+
+  console.log("[mfsWrite] buffer length:", data.length);
+  form.append("file", data, {
+    filename: "file",
+    contentType: "application/octet-stream",
+  });
+
+  await axios.post(url, form, {
+    headers: {
+      ...form.getHeaders(),
+    },
+    maxBodyLength: Infinity,
+  });
+};
+
+const mfsStat = async (path: string) => {
+  const url =
+    `${IPFS_API_URL}/api/v0/files/stat` +
+    `?arg=${encodeURIComponent(path)}`;
+
+  const res = await axios.post(url);
+  return res.data as { Hash: string; Size: number };
+}
+
 
 // Each time you “change” a file via MFS, IPFS creates a new immutable CID without deleting the old one, so storage keeps growing unless you explicitly clean up or run garbage collection.
 const store = async (
@@ -57,35 +84,46 @@ const store = async (
   size: number,
   dir: string,
 ): Promise<UploadResult> => {
-  const base = normalizeDir(dir);
+  if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
+    throw new Error("store: buffer is empty");
+  }
 
-  await mutableFS.mkdir(base, { parents: true });
-
-  const safeName = name.replace(/[/\\]/g, '_');
+  const base = dir.startsWith("/") ? dir : `/${dir}`;
+  const safeName = name.replace(/[/\\]/g, "_");
   const fullPath = `${base}/${safeName}`;
 
-  await mutableFS.writeBytes(buffer, fullPath);
-  const stat = await mutableFS.stat(fullPath);
+  console.log("[store] writing to", fullPath, "len =", buffer.length);
+
+  await mfsWrite(buffer, fullPath);
+  const stat = await mfsStat(fullPath);
 
   return {
-    cid: stat.cid.toString(),
+    cid: stat.Hash,
     name,
-    size,
+    size: size ?? buffer.length,
   };
 };
 
-const mfsList = async (path = "/"): Promise<MfsEntry[]> => {
-  const p = normalizeDir(path);
-  const out: MfsEntry[] = [];
-  for await (const e of mutableFS.ls(p)) {
-    out.push({
-      name: e.name,
-      type: e.type === "directory" ? "dir" : "file",
-      size: Number(e.size ?? 0),
-      cid: e.cid?.toString?.() ?? "",
+const list = async (dir: string): Promise<UploadResult[]> => {
+  const base = dir.startsWith("/") ? dir : `/${dir}`;
+  const files: UploadResult[] = [];
+
+  for await (const entry of mfsLs(base)) {
+    console.log(entry)
+    const fullPath = `${base}/${entry.name}`;
+    const stat = await mfsStat(fullPath); // typed as { Hash: string; Size: number }
+
+    console.log("zxcvzxcvzxcv")
+    console.log(stat)
+
+    files.push({
+      cid: stat.Hash ?? entry.cid?.toString?.(),
+      name: entry.name,
+      size: stat.Size,
     });
   }
-  return out;
+
+  return files;
 };
 
 // async mfsStat(path: string) {
@@ -132,4 +170,4 @@ const mfsList = async (path = "/"): Promise<MfsEntry[]> => {
 //   return out;
 // }
 
-export { mutableFS, store, mfsList };
+export { mutableFS, store, list };
