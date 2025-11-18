@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.25;
 
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
 import {GovernorSettings} from "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
@@ -8,33 +8,38 @@ import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/Gover
 import {
     GovernorVotesQuorumFraction
 } from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {IAgora} from "./interfaces/IAgora.sol";
-import {ICitizen} from "./interfaces/ICitizen.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 // Agora was the central public space in ancient Greek city-states.
-// UUPS: UUPS is an upgradeable proxy pattern where a fixed proxy contract holds all the state and delegates calls to a logic contract that can be swapped out via an upgradeTo function controlled by your access control (e.g. onlyOwner).
+// We don’t use UUPS here because upgradeable governors are harder to secure and reason about than a simple, immutable governance contract.
 contract Agora is
-    Initializable,
-    UUPSUpgradeable,
-    OwnableUpgradeable,
     IAgora,
     Governor,
+    GovernorSettings,
     GovernorCountingSimple,
-    GovernorVotes
+    GovernorVotes,
+    GovernorVotesQuorumFraction,
+    Ownable
 {
     Proposal[] private _proposals;
 
     mapping(uint256 => uint256) private _indexOf;
-    mapping(uint256 => Proposal) private _details;
+    // mapping(uint256 => Proposal) private _details;
     mapping(ProposalType => uint256[]) private _idsByType;
 
     event Proposed(ProposalType kind);
+    event IPFSEventProposed(uint256 indexed proposalId, string cid);
+    event Message(string message);
 
-    constructor(IVotes token) Governor("Poll") GovernorVotes(token) {}
+    constructor(IVotes token)
+        Governor("Agora")
+        GovernorSettings(1, 45818, 0)
+        GovernorVotes(token)
+        GovernorVotesQuorumFraction(4)
+        Ownable(msg.sender)
+    {}
 
     function createCitizen(address newCitizenAddress) external {
         uint256[] memory values = new uint256[](1);
@@ -44,12 +49,18 @@ contract Agora is
         _create(values, calldatas, ProposalType.Immigration);
     }
 
-    function createIPFS(address proposer, string calldata cid) external {
+    function proposeIPFSEvent(string calldata cid) external {
         uint256[] memory values = new uint256[](1);
         values[0] = 0; // Should need different amount of ETH
         bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (proposer, cid));
-        _create(values, calldatas, ProposalType.Event);
+        // calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (proposer, cid));
+        uint256 proposalId = _create(values, calldatas, ProposalType.Event);
+
+        emit IPFSEventProposed(proposalId, cid);
+    }
+
+    function proposalsCount() external view returns (uint256) {
+        return _proposals.length;
     }
 
     function proposals(uint256 offset, uint256 limit) external view returns (Proposal[] memory page) {
@@ -77,23 +88,23 @@ contract Agora is
     }
 
     // ===== required overrides =====
-    function votingDelay() public view override returns (uint256) {
-        return 1;
+    function votingDelay() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.votingDelay();
     }
 
-    function votingPeriod() public view override returns (uint256) {
-        return 45818;
+    function votingPeriod() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.votingPeriod();
     }
 
-    function quorum(uint256) public view override returns (uint256) {
-        return 40000 * 1e18;
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
+        return super.quorum(blockNumber);
     }
 
-    function proposalThreshold() public view override returns (uint256) {
-        return 0;
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.proposalThreshold();
     }
 
-    // Internal
+    // ===== Internal =====
     function _create(uint256[] memory values, bytes[] memory calldatas, ProposalType proposalType)
         internal
         returns (uint256 id)

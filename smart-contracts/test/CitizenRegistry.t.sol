@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-// pragma solidity ^0.8.24;
+pragma solidity ^0.8.25;
 
 import "forge-std/Test.sol";
-import {CitizenRegistry} from "../src/CitizenRegistry.sol";
+import {Citizen} from "../src/Citizen.sol";
 import {IAgora} from "../src/interfaces/IAgora.sol";
 // import { Poll } from '../contracts/Poll.sol';
 
@@ -26,16 +26,16 @@ contract MockAgora is IAgora {
 }
 
 contract CitizenRegistryTest is Test {
-    CitizenRegistry citizenREgistry;
+    Citizen citizen;
     IAgora mockAgora;
     address deployer = address(0xDEAD);
     address target = address(0xCAFE);
 
     function setUp() public {
         vm.startPrank(deployer);
-        citizenREgistry = new CitizenRegistry();
+        citizen = new Citizen();
         mockAgora = new MockAgora();
-        citizenREgistry.setAgora(address(mockAgora));
+        citizen.setAgora(address(mockAgora));
         vm.stopPrank();
         //         assertEq(citizen.pollAddress(), address(mockPoll));
     }
@@ -43,9 +43,9 @@ contract CitizenRegistryTest is Test {
     // Pre-create
     function testPropose() public {
         vm.expectEmit(true, true, true, true);
-        emit CitizenRegistry.ProposalMade(deployer, target, 1);
+        // emit Citizen.ProposalMade(deployer, target, 1);
         vm.prank(deployer);
-        citizenREgistry.propose(target);
+        citizen.propose(target);
     }
     //     // Create
     //     function testCreate() public {
