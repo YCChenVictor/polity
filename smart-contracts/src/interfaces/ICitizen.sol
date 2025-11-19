@@ -1,3 +1,5 @@
+pragma solidity ^0.8.25;
+
 interface ICitizen {
     function total() external view returns (uint256);
     function isCitizen(address) external returns (bool);

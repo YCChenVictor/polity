@@ -1,3 +1,5 @@
+pragma solidity ^0.8.25;
+
 interface IAgora {
     enum ProposalType {
         ConfigChange,

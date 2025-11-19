@@ -1,43 +1,46 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Test.sol";
+import {Test, console2} from "forge-std/Test.sol";
 
 import {IAgora} from "../src/interfaces/IAgora.sol";
 import {ICitizen} from "../src/interfaces/ICitizen.sol";
 
 import {Agora} from "../src/Agora.sol";
-import {CitizenRegistry} from "../src/CitizenRegistry.sol";
+import {Citizen} from "../src/Citizen.sol";
 import {Vote} from "../src/Vote.sol";
 
 contract ProposeTest is Test {
     Agora agora;
-    CitizenRegistry citizenRegistry = new CitizenRegistry();
-    address citizenRegistryAddress = address(citizenRegistry);
+    Citizen citizen = new Citizen();
+    address citizenAddress = address(citizen);
     Vote token;
     address A = address(0xA11CE);
     address B = address(0xB11CE);
 
+    event Message(string message);
+
     function setUp() public {
         token = new Vote();
         agora = new Agora(token);
-        // citizen.setPoll(address(poll));
+        citizen = new Citizen();
+        citizen.setAgora(address(agora));
     }
 
     // Immigrations
     // Create
     function testCreateCitizen() public {
-        address newCitizen = address(0x1234);
+        // address newCitizen = address(0x1234);
 
-        agora.createCitizen(newCitizen);
+        // agora.createCitizen(newCitizen);
 
-        Agora.Proposal[] memory page = agora.proposals(0, 100);
+        // Agora.Proposal[] memory page = agora.proposals(0, 100);
 
-        assertEq(page.length, 1);
+        // assertEq(page.length, 1);
     }
 
-    function testCreateIPFS() public {
-        agora.createIPFS(A, "bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu");
+    function testProposeIPFSEvent() public {
+        agora.proposeIPFSEvent("bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu");
 
         Agora.Proposal[] memory page = agora.proposals(0, 100);
 

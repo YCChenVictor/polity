@@ -27,4 +27,4 @@ const list = async () => {
 };
 
 
-export const ipfsClient = { add, list };
+export const ipfs = { add, list };

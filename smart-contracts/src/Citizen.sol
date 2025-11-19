@@ -2,8 +2,9 @@
 pragma solidity ^0.8.24;
 
 import {IAgora} from "./interfaces/IAgora.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
-contract CitizenRegistry {
+contract Citizen {
     address public agoraAddress;
     address public bootstrapOwner = msg.sender;
 
@@ -28,11 +29,18 @@ contract CitizenRegistry {
 
     mapping(bytes32 => EventMeta) public passedEvents;
 
+    event AgoraSet(address indexed oldAgora, address indexed newAgora);
     event CitizenCreated(address wallet, uint8 reasonCode);
     event ProposalMade(address indexed proposer, address indexed target, uint256 totalCitizens);
     event PollSet(address indexed oldPoll, address indexed newPoll);
 
     error OnlyPoll();
+    error AlreadySet();
+    error ZeroAddress();
+    error NoChange();
+    error NotContract();
+    error BootstrapOnly();
+    error AgoraOnly();
 
     constructor() {
         reasonMap[1] = "born";
@@ -76,23 +84,14 @@ contract CitizenRegistry {
         return citizens[a].wallet != address(0);
     }
 
-    function setAgora(address _agora) external {
-        require(_agora != address(0), "ZERO");
+    function setAgora(address newAgora) external {
+        if (agoraAddress != address(0)) revert AlreadySet();
+        if (msg.sender != bootstrapOwner) revert BootstrapOnly();
+        if (newAgora == address(0)) revert ZeroAddress();
 
-        if (agoraAddress == address(0)) {
-            require(msg.sender == bootstrapOwner, "BOOTSTRAP_ONLY");
-        } else {
-            require(msg.sender == agoraAddress, "PM_ONLY");
-        }
-
-        address old = agoraAddress;
-        agoraAddress = _agora;
-        agora = IAgora(_agora);
-        emit PollSet(old, _agora);
-
-        if (bootstrapOwner != address(0)) {
-            bootstrapOwner = address(0);
-        }
+        agoraAddress = newAgora;
+        agora = IAgora(newAgora);
+        bootstrapOwner = address(0);
     }
 
     function _create(address wallet, uint8 reasonCode) internal {
