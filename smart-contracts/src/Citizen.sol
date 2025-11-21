@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IAgora} from "./interfaces/IAgora.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract Citizen {
+import {IAgora} from "./interfaces/IAgora.sol";
+
+// The citizen is owned by timelock. Later timelock can trigger events when votes passed.
+contract Citizen is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     address public agoraAddress;
     address public bootstrapOwner = msg.sender;
 
@@ -29,8 +33,10 @@ contract Citizen {
 
     mapping(bytes32 => EventMeta) public passedEvents;
 
-    event AgoraSet(address indexed oldAgora, address indexed newAgora);
-    event CitizenCreated(address wallet, uint8 reasonCode);
+    mapping(address => bool) public isCitizen;
+
+    event CitizenAdded(address indexed citizen);
+    event CitizenRemoved(address indexed citizen);
     event ProposalMade(address indexed proposer, address indexed target, uint256 totalCitizens);
     event PollSet(address indexed oldPoll, address indexed newPoll);
 
@@ -42,69 +48,30 @@ contract Citizen {
     error BootstrapOnly();
     error AgoraOnly();
 
-    constructor() {
-        reasonMap[1] = "born";
-        reasonMap[2] = "immigrate";
-        _create(msg.sender, 1); // deployer becomes citizen
+    // In UUPS upgradeable contracts, the constructor never runs on the proxy, so you set things up in a public initialize() function that’s allowed to be called only once.
+    function initialize(address initialOwner) public initializer {
+        __Ownable_init(initialOwner);
+        __UUPSUpgradeable_init();
     }
 
-    // Citizens
-    function propose(address target) external {
-        require(isCitizen(msg.sender), "NOT_CITIZEN");
+    function _authorizeUpgrade(address) internal override onlyOwner {}
 
-        agora.createCitizen(target);
-        emit ProposalMade(msg.sender, target, _count);
+    function create(address who) external onlyOwner {
+        require(who != address(0), "ZERO_ADDRESS");
+        require(!isCitizen[who], "Already exists");
+        isCitizen[who] = true;
+        citizenList.push(who);
+        emit CitizenAdded(who);
     }
 
-    // function proposals(
-    //     uint256 offset,
-    //     uint256 limit
-    // ) external view returns (IAgora.Proposal[] memory) {
-    //     return agora.proposals(IAgora.ProposalType.Immigration, offset, limit);
-    // }
-
-    function createFromPoll(address target) external {
-        if (msg.sender != agoraAddress) revert OnlyPoll();
-        require(agora.hasPassed(target), "POLL_NOT_PASSED");
-        _create(target, 2);
-    }
-
-    function read() external view returns (CitizenInfo[] memory list) {
-        list = new CitizenInfo[](citizenList.length);
-        for (uint256 i = 0; i < citizenList.length; i++) {
-            list[i] = citizens[citizenList[i]];
-        }
+    function read() external view returns (address[] memory) {
+        return citizenList;
     }
 
     function total() external view returns (uint96) {
         return _count;
     }
 
-    function isCitizen(address a) public view returns (bool) {
-        return citizens[a].wallet != address(0);
-    }
-
-    function setAgora(address newAgora) external {
-        if (agoraAddress != address(0)) revert AlreadySet();
-        if (msg.sender != bootstrapOwner) revert BootstrapOnly();
-        if (newAgora == address(0)) revert ZeroAddress();
-
-        agoraAddress = newAgora;
-        agora = IAgora(newAgora);
-        bootstrapOwner = address(0);
-    }
-
-    function _create(address wallet, uint8 reasonCode) internal {
-        require(wallet != address(0), "ZERO_WALLET");
-        require(citizens[wallet].wallet == address(0), "ALREADY_EXISTS");
-        require(bytes(reasonMap[reasonCode]).length > 0, "BAD_REASON");
-        citizens[wallet] = CitizenInfo(nextCitizenId++, wallet, reasonCode);
-        citizenList.push(wallet);
-        _count++;
-        emit CitizenCreated(wallet, reasonCode);
-    }
-
-    // Rules for all citizens
     function recordApprovedEvent(address proposer, string calldata cid) external {
         bytes32 cidHash = keccak256(bytes(cid));
         passedEvents[cidHash] = EventMeta(proposer, uint64(block.timestamp));

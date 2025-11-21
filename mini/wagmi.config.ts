@@ -1,12 +1,13 @@
-import { defineConfig } from "@wagmi/cli";
-import { foundry, actions } from "@wagmi/cli/plugins";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  out: "src/generated.ts",
-  plugins: [
-    foundry({
-      project: "../smart-contracts/"
-    }),
-    actions(),
-  ],
+  test: {
+    include: ["tests/**/*.test.ts"],
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.ts", "lib/**/*.ts", "api/**/*.ts", "services/**/*.ts"],
+      exclude: ["dist/**", "node_modules/**", "test/**", "generated.ts"],
+      reporter: ["text", "html"],
+    },
+  },
 });

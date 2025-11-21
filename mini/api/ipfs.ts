@@ -3,6 +3,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { buffer as readBuffer } from "node:stream/consumers";
 import Busboy from 'busboy';
 import { store, list } from "../lib/ipfs";
+import type { IncomingMessage } from "http";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const dir = (req.query.dir as string) ?? "/uploads";
@@ -10,29 +11,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const fileName = fileNameParam ?? "file";
 
     if (req.method === "POST") {
-      const { buffer, size } = await new Promise<{ buffer: Buffer; size: number }>(
-        (resolve, reject) => {
-          const chunks: Buffer[] = [];
-          let totalSize = 0;
-
-          req.on("data", (chunk: Buffer) => {
-            chunks.push(chunk);
-            totalSize += chunk.length;
-          });
-
-          req.on("end", () => {
-            const buffer = Buffer.concat(chunks);
-            resolve({ buffer, size: totalSize });
-          });
-
-          req.on("error", (err) => reject(err));
-        },
-      );
-
-      console.log("[api/ipfs] buffer length =", buffer.length);
-
-      const result = await store(buffer, fileName, size, dir);
-      res.status(200).json(result);
+      try {
+        const buffer = req.body as Buffer;
+        const size = buffer.length;
+    
+        console.log("[api/ipfs] buffer length =", buffer.length);
+    
+        const result = await store(buffer, fileName, size, dir);
+        res.status(200).json(result);
+      } catch (err) {
+        console.error("[api/ipfs] upload error", err);
+        res.status(500).json({ error: "Failed to upload file" });
+      }
       return;
     }
 
