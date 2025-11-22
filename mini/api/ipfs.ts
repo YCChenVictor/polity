@@ -1,9 +1,5 @@
-// api/ipfs/files.ts
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { buffer as readBuffer } from "node:stream/consumers";
-import Busboy from 'busboy';
 import { store, list } from "../lib/ipfs";
-import type { IncomingMessage } from "http";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const dir = (req.query.dir as string) ?? "/uploads";
@@ -15,12 +11,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const buffer = req.body as Buffer;
         const size = buffer.length;
     
-        console.log("[api/ipfs] buffer length =", buffer.length);
-    
         const result = await store(buffer, fileName, size, dir);
         res.status(200).json(result);
-      } catch (err) {
-        console.error("[api/ipfs] upload error", err);
+      } catch {
         res.status(500).json({ error: "Failed to upload file" });
       }
       return;

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import request from "supertest";
 
 import { fromVercel } from './setup';
@@ -11,7 +11,6 @@ describe("IPFS files API", () => {
   it("stores a file and then lists it", async () => {
     const app = fromVercel(handler);
     const fileName = "test.txt";
-    const body = "hello world";
     const fileContent = "hello world";
 
     // POST store
@@ -26,8 +25,6 @@ describe("IPFS files API", () => {
     const listRes = await request(app)
       .get("/")
       .query({ dir });
-
-    console.log(listRes.body)
 
     expect(listRes.status).toBe(200);
     expect(Array.isArray(listRes.body)).toBe(true);

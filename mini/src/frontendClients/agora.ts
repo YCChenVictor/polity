@@ -1,4 +1,4 @@
-import { getAccount, readContract, writeContract } from "@wagmi/core";
+import { readContract, writeContract } from "@wagmi/core";
 import wagmiConfig from "../wagmiConfig";
 import { helloWorldAbi, citizenAbi, agoraAbi } from "../generated";
 import { ensureAccount } from "./base";
