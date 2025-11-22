@@ -10,31 +10,11 @@ const ipfs = ipfsClient({
   protocol: "http",
 });
 
-// mfs = Mutable File System
-
-type StoredFile = {
-  buffer: Buffer;
-  name: string;
-  size: number;
-};
-
-
 interface UploadResult {
   cid: string;
   name: string;
   size: number;
 } 
-
-interface MfsEntry {
-  name: string;
-  type: "file" | "dir";
-  size: number;
-  cid: string;
-}
-
-const normalizeDir = (d: string) => {
-  return d.startsWith("/") ? d : `/${d}`;
-};
 
 const mfsLs = (path: string) => {
   return ipfs.files.ls(path);
@@ -53,7 +33,6 @@ const mfsWrite = async (data: Buffer, path: string) => {
 
   const form = new FormData();
 
-  console.log("[mfsWrite] buffer length:", data.length);
   form.append("file", data, {
     filename: "file",
     contentType: "application/octet-stream",
@@ -92,8 +71,6 @@ const store = async (
   const safeName = name.replace(/[/\\]/g, "_");
   const fullPath = `${base}/${safeName}`;
 
-  console.log("[store] writing to", fullPath, "len =", buffer.length);
-
   await mfsWrite(buffer, fullPath);
   const stat = await mfsStat(fullPath);
 
@@ -109,12 +86,8 @@ const list = async (dir: string): Promise<UploadResult[]> => {
   const files: UploadResult[] = [];
 
   for await (const entry of mfsLs(base)) {
-    console.log(entry)
     const fullPath = `${base}/${entry.name}`;
     const stat = await mfsStat(fullPath); // typed as { Hash: string; Size: number }
-
-    console.log("zxcvzxcvzxcv")
-    console.log(stat)
 
     files.push({
       cid: stat.Hash ?? entry.cid?.toString?.(),

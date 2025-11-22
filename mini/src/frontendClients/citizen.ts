@@ -1,5 +1,4 @@
-import { connect, writeContract } from "@wagmi/core";
-import { injected } from "@wagmi/connectors";
+import { writeContract } from "@wagmi/core";
 
 import { ensureAccount} from "./base";
 import { citizenAbi } from "../generated";
