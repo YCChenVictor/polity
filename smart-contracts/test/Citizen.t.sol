@@ -30,39 +30,44 @@ contract CitizenTest is Test {
     IAgora mockAgora;
     address deployer = address(0xDEAD);
     address target = address(0xCAFE);
+    address a1 = address(0x1111);
+    address a2 = address(0x2222);
+
+    event CitizenAdded(address indexed citizen);
 
     function setUp() public {
-        vm.startPrank(deployer);
         citizen = new Citizen();
         mockAgora = new MockAgora();
-        citizen.setAgora(address(mockAgora));
-        vm.stopPrank();
-        //         assertEq(citizen.pollAddress(), address(mockPoll));
+
+        citizen.initialize(deployer);
     }
 
-    // Pre-create
-    function testPropose() public {
-        vm.expectEmit(true, true, true, true);
-        // emit citizen.ProposalMade(deployer, target, 1);
+    // Create
+    function testCreate() public {
+        assertEq(citizen.isCitizen(target), false);
+
+        vm.expectEmit(true, false, false, false, address(citizen));
+        emit CitizenAdded(target);
+
         vm.prank(deployer);
-        citizen.propose(target);
+        citizen.create(target);
+
+        assertEq(citizen.isCitizen(target), true);
     }
-    //     // Create
-    //     function testCreate() public {
-    //         vm.prank(address(mockPoll));
-    //         citizen.createFromPoll(target);
-    //         Citizen.CitizenInfo[] memory citizens = citizen.read();
-    //         assertEq(citizens.length, 2, 'There should be exactly two citizen, one is deployer');
-    //         assertEq(citizens[1].wallet, target, "The citizen's wallet address should match addr1");
-    //     }
-    // function testCannotCreateCitizenTwice() public {
-    //     // Create a citizen
-    //     citizenRegistry.createCitizen(addr1);
-    //     // Try creating the same citizen again, expect it to fail
-    //     vm.expectRevert("Already exists");
-    //     citizenRegistry.createCitizen(addr1);
-    // }
+
     // Read
+    function testReadReturnsCreatedCitizens() public {
+        vm.prank(deployer);
+        citizen.create(a1);
+        vm.prank(deployer);
+        citizen.create(a2);
+
+        address[] memory list = citizen.read();
+
+        assertEq(list.length, 2);
+        assertEq(list[0], a1);
+        assertEq(list[1], a2);
+    }
     // function testTotal() public {
     //     assertEq(citizen.total(), 1);
     // }

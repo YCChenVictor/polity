@@ -3,8 +3,10 @@ pragma solidity ^0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
 
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {IAgora} from "../src/interfaces/IAgora.sol";
 import {ICitizen} from "../src/interfaces/ICitizen.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 import {Agora} from "../src/Agora.sol";
 import {Citizen} from "../src/Citizen.sol";
@@ -14,40 +16,57 @@ contract ProposeTest is Test {
     Agora agora;
     Citizen citizen = new Citizen();
     address citizenAddress = address(citizen);
-    Vote token;
+    Vote vote;
+    address public proposer = address(0x1234);
     address A = address(0xA11CE);
     address B = address(0xB11CE);
 
     event Message(string message);
 
     function setUp() public {
-        token = new Vote();
-        agora = new Agora(token);
+        vote = new Vote();
+        vote.mint(proposer, 1e18);
+        vm.prank(proposer);
+        vote.delegate(proposer);
+
+        vm.roll(block.number + 1);
+
+        agora = new Agora();
+
+        bytes memory agoraInitData = abi.encodeCall(Agora.initialize, (IVotes(address(vote)), address(citizen)));
+
+        ERC1967Proxy proxy = new ERC1967Proxy(address(agora), agoraInitData);
+        agora = Agora(payable(address(proxy)));
+
         citizen = new Citizen();
-        citizen.setAgora(address(agora));
     }
 
     // Immigrations
     // Create
     function testCreateCitizen() public {
-        // address newCitizen = address(0x1234);
+        address newCitizen = address(0xBEEF);
 
-        // agora.createCitizen(newCitizen);
+        // call as proposer (the one with voting power)
+        vm.prank(proposer);
+        agora.createCitizen(newCitizen);
 
-        // Agora.Proposal[] memory page = agora.proposals(0, 100);
+        IAgora.Proposal[] memory page = agora.proposals(0, 100);
 
-        // assertEq(page.length, 1);
+        assertEq(page.length, 1);
     }
 
     function testProposeIPFSEvent() public {
-        agora.proposeIPFSEvent("bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu");
+        string memory cid = "bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu";
+
+        vm.prank(proposer);
+        agora.proposeIPFSEvent(cid);
 
         Agora.Proposal[] memory page = agora.proposals(0, 100);
 
         assertEq(page.length, 1);
     }
 
-    function testVotesThresholdOf() public {
+    function testQuorumFor() public {
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
         address[] memory targets = new address[](1);
@@ -55,14 +74,15 @@ contract ProposeTest is Test {
         bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (address(0x1234), "DUMMY_CID"));
 
+        vm.prank(proposer);
         uint256 id = agora.propose(targets, values, calldatas, "test");
         uint256 snap = agora.proposalSnapshot(id);
 
-        vm.expectRevert(bytes("Voting not started"));
-        agora.votesThresholdOf(id);
+        vm.expectRevert(bytes("VOTING_NOT_STARTED"));
+        agora.quorumFor(id);
 
         vm.roll(snap + 1); // vm.roll(n) instantly sets the next block number to n in Forge tests.
-        assertEq(agora.votesThresholdOf(id), agora.quorum(snap));
+        assertEq(agora.quorumFor(id), agora.quorum(snap));
     }
 
     // Read
