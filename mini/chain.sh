@@ -1,18 +1,10 @@
-#!/usr/bin/env bash
 set -euo pipefail
 
-# Usage:
-#   ./dev-chain.sh                  # port 8546, env=local
-#   ./dev-chain.sh 8547 test        # port 8547, env=test
-#   ./dev-chain.sh 8546 dev         # port 8546, env=dev
-
 RPC_PORT="${1:-8546}"
-TARGET_ENV="${2:-local}"   # local | test | dev | anything you like
+TARGET_ENV="${2:-local}"
+QA_USER="${3:-}"
 RPC_URL="http://127.0.0.1:${RPC_PORT}"
-
-# where your Foundry project lives (relative to this script in mini/)
 CONTRACTS_DIR="../smart-contracts"
-
 FRONTEND_FILE="src/contracts.${TARGET_ENV}.ts"
 
 echo "RPC_URL       = ${RPC_URL}"
@@ -37,9 +29,9 @@ until curl -s -X POST "${RPC_URL}" \
 done
 echo "Anvil is ready."
 
-# into smart-contracts
 cd "${CONTRACTS_DIR}"
 
+QA_USER="${QA_USER}" \
 forge script scripts/DeployPolity.s.sol:DeployPolity \
   --rpc-url "${RPC_URL}" \
   --broadcast -vv
@@ -50,11 +42,10 @@ VOTE_ADDR=$(jq -r '.transactions[] | select(.contractName=="Vote").contractAddre
 CITIZEN_ADDR=$(jq -r '.transactions[] | select(.contractName=="Citizen").contractAddress' "$BROADCAST_PATH" | head -n 1)
 AGORA_ADDR=$(jq -r '.transactions[] | select(.contractName=="Agora").contractAddress' "$BROADCAST_PATH" | head -n 1)
 TIMELOCK_ADDR=$(jq -r '.transactions[] | select(.contractName=="TimelockController").contractAddress' "$BROADCAST_PATH" | head -n 1)
+REWARD_ADDR=$(jq -r '.transactions[] | select(.contractName=="Reward").contractAddress' "$BROADCAST_PATH" | head -n 1)
 
-# back to mini (where this script lives)
 cd - >/dev/null
 
-# ensure directory exists in mini
 mkdir -p "$(dirname "${FRONTEND_FILE}")"
 
 if [ "$TARGET_ENV" = "test" ]; then
@@ -68,6 +59,7 @@ VITE_AGORA_ADDRESS=${AGORA_ADDR}
 VITE_CITIZEN_ADDRESS=${CITIZEN_ADDR}
 VITE_VOTE_ADDRESS=${VOTE_ADDR}
 VITE_TIMELOCK_ADDRESS=${TIMELOCK_ADDR}
+VITE_REWARD_ADDRESS=${REWARD_ADDR}
 EOF
 
 echo "Wrote ${FRONTEND_FILE}"

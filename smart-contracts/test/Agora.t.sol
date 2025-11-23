@@ -7,16 +7,18 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
 import {IAgora} from "../src/interfaces/IAgora.sol";
 import {ICitizen} from "../src/interfaces/ICitizen.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
-
 import {Agora} from "../src/Agora.sol";
 import {Citizen} from "../src/Citizen.sol";
 import {Vote} from "../src/Vote.sol";
+import {Reward} from "../src/Reward.sol";
 
 contract ProposeTest is Test {
     Agora agora;
-    Citizen citizen = new Citizen();
-    address citizenAddress = address(citizen);
+    Reward reward;
     Vote vote;
+    Citizen citizen = new Citizen();
+    address public owner = address(this);
+    address citizenAddress = address(citizen);
     address public proposer = address(0x1234);
     address A = address(0xA11CE);
     address B = address(0xB11CE);
@@ -24,24 +26,29 @@ contract ProposeTest is Test {
     event Message(string message);
 
     function setUp() public {
-        vote = new Vote();
-        vote.mint(proposer, 1e18);
+        vote = new Vote(address(this), 1e18);
+
+        reward = new Reward(address(vote), address(this));
+
+        vote.transfer(address(reward), 1e18); // Move tokens from votes to reward
+
+        vm.prank(owner); // This will be timelock, only timelock can call rewardContributor
+        reward.rewardContributor(proposer, 1e18); // The proposer earned from rewardContributor
+
         vm.prank(proposer);
         vote.delegate(proposer);
 
         vm.roll(block.number + 1);
 
-        agora = new Agora();
+        citizen = new Citizen();
 
+        Agora impl = new Agora();
         bytes memory agoraInitData = abi.encodeCall(Agora.initialize, (IVotes(address(vote)), address(citizen)));
 
-        ERC1967Proxy proxy = new ERC1967Proxy(address(agora), agoraInitData);
+        ERC1967Proxy proxy = new ERC1967Proxy(address(impl), agoraInitData);
         agora = Agora(payable(address(proxy)));
-
-        citizen = new Citizen();
     }
 
-    // Immigrations
     // Create
     function testCreateCitizen() public {
         address newCitizen = address(0xBEEF);
