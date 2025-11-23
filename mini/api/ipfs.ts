@@ -2,21 +2,44 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { store, list } from "../lib/ipfs";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const dir = (req.query.dir as string) ?? "/uploads";
-  const fileNameParam = req.query.name as string | undefined;
-  const fileName = fileNameParam ?? "file";
+  const nameParam = req.query.name;
+  const dirParam = req.query.dir;
 
-    if (req.method === "POST") {
-      try {
-        const buffer = req.body as Buffer;
-    
-        const result = await store(buffer, fileName, dir);
-        res.status(200).json(result);
-      } catch {
-        res.status(500).json({ error: "Failed to upload file" });
+  const name =
+    typeof nameParam === "string" && nameParam.length > 0
+      ? nameParam
+      : "file.bin";
+
+  const dir =
+    typeof dirParam === "string" && dirParam.length > 0
+      ? dirParam
+      : "/uploads";
+
+  if (req.method === "POST") {
+    try {
+      const chunks: Buffer[] = [];
+
+      for await (const chunk of req) {
+        chunks.push(
+          Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk),
+        );
       }
+
+      const buffer = Buffer.concat(chunks);
+
+      if (!buffer.length) {
+        res.status(400).json({ error: "Empty body" });
+        return;
+      }
+
+      const result = await store(buffer, name, dir);
+      res.status(200).json(result);
+      return;
+    } catch {
+      res.status(500).json({ error: "Failed to upload file" });
       return;
     }
+  }
 
     // if (req.method === "PUT") {
     //   // update (only if exists)
