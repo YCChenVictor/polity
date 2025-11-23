@@ -3,39 +3,35 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  frontend:
+  mini:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./mini
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
         node-version: 22
     - name: Install dependencies
-      run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
+      run: yarn install --frozen-lockfile
     - name: Lint Code
-      run: yarn lint
-    # - name: Run tests
-    #   run: yarn test:fix
-    env:
-      NONCE_SECRET: ${{ secrets.NONCE_SECRET }}
-      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
-  backend:
-    runs-on: ubuntu-24.04
-    defaults:
-      run:
-        working-directory: ./backend
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 22
-    - name: Install dependencies
-      run: yarn install --frozen-lockfile # the yarn.lock is updated according to the node version
-    - name: Lint Code
-      run: yarn lint
+      run: yarn eslint
+    - name: Start IPFS (Docker)
+      run: |
+        docker run -d --name ipfs \
+          -p 127.0.0.1:5001:5001 \
+          ipfs/kubo:latest
+    - name: Wait for IPFS
+      run: |
+        for i in {1..30}; do
+          curl -s http://127.0.0.1:5001/api/v0/version && exit 0
+          sleep 1
+        done
+        echo "IPFS did not start in time" >&2
+        exit 1
+    - name: Run tests
+      run: yarn test:bail
   smart-contracts:
     runs-on: ubuntu-24.04
     defaults:
@@ -52,5 +48,5 @@ jobs:
         version: stable
     - name: Lint Code
       run: forge fmt --check
-    # - name: Run tests
-    #   run: forge test
+    - name: Run tests
+      run: forge test

@@ -1,5 +1,3 @@
-// Run:
-// forge script scripts/DeployPolity.s.sol:DeployPolity --rpc-url http://127.0.0.1:8545 --broadcast -vv
 pragma solidity ^0.8.25;
 
 import "forge-std/Script.sol";
@@ -11,7 +9,7 @@ import {TimelockController} from "@openzeppelin/contracts/governance/TimelockCon
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
-contract DeployGovernance is Script {
+contract DeployPolity is Script {
     function run() external {
         uint256 deployerPk = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerPk);

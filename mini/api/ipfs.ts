@@ -9,9 +9,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === "POST") {
       try {
         const buffer = req.body as Buffer;
-        const size = buffer.length;
     
-        const result = await store(buffer, fileName, size, dir);
+        const result = await store(buffer, fileName, dir);
         res.status(200).json(result);
       } catch {
         res.status(500).json({ error: "Failed to upload file" });
@@ -45,11 +44,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (name) {
         const file = files.find((f) => f.name === name);
-        if (!file) return res.status(404).send("Not Found");
-        return res.status(200).json(file);
+        if (!file) {
+          res.status(404).send("Not Found");
+          return
+        }
+        res.status(200).json(file);
+        return
       }
 
-      return res.status(200).json(files);
+      res.status(200).json(files);
+      return
     }
 
     res.status(405).send("Method Not Allowed");

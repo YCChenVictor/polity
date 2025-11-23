@@ -1,23 +1,45 @@
-import ipfsClient from "ipfs-http-client";
 import axios from "axios";
 import FormData from "form-data";
 
 const IPFS_API_URL = process.env.IPFS_API_URL ?? "http://127.0.0.1:5001";
 
-const ipfs = ipfsClient({
-  host: "127.0.0.1",
-  port: 5001,
-  protocol: "http",
-});
-
 interface UploadResult {
   cid: string;
   name: string;
   size: number;
+  dir: string;
 } 
 
-const mfsLs = (path: string) => {
-  return ipfs.files.ls(path);
+const mfsLs = async (path: string) => {
+  const base = path.startsWith("/") ? path : `/${path}`;
+
+  const url =
+    `${IPFS_API_URL}/api/v0/files/ls` +
+    `?arg=${encodeURIComponent(base)}` +
+    `&long=true&cid-base=base58btc`;
+
+  const res = await axios.post(url);
+
+  if (res.status !== 200) {
+    throw new Error(`mfsLs failed: ${res.status}`);
+  }
+
+  const data = res.data as {
+    Entries?: Array<{
+      Name: string;
+      Hash?: string;
+      Size: number;
+      Type: number;
+    }>;
+  };
+
+  const entries = data.Entries ?? [];
+
+  return entries.map((e) => ({
+    name: e.Name,
+    cid: e.Hash,
+    size: e.Size,
+  }));
 };
 
 
@@ -60,7 +82,6 @@ const mfsStat = async (path: string) => {
 const store = async (
   buffer: Buffer,
   name: string,
-  size: number,
   dir: string,
 ): Promise<UploadResult> => {
   if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
@@ -68,31 +89,38 @@ const store = async (
   }
 
   const base = dir.startsWith("/") ? dir : `/${dir}`;
-  const safeName = name.replace(/[/\\]/g, "_");
-  const fullPath = `${base}/${safeName}`;
 
-  await mfsWrite(buffer, fullPath);
-  const stat = await mfsStat(fullPath);
+  const normalizedDir = base.endsWith("/") ? base.slice(0, -1) : base;
+  const mfsPath = `${normalizedDir}/${name}`;
+
+  await mfsWrite(buffer, mfsPath);
+  const stat = await mfsStat(mfsPath);
 
   return {
     cid: stat.Hash,
     name,
-    size: size ?? buffer.length,
+    size: stat.Size,
+    dir: normalizedDir,
   };
 };
 
 const list = async (dir: string): Promise<UploadResult[]> => {
   const base = dir.startsWith("/") ? dir : `/${dir}`;
+  const normalizedDir = base.endsWith("/") ? base.slice(0, -1) : base;
   const files: UploadResult[] = [];
 
-  for await (const entry of mfsLs(base)) {
-    const fullPath = `${base}/${entry.name}`;
-    const stat = await mfsStat(fullPath); // typed as { Hash: string; Size: number }
+  for await (const entry of await mfsLs(normalizedDir)) {
+    const fullPath = `${normalizedDir}/${entry.name}`;
+    const stat = await mfsStat(fullPath); // { Hash: string; Size: number }
+
+    const cid = stat.Hash ?? entry.cid?.toString?.();
+    if (!cid) continue; // or throw, if you prefer
 
     files.push({
       cid: stat.Hash ?? entry.cid?.toString?.(),
       name: entry.name,
       size: stat.Size,
+      dir: normalizedDir,
     });
   }
 
