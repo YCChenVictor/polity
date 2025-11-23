@@ -1,10 +1,9 @@
 import { agora } from "./frontendClients/agora";
 import { ipfs } from "./ipfsClient";
-import { citizen } from "./frontendClients/citizen";
 
-Object.assign(window, { citizen, agora, ipfs });
+Object.assign(window, {  agora, ipfs });
 
-const helpers = { citizen, agora, ipfs };
+const helpers = { agora, ipfs };
 const lines = Object.entries(helpers).flatMap(([name, obj]) =>
   Object.keys(obj as Record<string, unknown>).map(
     (method) => `  await ${name}.${method}(/* ... */)`
