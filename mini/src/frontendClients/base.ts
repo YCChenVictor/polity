@@ -14,7 +14,7 @@ const ensureAccount = async () => {
     return TEST_ACCOUNT;
   }
 
-  const acc = getAccount(wagmiConfig);
+  const acc = getAccount(wagmiConfig); // getAccount(wagmiConfig) will always give you “whatever wallet is currently connected in the browser for this dapp”
   if (acc.status === "connected" && acc.address) return acc.address;
 
   const { accounts } = await connect(wagmiConfig, {

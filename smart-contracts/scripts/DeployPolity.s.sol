@@ -23,13 +23,6 @@ contract DeployPolity is Script {
         uint256 totalSupply = 1_000_000e18;
         Vote vote = new Vote(deployer, totalSupply);
 
-        // --- QA seed (optional) ---
-        address qaUser = vm.envOr("QA_USER", address(0));
-        if (qaUser != address(0)) {
-            // give QA 1 GOV for testing proposals
-            vote.transfer(qaUser, 1e18);
-        }
-
         // 2) Citizen (UUPS proxy)
         Citizen citizenImpl = new Citizen();
         bytes memory citizenInitData = abi.encodeCall(
@@ -57,17 +50,17 @@ contract DeployPolity is Script {
         // Citizen owned by timelock
         citizen.transferOwnership(address(timelock));
 
-        // 4) Agora (Governor, UUPS proxy)
-        Agora agoraImpl = new Agora();
-        bytes memory agoraInitData = abi.encodeCall(
-            Agora.initialize,
-            (IVotes(address(vote)), address(citizen))
-        );
-        ERC1967Proxy agoraProxy = new ERC1967Proxy(
-            address(agoraImpl),
-            agoraInitData
-        );
-        Agora agora = Agora(payable(address(agoraProxy)));
+        // 4) Agora (Governor, UUPS proxy) No UUPS now
+        Agora agora = new Agora(vote, address(citizen));
+        // bytes memory agoraInitData = abi.encodeCall(
+        //     Agora.initialize,
+        //     (IVotes(address(vote)), address(citizen))
+        // );
+        // ERC1967Proxy agoraProxy = new ERC1967Proxy( // The real agora implementation
+        //     address(agoraImpl),
+        //     agoraInitData
+        // );
+        // Agora agora = Agora(payable(address(agoraProxy)));
 
         // wire Agora into timelock
         bytes32 PROPOSER_ROLE = timelock.PROPOSER_ROLE();
