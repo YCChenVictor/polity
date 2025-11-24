@@ -8,11 +8,13 @@ import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Vo
 import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
 
 contract Vote is ERC20, ERC20Permit, ERC20Votes, Ownable {
-    constructor() ERC20("GovToken", "GOV") ERC20Permit("GovToken") Ownable(msg.sender) {}
-
-    /// @notice mint voting power (restrict as you need)
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
+    constructor(address initialOwner, uint256 initialSupply)
+        ERC20("GovToken", "GOV")
+        ERC20Permit("GovToken")
+        Ownable(initialOwner)
+    {
+        require(initialOwner != address(0), "owner zero");
+        _mint(initialOwner, initialSupply); // It creates the entire fixed GOV supply at launch and hands initial control of all those tokens (and thus all future voting power) to the address you choose as initialOwner.
     }
 
     // ----- required overrides (OZ v5) -----

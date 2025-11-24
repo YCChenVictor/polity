@@ -3,7 +3,7 @@ import wagmiConfig from "../wagmiConfig";
 import AgoraJson from "../../../smart-contracts/out/Agora.sol/Agora.json";
 import { ensureAccount } from "./base";
 
-const create = async ({cid}: {cid: `0x${string}`}) => {
+const create = async ({cid}: {cid: string}) => {
   const account = await ensureAccount();
 
   const tx = await writeContract(wagmiConfig, {

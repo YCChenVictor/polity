@@ -5,7 +5,7 @@
   "scripts": {
     "vercel:dev": "npx vercel dev",
     "build": "vite build",
-    "chain:dev": "bash chain.sh 8545 dev",
+    "chain:dev": "bash -c 'source .env.local && bash chain.sh 8545 dev'",
     "ipfs:dev": "ipfs daemon",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
