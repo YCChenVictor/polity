@@ -40,9 +40,9 @@ BROADCAST_PATH="broadcast/DeployPolity.s.sol/31337/run-latest.json"
 
 VOTE_ADDR=$(jq -r '.transactions[] | select(.contractName=="Vote").contractAddress' "$BROADCAST_PATH" | head -n 1)
 CITIZEN_ADDR=$(jq -r '.transactions[] | select(.contractName=="Citizen").contractAddress' "$BROADCAST_PATH" | head -n 1)
-AGORA_ADDR=$(jq -r '.transactions[] | select(.contractName=="Agora").contractAddress' "$BROADCAST_PATH" | head -n 1)
 TIMELOCK_ADDR=$(jq -r '.transactions[] | select(.contractName=="TimelockController").contractAddress' "$BROADCAST_PATH" | head -n 1)
 REWARD_ADDR=$(jq -r '.transactions[] | select(.contractName=="Reward").contractAddress' "$BROADCAST_PATH" | head -n 1)
+AGORA_ADDR=$(jq -r '.transactions[] | select(.contractName=="Agora").contractAddress' "$BROADCAST_PATH" | head -n 1)
 
 cd - >/dev/null
 

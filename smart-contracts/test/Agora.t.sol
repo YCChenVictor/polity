@@ -42,11 +42,7 @@ contract ProposeTest is Test {
 
         citizen = new Citizen();
 
-        Agora impl = new Agora();
-        bytes memory agoraInitData = abi.encodeCall(Agora.initialize, (IVotes(address(vote)), address(citizen)));
-
-        ERC1967Proxy proxy = new ERC1967Proxy(address(impl), agoraInitData);
-        agora = Agora(payable(address(proxy)));
+        agora = new Agora(vote, address(citizen));
     }
 
     // Create
@@ -65,12 +61,16 @@ contract ProposeTest is Test {
     function testProposeIPFSEvent() public {
         string memory cid = "bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu";
 
+        vm.expectEmit(false, false, false, true);
+        emit Message("proposeIPFSEvent finished");
+
         vm.prank(proposer);
         agora.proposeIPFSEvent(cid);
 
         Agora.Proposal[] memory page = agora.proposals(0, 100);
 
         assertEq(page.length, 1);
+        assertEq(page[0].proposer, proposer);
     }
 
     function testQuorumFor() public {

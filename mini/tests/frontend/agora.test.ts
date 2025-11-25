@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import * as wagmiCore from "@wagmi/core";
+
 import { agora } from "../../src/frontendClients/agora";
 
 vi.mock("@wagmi/core", async (importActual) => {

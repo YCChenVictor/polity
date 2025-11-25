@@ -1,87 +1,79 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-import {GovernorUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
-import {
-    GovernorSettingsUpgradeable
-} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
-import {
-    GovernorCountingSimpleUpgradeable
-} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
-import {
-    GovernorVotesUpgradeable
-} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
-import {
-    GovernorVotesQuorumFractionUpgradeable
-} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
-
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
+import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
+import {GovernorSettings} from "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
+import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import {
+    GovernorVotesQuorumFraction
+} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+
 import {IAgora} from "./interfaces/IAgora.sol";
 import {ICitizen} from "../src/interfaces/ICitizen.sol";
 
 contract Agora is
-    Initializable,
-    UUPSUpgradeable,
     IAgora,
-    GovernorUpgradeable,
-    GovernorSettingsUpgradeable,
-    GovernorCountingSimpleUpgradeable,
-    GovernorVotesUpgradeable,
-    GovernorVotesQuorumFractionUpgradeable,
-    OwnableUpgradeable
+    Governor,
+    GovernorSettings,
+    GovernorCountingSimple,
+    GovernorVotes,
+    GovernorVotesQuorumFraction
 {
     ICitizen public citizen;
     Proposal[] private _proposals;
-    mapping(uint256 => uint256) private _indexOf;
+    mapping(uint256 => uint256) private _indexOf; // proposalId => index+1
     mapping(ProposalType => uint256[]) private _idsByType;
 
     event Proposed(ProposalType kind);
-    event IPFSEventProposed(uint256 indexed proposalId, string cid);
     event Message(string message);
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
-    function initialize(IVotes token, address citizen_) public initializer {
-        __Governor_init("Agora");
-        __GovernorSettings_init(
+    constructor(IVotes token, address citizen_)
+        Governor("Agora")
+        GovernorSettings(
             1, // votingDelay (blocks)
             45818, // votingPeriod (blocks)
             1e18 // proposalThreshold (1 token)
-        );
-        __GovernorCountingSimple_init();
-        __GovernorVotes_init(token);
-        __GovernorVotesQuorumFraction_init(4);
-        __Ownable_init(msg.sender);
-        __UUPSUpgradeable_init();
+        )
+        GovernorVotes(token)
+        GovernorVotesQuorumFraction(4) // 4% quorum
 
+    {
         citizen = ICitizen(citizen_);
     }
 
-    function _authorizeUpgrade(address) internal override onlyOwner {}
+    // ===== your public API =====
 
-    // ===== your functions (unchanged) =====
     function createCitizen(address newCitizenAddress) external {
         uint256[] memory values = new uint256[](1);
         values[0] = 0;
+
         bytes[] memory calldatas = new bytes[](1);
+        // Citizen contract must have `function create(address)`:
         calldatas[0] = abi.encodeWithSignature("create(address)", newCitizenAddress);
+
         _create(address(citizen), values, calldatas, ProposalType.Immigration);
+
+        emit Proposed(ProposalType.Immigration);
     }
 
     function proposeIPFSEvent(string calldata cid) external {
         uint256[] memory values = new uint256[](1);
         values[0] = 0; // Should need different amount of ETH
+
         bytes[] memory calldatas = new bytes[](1);
-        // calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (proposer, cid));
+        // Example: record an approved event in Citizen (adjust to your real ABI)
+        // calldatas[0] = abi.encodeCall(
+        //     ICitizen.recordApprovedEvent,
+        //     (_msgSender(), cid)
+        // );
+        calldatas[0] = ""; // placeholder so it compiles if you don’t have the function yet
+
         uint256 proposalId = _create(address(this), values, calldatas, ProposalType.Event);
-        emit IPFSEventProposed(proposalId, cid);
+
+        emit Proposed(ProposalType.Event);
+        emit Message("proposeIPFSEvent finished");
     }
 
     function proposalsCount() external view returns (uint256) {
@@ -103,6 +95,7 @@ contract Agora is
     }
 
     function hasPassed(address) external pure returns (bool) {
+        // TODO: plug in real logic if needed
         return true;
     }
 
@@ -114,37 +107,28 @@ contract Agora is
 
     // ===== required overrides =====
 
-    function votingDelay() public view override(GovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
+    function votingDelay() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.votingDelay();
     }
 
-    function votingPeriod() public view override(GovernorUpgradeable, GovernorSettingsUpgradeable) returns (uint256) {
+    function votingPeriod() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.votingPeriod();
     }
 
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(GovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable)
-        returns (uint256)
-    {
+    function quorum(uint256 blockNumber) public view override(Governor, GovernorVotesQuorumFraction) returns (uint256) {
         return super.quorum(blockNumber);
     }
 
-    function proposalThreshold()
-        public
-        view
-        override(GovernorUpgradeable, GovernorSettingsUpgradeable)
-        returns (uint256)
-    {
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(GovernorUpgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(Governor) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    // ===== internal create, same as you had but on *Upgradeable* base =====
+    // ===== internal create =====
+
     function _create(address target, uint256[] memory values, bytes[] memory calldatas, ProposalType proposalType)
         internal
         returns (uint256 id)
@@ -156,7 +140,7 @@ contract Agora is
             require(targets.length > 0 && targets[0] != address(0), "TARGET_REQUIRED");
         }
 
-        // OZ restricts who can successfully call this via proposalThreshold inside Governor.propose, based on the caller’s voting power snapshot.
+        // uses Governor.propose + proposalThreshold
         id = super.propose(targets, values, calldatas, "Pure signalling vote");
 
         uint64 start = uint64(proposalSnapshot(id));
@@ -168,6 +152,7 @@ contract Agora is
         );
 
         _idsByType[proposalType].push(id);
-        emit Proposed(proposalType);
+
+        emit Message("_create finished");
     }
 }
