@@ -20,8 +20,6 @@ contract ProposeTest is Test {
     address public owner = address(this);
     address citizenAddress = address(citizen);
     address public proposer = address(0x1234);
-    address A = address(0xA11CE);
-    address B = address(0xB11CE);
 
     event Message(string message);
 
@@ -92,29 +90,26 @@ contract ProposeTest is Test {
         assertEq(agora.quorumFor(id), agora.quorum(snap));
     }
 
-    // Read
-    // function testProposeAndList() public {
-    //     poll.create(Poll.ProposalType.Immigration, B);
-    //     Poll.View[] memory views = poll.listImmigrationPolls();
-    //     assertEq(views.length, 1);
-    // }
-
     // Update
-    // function testYesIncrements() public {
-    //     poll.create(Poll.ProposalType.Immigration, B);
-    //     vm.prank(A);
-    //     poll.vote(0, true);
-    //     assertEq(poll.yesVotes(0), 1);
-    //     assertEq(poll.noVotes(0), 0);
-    // }
+    function testVoteForIncrements() public {
+        vm.prank(proposer);
+        agora.proposeIPFSEvent("QmDummyCid");
 
-    // function testNoIncrements() public {
-    //     poll.create(Poll.ProposalType.Immigration, B);
-    //     vm.prank(A);
-    //     poll.vote(0, false);
-    //     assertEq(poll.noVotes(0), 1);
-    //     assertEq(poll.yesVotes(0), 0);
-    // }
+        Agora.Proposal[] memory page = agora.proposals(0, 1);
+        uint256 proposalId = page[0].id;
+        uint64 startBlock = page[0].startBlock;
+
+        vm.roll(uint256(startBlock) + 1);
+
+        vm.prank(proposer);
+        agora.castVote(proposalId, 1);
+
+        (uint256 againstVotes, uint256 forVotes, uint256 abstainVotes) = agora.proposalVotes(proposalId); // Maybe should use this method to get the votes
+
+        assertEq(againstVotes, 0);
+        assertEq(forVotes, 1000000000000000000);
+        assertEq(abstainVotes, 0);
+    }
 
     // Destroy
     // function testFinalize() public {

@@ -1,7 +1,7 @@
 import { readContract, writeContract, getPublicClient } from "@wagmi/core";
 import wagmiConfig from "../wagmiConfig";
 import AgoraJson from "../../../smart-contracts/out/Agora.sol/Agora.json";
-import { ensureAccount } from "./base";
+import { base } from "./base";
 
 const getClient = () => {
   const client = getPublicClient(wagmiConfig);
@@ -9,18 +9,18 @@ const getClient = () => {
   return client;
 };
 
-const create = async ({cid}: {cid: string}) => {
-  const account = await ensureAccount();
+const create = async ({ cid }: { cid: string }) => {
+  const account = await base.ensureAccount();
 
-  const tx = await writeContract(wagmiConfig, {
-    address: import.meta.env.VITE_AGORA_ADDRESS,
+  const hash = await writeContract(wagmiConfig, {
+    address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
     abi: AgoraJson.abi,
     functionName: "proposeIPFSEvent",
     args: [cid],
     account,
   });
 
-  return tx;
+  return hash;
 };
 
 const list = async () => {
@@ -44,4 +44,87 @@ const getProposalThreshold = async (): Promise<bigint> => {
   return threshold as bigint;
 };
 
-export const agora = { getProposalThreshold, getClient, create, list };
+const fetchProposalState = async (id: bigint) => {
+  return readContract(wagmiConfig, {
+    address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
+    abi: AgoraJson.abi,
+    functionName: "state",
+    args: [id],
+  });
+};
+
+const vote = async (id: bigint, support: 0 | 1 | 2) => {
+  const account = await base.ensureAccount();
+
+  const hash = await writeContract(wagmiConfig, {
+      address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
+      abi: AgoraJson.abi,
+      functionName: "castVote",
+      args: [id, support],
+      account,
+    });
+
+    const receipt = await waitForTransactionReceipt(wagmiConfig, { hash });
+
+    return receipt
+};
+
+const debugCast = async (id: bigint, support: 0 | 1 | 2) => {
+  const pc = getPublicClient(wagmiConfig)!;
+  const { address } = getAccount(wagmiConfig);
+
+  await pc.simulateContract({
+      address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
+      abi: AgoraJson.abi,
+      functionName: "castVote",
+      args: [id, support],
+      account: address!,
+    });
+};
+
+const listProposalsWithVotes = async (
+  offset: bigint = 0n,
+  limit: bigint = 10n,
+) => {
+  const proposals = await readContract(wagmiConfig, {
+    address: import.meta.env.VITE_AGORA_ADDRESS,
+    abi: AgoraJson.abi,
+    functionName: "proposals",
+    args: [offset, limit],
+  });
+
+  return Promise.all(
+    proposals.map(async (proposal) => {
+      const [against, forVotes, abstain] = await readContract(wagmiConfig, {
+        address: import.meta.env.VITE_AGORA_ADDRESS,
+        abi: AgoraJson.abi,
+        functionName: "proposalVotes",
+        args: [proposal.id],
+      }) as readonly [bigint, bigint, bigint];
+
+      return {
+        ...proposal,
+        votes: {
+          against,
+          for: forVotes,
+          abstain,
+        },
+      };
+    }),
+  );
+};
+
+const getProposalVotes = async (proposalId: bigint) => {
+  const [against, forVotes, abstain] = await readContract(wagmiConfig, {
+        address: import.meta.env.VITE_AGORA_ADDRESS,
+        abi: AgoraJson.abi,
+        functionName: "proposalVotes",
+        args: [proposalId],
+      }) as readonly [bigint, bigint, bigint];
+
+  return {
+    against, forVotes, abstain
+  }
+}
+
+export const agora = { debugCast, getProposalVotes, fetchProposalState, vote, getProposalThreshold, getClient, create, list, listProposalsWithVotes };
