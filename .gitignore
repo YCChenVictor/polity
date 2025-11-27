@@ -38,6 +38,7 @@ smart-contracts/artifacts/
 smart-contracts/cache/
 smart-contracts/coverage.json
 smart-contracts/typechain-types/
+smart-contracts/broadcast/**/run-*.json
 
 *.csv
 
@@ -48,3 +49,4 @@ smart-contracts/typechain-types/
 .env.**
 
 .vercel
+

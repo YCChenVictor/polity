@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {console2} from "forge-std/Test.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
 import {GovernorSettings} from "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
@@ -139,6 +140,15 @@ contract Agora is
         if (proposalType == ProposalType.Immigration) {
             require(targets.length > 0 && targets[0] != address(0), "TARGET_REQUIRED");
         }
+
+        for (uint256 i = 0; i < values.length; i++) {
+            console2.log("values[i]", values[i]);
+        }
+        for (uint256 i = 0; i < calldatas.length; i++) {
+            console2.log("calldata index", i);
+            console2.logBytes(calldatas[i]); // or logBytes32 if you cast
+        }
+        console2.log("proposalType", uint256(proposalType));
 
         // uses Governor.propose + proposalThreshold
         id = super.propose(targets, values, calldatas, "Pure signalling vote");

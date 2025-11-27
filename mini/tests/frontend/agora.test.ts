@@ -22,19 +22,16 @@ describe("agora.create", () => {
 
     const hash = await agora.create({ cid });
 
-    // return value from mocked writeContract
     expect(hash).toBe(
       "0xFAKE_TX_HASH0000000000000000000000000000000000000000000000000000",
     );
 
-    // wiring: we call wagmi.writeContract with correct shape
     expect(wagmiCore.writeContract).toHaveBeenCalledTimes(1);
     expect(wagmiCore.writeContract).toHaveBeenCalledWith(
-      expect.anything(), // wagmiConfig
+      expect.anything(),
       expect.objectContaining({
         functionName: "proposeIPFSEvent",
         args: [cid],
-        // we don't assert address/env here to keep test simple
       }),
     );
   });

@@ -1,8 +1,9 @@
 set -euo pipefail
 
-RPC_PORT="${1:-8546}"
+RPC_PORT="${1:-8545}"
 TARGET_ENV="${2:-local}"
 QA_USER="${3:-}"
+CHAIN_ID="${4:-31337}"
 RPC_URL="http://127.0.0.1:${RPC_PORT}"
 CONTRACTS_DIR="../smart-contracts"
 FRONTEND_FILE="src/contracts.${TARGET_ENV}.ts"
@@ -11,8 +12,9 @@ echo "RPC_URL       = ${RPC_URL}"
 echo "TARGET_ENV    = ${TARGET_ENV}"
 echo "FRONTEND_FILE = ${FRONTEND_FILE}"
 
-anvil --port "${RPC_PORT}" &
+anvil --port "${RPC_PORT}" --chain-id "${CHAIN_ID}" &
 ANVIL_PID=$!
+
 echo "Started anvil (pid=${ANVIL_PID}) on ${RPC_URL}"
 
 cleanup() {
@@ -36,7 +38,7 @@ forge script scripts/DeployPolity.s.sol:DeployPolity \
   --rpc-url "${RPC_URL}" \
   --broadcast -vv
 
-BROADCAST_PATH="broadcast/DeployPolity.s.sol/31337/run-latest.json"
+BROADCAST_PATH="broadcast/DeployPolity.s.sol/${CHAIN_ID}/run-latest.json"
 
 VOTE_ADDR=$(jq -r '.transactions[] | select(.contractName=="Vote").contractAddress' "$BROADCAST_PATH" | head -n 1)
 CITIZEN_ADDR=$(jq -r '.transactions[] | select(.contractName=="Citizen").contractAddress' "$BROADCAST_PATH" | head -n 1)
