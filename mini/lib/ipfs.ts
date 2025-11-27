@@ -1,7 +1,10 @@
 import axios from "axios";
 import FormData from "form-data";
 
-const IPFS_API_URL = process.env.IPFS_API_URL ?? "http://127.0.0.1:5001";
+const ipfsUrl = process.env.VITE_IPFS_API_URL;
+if(!ipfsUrl) {
+  throw Error("NO VITE_IPFS_API_URL")
+}
 
 interface UploadResult {
   cid: string;
@@ -14,7 +17,7 @@ const mfsLs = async (path: string) => {
   const base = path.startsWith("/") ? path : `/${path}`;
 
   const url =
-    `${IPFS_API_URL}/api/v0/files/ls` +
+    `${ipfsUrl}/api/v0/files/ls` +
     `?arg=${encodeURIComponent(base)}` +
     `&long=true&cid-base=base58btc`;
 
@@ -42,14 +45,13 @@ const mfsLs = async (path: string) => {
   }));
 };
 
-
 const mfsWrite = async (data: Buffer, path: string) => {
   if (!Buffer.isBuffer(data) || data.length === 0) {
     throw new Error("mfsWrite: data buffer is empty");
   }
 
   const url =
-    `${IPFS_API_URL}/api/v0/files/write` +
+    `${ipfsUrl}/api/v0/files/write` +
     `?arg=${encodeURIComponent(path)}` +
     `&create=true&parents=true&truncate=true`;
 
@@ -70,13 +72,12 @@ const mfsWrite = async (data: Buffer, path: string) => {
 
 const mfsStat = async (path: string) => {
   const url =
-    `${IPFS_API_URL}/api/v0/files/stat` +
+    `${ipfsUrl}/api/v0/files/stat` +
     `?arg=${encodeURIComponent(path)}`;
 
   const res = await axios.post(url);
   return res.data as { Hash: string; Size: number };
 }
-
 
 // Each time you “change” a file via MFS, IPFS creates a new immutable CID without deleting the old one, so storage keeps growing unless you explicitly clean up or run garbage collection.
 const store = async (
@@ -102,6 +103,43 @@ const store = async (
     size: stat.Size,
     dir: normalizedDir,
   };
+};
+
+const storeText = async (
+  text: string,
+  name: string,
+  dir: string,
+) => {
+  const buf = Buffer.from(text, "utf8");
+  return store(buf, name, dir); // returns { cid, name, size, dir }
+};
+
+const mfsRead = async (mfsPath: string): Promise<Buffer> => {
+  const url =
+    `${ipfsUrl}/api/v0/files/read?` +
+    new URLSearchParams({ arg: mfsPath }).toString();
+
+  const res = await axios.post(url, null, {
+    responseType: "arraybuffer",
+  });
+
+  return Buffer.from(res.data);
+};
+
+const read = async (dir: string, name: string): Promise<Buffer> => {
+  const mfsPath = `${dir}/${name}`;
+  return mfsRead(mfsPath); // returns Buffer
+};
+
+const readText = async (dir: string, name: string): Promise<string> => {
+  const buf = await read(dir, name);
+  return buf.toString("utf8");
+};
+
+const readCidText = async (cid: string): Promise<string> => {
+  const url = `${ipfsUrl}/api/v0/cat?arg=${cid}`;
+  const res = await axios.post(url, null, { responseType: "arraybuffer" });
+  return Buffer.from(res.data).toString("utf8");
 };
 
 const list = async (dir: string): Promise<UploadResult[]> => {
@@ -130,15 +168,6 @@ const list = async (dir: string): Promise<UploadResult[]> => {
 // async mfsStat(path: string) {
 //   const p = this.normalizePath(path);
 //   return this.ipfs.files.stat(p);
-// }
-
-// async mfsWrite(path: string, data: Uint8Array | Buffer): Promise<void> {
-//   const p = this.normalizePath(path);
-//   await this.ipfs.files.write(p, data, {
-//     create: true,
-//     parents: true,
-//     truncate: true,
-//   });
 // }
 
 // async mfsWriteJson(path: string, obj: unknown): Promise<void> {
@@ -171,4 +200,4 @@ const list = async (dir: string): Promise<UploadResult[]> => {
 //   return out;
 // }
 
-export { mutableFS, store, list };
+export { readCidText, store, readText, storeText, list, UploadResult };

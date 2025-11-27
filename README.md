@@ -1,4 +1,34 @@
-## Start project
+# Polity
+
+This is a basic concept in my mind, which can possible improve current politics situation. The basic flow would be
+
+```JS
+await login
+
+// Add rule and content for AI checkings
+await ipfs.add(new File(["rule"], "rule.txt"))
+await ipfs.add(new File(["content"], "content.txt"))
+await ipfs.list()
+
+await ai.check({type: "judge", ruleCid: "QmR5dzZnje3nFzHF1tMuaupJbyTGwEvMzDebvXuHLcLHn2", contentCid: "QmcE6b3XdECyDSCWfTGMnCxg17XBUDmbyNmF6MPwuLyWgg"})
+
+await agora.create({})
+await agora.vote()
+```
+
+## Mini
+
+### Run test
+
+Start ipfs
+
+```
+docker compose -f docker-compose.ipfs-test.yml up ipfs-test
+```
+
+```
+yarn test
+```
 
 ### Frontend
 

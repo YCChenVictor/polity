@@ -1,0 +1,23 @@
+# docker-compose.ipfs-test.yml
+version: "3.9"
+
+services:
+  ipfs-test:
+    image: ipfs/kubo:latest
+    ports:
+      - "5002:5001"   # host:container (API)
+      - "8082:8080"   # host:container (Gateway)
+    volumes:
+      - ipfs-test-data:/data/ipfs
+    entrypoint: >
+      sh -lc '
+        if [ ! -f /data/ipfs/config ]; then
+          ipfs init --profile=server;
+        fi;
+        ipfs config Addresses.API /ip4/0.0.0.0/tcp/5001;
+        ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080;
+        exec ipfs daemon --migrate=true;
+      '
+
+volumes:
+  ipfs-test-data:

@@ -17,14 +17,5 @@ services:
         ipfs config Addresses.Gateway --json "\"/ip4/0.0.0.0/tcp/8080\"" &&
         exec /sbin/tini -- ipfs daemon --migrate=true
       '
-  backend:
-    build:
-      dockerfile: Dockerfile
-      args:
-        NODE_VERSION: *node_version
-    env_file: .env
-    restart: unless-stopped
-    ports:
-      - "5000:5000"
 volumes:
   ipfs-data:
