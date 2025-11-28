@@ -16,11 +16,9 @@ if (!process.env.IPFS_API) {
   throw new Error("Missing IPFS_API in environment");
 }
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("Missing OPENAI_API_KEY in environment");
+if (!process.env.VITE_OPENAI_API_KEY) {
+  throw new Error("Missing VITE_OPENAI_API_KEY in environment");
 }
-
-// const llmService = new LLMService(process.env.OPENAI_API_KEY!);
 
 const upload = multer({
   storage: multer.memoryStorage(),
