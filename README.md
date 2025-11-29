@@ -3,7 +3,7 @@
 This is a basic concept in my mind, which can possible improve current politics situation. The basic flow would be
 
 ```JS
-await login
+await auth.login()
 
 // Add rule and content for AI checkings
 await ipfs.add(new File(["rule"], "rule.txt"))
@@ -15,6 +15,27 @@ await ai.check({type: "judge", ruleCid: "QmR5dzZnje3nFzHF1tMuaupJbyTGwEvMzDebvXu
 await agora.create({})
 await agora.vote()
 ```
+
+## Contribution
+
+1.	Create an issue
+	•	Write problem/feature, add labels, assignee, milestone if needed.
+2.	Create a branch from main
+	•	Name it like: feature/123-report-filters or bugfix/123-login-error.
+3.	Code on that branch
+	•	Commit with messages like: Fix #123: add date filter to reports.
+4.	Open a Pull Request
+	•	Base: main ← head: your branch.
+	•	In description: Fixes #123 (or Closes #123).
+5.	Review + CI
+	•	Teammate (or you) reviews, checks tests, requests changes if needed.
+6.	Merge the PR
+	•	Use “Squash and merge” or “Merge commit”, depending on your style.
+	•	Issue #123 auto-closes.
+7.	Post-merge
+	•	Delete branch, maybe tag release / update changelog.
+
+loop: Issue → Branch → PR → Merge → Issue closed.
 
 ## Mini
 

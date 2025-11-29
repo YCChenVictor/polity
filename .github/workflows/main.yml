@@ -42,6 +42,7 @@ jobs:
       env:
         VITE_IPFS_API_URL: http://127.0.0.1:5001
         VITE_OPENAI_API_KEY: testing
+        SESSION_SECRET: testing
   smart-contracts:
     runs-on: ubuntu-24.04
     defaults:

@@ -1,29 +1,38 @@
 import { connect, getAccount, getPublicClient } from "@wagmi/core";
-import type { PublicClient } from "viem";
+import { PublicClient, Hash } from "viem";
 import { injected } from "@wagmi/connectors";
-import type { Hash } from "viem";
 
 import wagmiConfig from "../wagmiConfig";
+
+type EnsuredAccount = { address: `0x${string}`; chainId: number };
 
 const mode = import.meta.env.MODE ?? "development";
 const isTest = mode === "test";
 
-export const TEST_ACCOUNT =
-  "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266" as `0x${string}`;
+export const TEST_ACCOUNT: EnsuredAccount = {
+  address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  chainId: 31337,
+};
 
-const ensureAccount = async () => {
-  if (isTest) {
-    return TEST_ACCOUNT;
+const ensureAccount = async (): Promise<EnsuredAccount> => {
+  if (isTest) return TEST_ACCOUNT; // make TEST_ACCOUNT match EnsuredAccount
+
+  const acc = getAccount(wagmiConfig);
+
+  if (acc.status === "connected" && acc.address && acc.chainId) {
+    return { address: acc.address as `0x${string}`, chainId: acc.chainId };
   }
 
-  const acc = getAccount(wagmiConfig); // getAccount(wagmiConfig) will always give you “whatever wallet is currently connected in the browser for this dapp”
-  if (acc.status === "connected" && acc.address) return acc.address;
-
-  const { accounts } = await connect(wagmiConfig, {
+  const { accounts, chainId } = await connect(wagmiConfig, {
     connector: injected({ shimDisconnect: true }),
   });
-  return accounts[0];
-}
+
+  if (!accounts[0]) {
+    throw new Error("No account returned from wallet");
+  }
+
+  return { address: accounts[0] as `0x${string}`, chainId };
+};
 
 const ensurePublicClient = (): PublicClient => {
   const client = getPublicClient(wagmiConfig);
