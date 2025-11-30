@@ -3,13 +3,14 @@ import {  getPublicClient } from "@wagmi/core";
 
 import {ai} from "./backendClients/ai"
 
+import {auth} from "./auth";
 import {base} from "./frontendClients/base";
 import { agora } from "./frontendClients/agora";
 import { reward}  from "./frontendClients/reward";
 
 import wagmiConfig from "./wagmiConfig";
 
-const modules =  { ai, base, reward, agora, ipfs }
+const modules =  { auth, ai, base, reward, agora, ipfs }
 Object.assign(window, modules);
 const lines = Object.entries(modules).flatMap(([name, obj]) =>
   Object.keys(obj as Record<string, unknown>).map(
