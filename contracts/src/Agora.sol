@@ -27,14 +27,13 @@ contract Agora is
     mapping(uint256 => uint256) private _indexOf; // proposalId => index+1
     mapping(ProposalType => uint256[]) private _idsByType;
 
-    event Proposed(ProposalType kind);
     event Message(string message);
 
     constructor(IVotes token, address citizen_)
         Governor("Agora")
         GovernorSettings(
             1, // votingDelay (blocks)
-            45818, // votingPeriod (blocks)
+            10, // votingPeriod (blocks)
             1e18 // proposalThreshold (1 token)
         )
         GovernorVotes(token)
@@ -55,26 +54,18 @@ contract Agora is
         calldatas[0] = abi.encodeWithSignature("create(address)", newCitizenAddress);
 
         _create(address(citizen), values, calldatas, ProposalType.Immigration);
-
-        emit Proposed(ProposalType.Immigration);
     }
 
-    function proposeIPFSEvent(string calldata cid) external {
+    function proposeIPFSEvent(string calldata cid) external returns (uint256) {
         uint256[] memory values = new uint256[](1);
         values[0] = 0; // Should need different amount of ETH
 
         bytes[] memory calldatas = new bytes[](1);
-        // Example: record an approved event in Citizen (adjust to your real ABI)
-        // calldatas[0] = abi.encodeCall(
-        //     ICitizen.recordApprovedEvent,
-        //     (_msgSender(), cid)
-        // );
-        calldatas[0] = ""; // placeholder so it compiles if you don’t have the function yet
+        calldatas[0] = abi.encodeCall(ICitizen.recordApprovedEvent, (_msgSender(), cid));
 
         uint256 proposalId = _create(address(this), values, calldatas, ProposalType.Event);
 
-        emit Proposed(ProposalType.Event);
-        emit Message("proposeIPFSEvent finished");
+        return proposalId;
     }
 
     function proposalsCount() external view returns (uint256) {

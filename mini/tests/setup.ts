@@ -35,6 +35,14 @@ const fromVercel = (handler: VercelHandler) => {
       return this;
     };
 
+    vercelRes.json = function (body: unknown): VercelResponse {
+      if (!res.getHeader("Content-Type")) {
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+      }
+      res.end(JSON.stringify(body));
+      return this;
+    };
+
     vercelRes.send = function (body: unknown): VercelResponse {
       if (typeof body === "object" && body !== null && !Buffer.isBuffer(body)) {
         if (!res.getHeader("Content-Type")) {
@@ -49,50 +57,11 @@ const fromVercel = (handler: VercelHandler) => {
       return this;
     };
 
-    vercelRes.json = function (body: unknown): VercelResponse {
-      if (!res.getHeader("Content-Type")) {
-        res.setHeader("Content-Type", "application/json; charset=utf-8");
-      }
-      res.end(JSON.stringify(body));
-      return this;
-    };
-
-    // 👇 NEW: read and parse body before calling handler
-    const chunks: Buffer[] = [];
-
-    req.on("data", (chunk) => {
-      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-    });
-
-    req.on("end", () => {
-      const raw = Buffer.concat(chunks);
-      const contentType = req.headers["content-type"] ?? "";
-
-      if (contentType.includes("application/json")) {
-        try {
-          vercelReq.body = raw.length ? JSON.parse(raw.toString("utf8")) : {};
-        } catch {
-          vercelReq.body = undefined;
-        }
-      } else if (contentType.includes("application/octet-stream")) {
-        vercelReq.body = raw;
-      } else {
-        // e.g. form-url-encoded or nothing – adjust if you need
-        vercelReq.body = raw.length ? raw.toString("utf8") : undefined;
-      }
-
-      Promise.resolve(handler(vercelReq, vercelRes)).catch(() => {
-        if (!res.headersSent) {
-          res.statusCode = 500;
-          res.end("Internal Server Error");
-        }
-      });
-    });
-
-    req.on("error", () => {
+    // 🔹 DO NOT read the body here – let `readRawBody(req)` do it
+    Promise.resolve(handler(vercelReq, vercelRes)).catch(() => {
       if (!res.headersSent) {
-        res.statusCode = 400;
-        res.end("Bad Request");
+        res.statusCode = 500;
+        res.end("Internal Server Error");
       }
     });
   };

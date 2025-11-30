@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
-
+import "@openzeppelin/contracts/governance/TimelockController.sol";
 import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import {IAgora} from "../src/interfaces/IAgora.sol";
 import {ICitizen} from "../src/interfaces/ICitizen.sol";
@@ -20,6 +20,11 @@ contract ProposeTest is Test {
     address public owner = address(this);
     address citizenAddress = address(citizen);
     address public proposer = address(0x1234);
+    address admin = address(0xA);
+    address tlExecutor = address(0xC);
+    TimelockController timelock;
+
+    uint256 minDelay = 2 days;
 
     event Message(string message);
 
@@ -27,7 +32,6 @@ contract ProposeTest is Test {
         vote = new Vote(address(this), 1e18);
 
         reward = new Reward(address(vote), address(this));
-
         vote.transfer(address(reward), 1e18); // Move tokens from votes to reward
 
         vm.prank(owner); // This will be timelock, only timelock can call rewardContributor
@@ -35,10 +39,21 @@ contract ProposeTest is Test {
 
         vm.prank(proposer);
         vote.delegate(proposer);
-
         vm.roll(block.number + 1);
 
         citizen = new Citizen();
+        citizen.initialize(owner);
+
+        address[] memory proposers = new address[](1);
+        proposers[0] = proposer;
+
+        address[] memory executors = new address[](1);
+        executors[0] = address(0);
+
+        timelock = new TimelockController(minDelay, proposers, executors, admin);
+
+        vm.prank(owner);
+        citizen.transferOwnership(address(timelock));
 
         agora = new Agora(vote, address(citizen));
     }
@@ -58,9 +73,6 @@ contract ProposeTest is Test {
 
     function testProposeIPFSEvent() public {
         string memory cid = "bafkreigykb62xhd7gluyfzdv2opzgkbgovtphi2fuyjpdygbilp6rdchsu";
-
-        vm.expectEmit(false, false, false, true);
-        emit Message("proposeIPFSEvent finished");
 
         vm.prank(proposer);
         agora.proposeIPFSEvent(cid);
@@ -109,6 +121,35 @@ contract ProposeTest is Test {
         assertEq(againstVotes, 0);
         assertEq(forVotes, 1000000000000000000);
         assertEq(abstainVotes, 0);
+    }
+
+    function testTimelockRecordsLawInCitizen() public {
+        address lawProposer = address(0xD);
+        string memory cid = "QmLawCID";
+
+        bytes memory data = abi.encodeCall(Citizen.recordApprovedEvent, (lawProposer, cid));
+
+        address target = address(citizen);
+        uint256 value = 0;
+        bytes32 predecessor = bytes32(0);
+        bytes32 salt = keccak256("law-1");
+
+        // schedule
+        vm.prank(proposer);
+        timelock.schedule(target, value, data, predecessor, salt, minDelay);
+
+        // wait
+        vm.warp(block.timestamp + minDelay + 1);
+
+        // execute
+        timelock.execute(target, value, data, predecessor, salt);
+
+        // assert recorded
+        bytes32 cidHash = keccak256(bytes(cid));
+        (address storedProposer, uint64 approvedAt) = citizen.passedEvents(cidHash);
+
+        assertEq(storedProposer, lawProposer);
+        assertGt(approvedAt, 0);
     }
 
     // Destroy

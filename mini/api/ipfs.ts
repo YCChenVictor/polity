@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { store, list } from "../lib/ipfs";
+import { readRawBody } from "../lib/helper";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const nameParam = req.query.name;
@@ -15,22 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === "POST") {
     try {
-      const body = req.body;
-
-      let buffer: Buffer;
-
-      if (Buffer.isBuffer(body)) {
-        buffer = body;
-      } else if (body instanceof Uint8Array) {
-        buffer = Buffer.from(body);
-      } else if (typeof body === "string") {
-        buffer = Buffer.from(body);
-      } else if (body == null) {
-        buffer = Buffer.alloc(0);
-      } else {
-        // fallback if someone sends JSON here
-        buffer = Buffer.from(JSON.stringify(body));
-      }
+      const buffer = await readRawBody(req);
 
       if (!buffer.length) {
         res.status(400).json({ error: "Empty body" });
@@ -69,25 +55,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   }
 
-  // if (req.method === "PUT") {
-  //   // update (only if exists)
-  //   const name = req.query.name as string;
-  //   if (!name) return res.status(400).send("Missing name");
-
-  //   const base = dir.startsWith("/") ? dir : `/${dir}`;
-  //   const path = `${base}/${name.replace(/[/\\]/g, "_")}`;
-
-  //   // 404 if file not found
-  //   await mfsStat(path).catch(() => {
-  //     return res.status(404).send("Not Found");
-  //   });
-
-  //   const body = req.body as string | Buffer;
-  //   const buf = Buffer.isBuffer(body) ? body : Buffer.from(body);
-
-  //   const result = await store(buf, name, buf.length, dir);
-  //   return res.status(200).json(result);
-  // }
-
-  res.status(405).send("Method Not Allowed");
+  res.status(405).json({ error: "Method not allowed" });
 }

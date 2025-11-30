@@ -1,11 +1,18 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 
 import { issueNonceCookie, buildSiweMessage } from "../../lib/auth";
+import { readRawBody } from "../../lib/helper";
 
-const handler = (req: VercelRequest, res: VercelResponse) => {
-  const body =
-    typeof req.body === "string" ? JSON.parse(req.body) : (req.body ?? {});
-  const { address, chainId } = body;
+const handler = async (req: VercelRequest, res: VercelResponse) => {
+  const raw = await readRawBody(req);
+  const text = raw.toString("utf8");
+  const body = text ? JSON.parse(text) : {};
+
+  const { address, chainId } = body as {
+    address?: `0x${string}`;
+    chainId?: number;
+  };
+
   if (!address) {
     res.status(400).json({ error: "address required" });
     return;

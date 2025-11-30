@@ -12,14 +12,14 @@ import type { Hash } from "viem";
 
 // delegateSelf connects the current wallet, then sends a delegate(account) transaction to the Vote token so that this wallet’s token balance is converted into voting power (needed to reach proposalThreshold and create proposals).
 const delegateSelf = async () => {
-  const account = await base.ensureAccount();
+  const accountInfo = await base.ensureAccount();
 
   const hash = await writeContract(wagmiConfig, {
     address: import.meta.env.VITE_VOTE_ADDRESS as `0x${string}`,
     abi: VoteJson.abi,
     functionName: "delegate",
-    args: [account],
-    account,
+    args: [accountInfo.address],
+    account: accountInfo.address,
   });
 
   const receipt = await waitForTransactionReceipt(wagmiConfig, {

@@ -3,6 +3,19 @@ import wagmiConfig from "../wagmiConfig";
 import AgoraJson from "../../../contracts/out/Agora.sol/Agora.json";
 import { base } from "./base";
 
+const GOVERNOR_STATES = [
+  "Pending", // 0
+  "Active", // 1
+  "Canceled", // 2
+  "Defeated", // 3
+  "Succeeded", // 4
+  "Queued", // 5
+  "Expired", // 6
+  "Executed", // 7
+] as const;
+
+type GovernorState = (typeof GOVERNOR_STATES)[number];
+
 const getClient = () => {
   const client = getPublicClient(wagmiConfig);
   if (!client) throw new Error("Public client not found (check wagmiConfig)");
@@ -10,14 +23,14 @@ const getClient = () => {
 };
 
 const create = async ({ cid }: { cid: string }) => {
-  const account = await base.ensureAccount();
+  const accountInfo = await base.ensureAccount();
 
   const hash = await writeContract(wagmiConfig, {
     address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
     abi: AgoraJson.abi,
     functionName: "proposeIPFSEvent",
     args: [cid],
-    account,
+    account: accountInfo.address,
   });
 
   return hash;
@@ -54,19 +67,15 @@ const fetchProposalState = async (id: bigint) => {
 };
 
 const vote = async (id: bigint, support: 0 | 1 | 2) => {
-  const account = await base.ensureAccount();
+  const accountInfo = await base.ensureAccount();
 
-  const hash = await writeContract(wagmiConfig, {
+  await writeContract(wagmiConfig, {
     address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
     abi: AgoraJson.abi,
     functionName: "castVote",
     args: [id, support],
-    account,
+    account: accountInfo.address,
   });
-
-  const receipt = await waitForTransactionReceipt(wagmiConfig, { hash });
-
-  return receipt;
 };
 
 const debugCast = async (id: bigint, support: 0 | 1 | 2) => {
@@ -118,6 +127,22 @@ const listProposalsWithVotes = async (offset = 0n, limit = 10n) => {
   );
 };
 
+const getProposalState = async (
+  proposalId: bigint,
+): Promise<{ raw: bigint; label: GovernorState }> => {
+  const raw = (await readContract(wagmiConfig, {
+    address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
+    abi: AgoraJson.abi,
+    functionName: "state",
+    args: [proposalId],
+  })) as bigint;
+
+  const index = Number(raw);
+  const label = GOVERNOR_STATES[index] ?? "Pending";
+
+  return { raw, label };
+};
+
 const getProposalVotes = async (proposalId: bigint) => {
   const [against, forVotes, abstain] = (await readContract(wagmiConfig, {
     address: import.meta.env.VITE_AGORA_ADDRESS,
@@ -143,4 +168,5 @@ export const agora = {
   create,
   list,
   listProposalsWithVotes,
+  getProposalState,
 };
