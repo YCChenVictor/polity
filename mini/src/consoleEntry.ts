@@ -1,21 +1,21 @@
 import { ipfs } from "./backendClients/ipfs";
-import {  getPublicClient } from "@wagmi/core";
+import { getPublicClient } from "@wagmi/core";
 
-import {ai} from "./backendClients/ai"
+import { ai } from "./backendClients/ai";
 
-import {auth} from "./auth";
-import {base} from "./frontendClients/base";
+import { auth } from "./auth";
+import { base } from "./frontendClients/base";
 import { agora } from "./frontendClients/agora";
-import { reward}  from "./frontendClients/reward";
+import { reward } from "./frontendClients/reward";
 
 import wagmiConfig from "./wagmiConfig";
 
-const modules =  { auth, ai, base, reward, agora, ipfs }
+const modules = { auth, ai, base, reward, agora, ipfs };
 Object.assign(window, modules);
 const lines = Object.entries(modules).flatMap(([name, obj]) =>
   Object.keys(obj as Record<string, unknown>).map(
-    (method) => `  await ${name}.${method}(/* ... */)`
-  )
+    (method) => `  await ${name}.${method}(/* ... */)`,
+  ),
 );
 
 const pc = getPublicClient(wagmiConfig);
@@ -24,9 +24,9 @@ const nodeChainHex = await pc.transport.request({
   params: [],
 });
 console.log("node", nodeChainHex, parseInt(nodeChainHex, 16));
-const blockNumber = await pc?.getBlockNumber()
+const blockNumber = await pc?.getBlockNumber();
 console.log(blockNumber);
-const chainHex = await window.ethereum.request({ method: 'eth_chainId' });
+const chainHex = await window.ethereum.request({ method: "eth_chainId" });
 console.log(chainHex, parseInt(chainHex, 16));
 const nonce = await pc.getTransactionCount({
   address: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",

@@ -15,4 +15,4 @@ const wagmiConfig = createConfig({
   },
 });
 
-export default wagmiConfig
+export default wagmiConfig;

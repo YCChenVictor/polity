@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import {IncomingMessage, ServerResponse} from "http";
+import { IncomingMessage, ServerResponse } from "http";
 import { createPublicClient, createWalletClient } from "viem";
 import { hardhat } from "viem/chains";
 import { http } from "@wagmi/core";
@@ -18,7 +18,7 @@ export type VercelHandler = (
 ) => void | Promise<void>;
 
 const account = privateKeyToAccount(
-  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as `0x${string}`
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as `0x${string}`,
 );
 
 const fromVercel = (handler: VercelHandler) => {
@@ -36,11 +36,7 @@ const fromVercel = (handler: VercelHandler) => {
     };
 
     vercelRes.send = function (body: unknown): VercelResponse {
-      if (
-        typeof body === "object" &&
-        body !== null &&
-        !Buffer.isBuffer(body)
-      ) {
+      if (typeof body === "object" && body !== null && !Buffer.isBuffer(body)) {
         if (!res.getHeader("Content-Type")) {
           res.setHeader("Content-Type", "application/json; charset=utf-8");
         }
@@ -113,4 +109,4 @@ const walletClient = createWalletClient({
   transport: http("http://127.0.0.1:8546"),
 });
 
-export { fromVercel, publicClient, walletClient }
+export { fromVercel, publicClient, walletClient };

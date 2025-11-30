@@ -1,9 +1,13 @@
-import {  writeContract, readContract, waitForTransactionReceipt } from "@wagmi/core";
+import {
+  writeContract,
+  readContract,
+  waitForTransactionReceipt,
+} from "@wagmi/core";
 import { getAddress } from "viem";
 import wagmiConfig from "../wagmiConfig";
 import VoteJson from "../../../smart-contracts/out/Vote.sol/Vote.json";
 import AgoraJson from "../../../smart-contracts/out/Agora.sol/Agora.json";
-import { base } from "./base"
+import { base } from "./base";
 import type { Hash } from "viem";
 
 // delegateSelf connects the current wallet, then sends a delegate(account) transaction to the Vote token so that this wallet’s token balance is converted into voting power (needed to reach proposalThreshold and create proposals).
@@ -18,17 +22,20 @@ const delegateSelf = async () => {
     account,
   });
 
-   const receipt = await waitForTransactionReceipt(wagmiConfig, {
-      hash: hash as Hash,
-      // so it doesn't hang forever:
-      timeout: 10_000,          // 10 seconds
-      pollingInterval: 1_000,   // poll every 1s
-    });
+  const receipt = await waitForTransactionReceipt(wagmiConfig, {
+    hash: hash as Hash,
+    // so it doesn't hang forever:
+    timeout: 10_000, // 10 seconds
+    pollingInterval: 1_000, // poll every 1s
+  });
 
-    return receipt;
+  return receipt;
 };
 
-const getMyVotes = async (account: `0x${string}`, blockNumber: bigint): Promise<bigint> => {
+const getMyVotes = async (
+  account: `0x${string}`,
+  blockNumber: bigint,
+): Promise<bigint> => {
   const votes = await readContract(wagmiConfig, {
     address: import.meta.env.VITE_AGORA_ADDRESS as `0x${string}`,
     abi: AgoraJson.abi,
@@ -49,9 +56,12 @@ const get = async (account: `0x${string}`): Promise<bigint> => {
     args: [addr],
   });
   return balance as bigint;
-}
+};
 
-export const fetchProposalVotingPower = async (id: bigint, account: `0x${string}`) => {
+export const fetchProposalVotingPower = async (
+  id: bigint,
+  account: `0x${string}`,
+) => {
   const snapshot = await readContract(wagmiConfig, {
     address: import.meta.env.VITE_AGORA_ADDRESS,
     abi: AgoraJson.abi,
@@ -67,4 +77,9 @@ export const fetchProposalVotingPower = async (id: bigint, account: `0x${string}
   });
 };
 
-export const reward = { fetchProposalVotingPower, getMyVotes, delegateSelf, get };
+export const reward = {
+  fetchProposalVotingPower,
+  getMyVotes,
+  delegateSelf,
+  get,
+};

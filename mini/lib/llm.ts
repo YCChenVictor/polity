@@ -25,21 +25,21 @@ const callGPT = async (
   const openai = new OpenAI();
 
   const resp = await openai.chat.completions.create({
-      model: "gpt-5",
-      temperature: 0,
-      max_tokens: 300,
-      seed: 7,
-      response_format: {
-        type: "json_schema",
-        json_schema: { name: "policy_judgement", schema, strict: true },
-      },
-      messages,
-    });
+    model: "gpt-5",
+    temperature: 0,
+    max_tokens: 300,
+    seed: 7,
+    response_format: {
+      type: "json_schema",
+      json_schema: { name: "policy_judgement", schema, strict: true },
+    },
+    messages,
+  });
 
-    const contentStr = resp.choices?.[0]?.message?.content?.trim();
-    if (!contentStr) throw new Error("Empty GPT response");
+  const contentStr = resp.choices?.[0]?.message?.content?.trim();
+  if (!contentStr) throw new Error("Empty GPT response");
 
-    return JSON.parse(contentStr);
+  return JSON.parse(contentStr);
 };
 
 const schema = {
@@ -114,10 +114,10 @@ const okViolation = (v: Violation, rules: string, content: string): boolean =>
   content.slice(v.content_start, v.content_end) === v.content_excerpt;
 
 const judgeCheck = async (ruleCid: string, contentCid: string) => {
-  return true // currently return true
+  return true; // currently return true
   const [rules, content] = await Promise.all([
     readCidText(ruleCid),
-    readCidText(contentCid)
+    readCidText(contentCid),
   ]);
 
   const messages: ChatCompletionMessageParam[] = [

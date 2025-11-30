@@ -12,7 +12,12 @@ export default defineConfig(({ mode }) => {
       include: ["tests/**/*.test.ts"],
       coverage: {
         provider: "v8",
-        include: ["src/**/*.ts", "lib/**/*.ts", "api/**/*.ts", "services/**/*.ts"],
+        include: [
+          "src/**/*.ts",
+          "lib/**/*.ts",
+          "api/**/*.ts",
+          "services/**/*.ts",
+        ],
         exclude: ["dist/**", "node_modules/**", "test/**", "generated.ts"],
         reporter: ["text", "html"],
       },

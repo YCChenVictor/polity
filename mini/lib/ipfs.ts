@@ -2,8 +2,8 @@ import axios from "axios";
 import FormData from "form-data";
 
 const ipfsUrl = process.env.VITE_IPFS_API_URL;
-if(!ipfsUrl) {
-  throw Error("NO VITE_IPFS_API_URL")
+if (!ipfsUrl) {
+  throw Error("NO VITE_IPFS_API_URL");
 }
 
 interface UploadResult {
@@ -11,7 +11,7 @@ interface UploadResult {
   name: string;
   size: number;
   dir: string;
-} 
+}
 
 const mfsLs = async (path: string) => {
   const base = path.startsWith("/") ? path : `/${path}`;
@@ -28,12 +28,12 @@ const mfsLs = async (path: string) => {
   }
 
   const data = res.data as {
-    Entries?: Array<{
+    Entries?: {
       Name: string;
       Hash?: string;
       Size: number;
       Type: number;
-    }>;
+    }[];
   };
 
   const entries = data.Entries ?? [];
@@ -72,12 +72,11 @@ const mfsWrite = async (data: Buffer, path: string) => {
 
 const mfsStat = async (path: string) => {
   const url =
-    `${ipfsUrl}/api/v0/files/stat` +
-    `?arg=${encodeURIComponent(path)}`;
+    `${ipfsUrl}/api/v0/files/stat` + `?arg=${encodeURIComponent(path)}`;
 
   const res = await axios.post(url);
   return res.data as { Hash: string; Size: number };
-}
+};
 
 // Each time you “change” a file via MFS, IPFS creates a new immutable CID without deleting the old one, so storage keeps growing unless you explicitly clean up or run garbage collection.
 const store = async (
@@ -105,11 +104,7 @@ const store = async (
   };
 };
 
-const storeText = async (
-  text: string,
-  name: string,
-  dir: string,
-) => {
+const storeText = async (text: string, name: string, dir: string) => {
   const buf = Buffer.from(text, "utf8");
   return store(buf, name, dir); // returns { cid, name, size, dir }
 };

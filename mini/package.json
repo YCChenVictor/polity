@@ -38,6 +38,7 @@
     "@wagmi/core": "^2.22.1",
     "busboy": "^1.6.0",
     "cookie": "^1.1.1",
+    "eslint-plugin-prettier": "^5.5.4",
     "ethers": "^6.15.0",
     "ipfs-http-client": "49.0.4",
     "ipfs-utils": "^9.0.14",

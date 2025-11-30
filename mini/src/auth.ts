@@ -1,7 +1,7 @@
 import { signMessage } from "@wagmi/core";
 
 import wagmiConfig from "./wagmiConfig";
-import { base } from "./frontendClients/base"
+import { base } from "./frontendClients/base";
 
 const login = async () => {
   const account = await base.ensureAccount();
@@ -21,14 +21,13 @@ const login = async () => {
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify({ address, chainId }),
-  })
+  });
 
   if (!challengeRes.ok) {
     throw new Error(`HTTP ${challengeRes.status}`);
   }
 
   const { message } = (await challengeRes.json()) as { message: string };
-
 
   // Wallet signs the SIWE message -> this proves “this wallet is really mine right now”
   const signature = await signMessage(wagmiConfig, { message });
@@ -48,6 +47,6 @@ const login = async () => {
   }
 
   return true;
-}
+};
 
 export const auth = { login };
