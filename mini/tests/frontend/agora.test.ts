@@ -7,12 +7,16 @@ vi.mock("@wagmi/core", async (importActual) => {
   const actual = await importActual<typeof import("@wagmi/core")>();
   return {
     ...actual,
-    readContract: vi.fn().mockResolvedValue([
-      { id: 1n, kind: 0, proposer: "0xabc" as `0x${string}` },
-    ]),
-    writeContract: vi.fn().mockResolvedValue(
-      "0xFAKE_TX_HASH0000000000000000000000000000000000000000000000000000",
-    ),
+    readContract: vi
+      .fn()
+      .mockResolvedValue([
+        { id: 1n, kind: 0, proposer: "0xabc" as `0x${string}` },
+      ]),
+    writeContract: vi
+      .fn()
+      .mockResolvedValue(
+        "0xFAKE_TX_HASH0000000000000000000000000000000000000000000000000000",
+      ),
   };
 });
 

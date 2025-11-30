@@ -29,7 +29,7 @@ type SiweInput = SiweMessage | string;
 // Cookie: stores the nonce in an httpOnly cookie in the browse
 // Nonce: Nonce = one-time random ID for a login attempt.
 // When you send back the message and signature, the backend reads the nonce from your cookie and from the signed message, and only accepts the login if they match and that nonce hasn’t been used before.
-// 
+//
 const issueNonceCookie = () => {
   const nonce = generateNonce();
   const setCookie = serialize(NONCE_NAME, nonce, {
@@ -122,4 +122,10 @@ const clearNonceCookie = (sameSite: "lax" | "none" | "strict" = "lax") => {
   });
 };
 
-export { clearNonceCookie, buildSessionCookie, isValidSiwe, issueNonceCookie, buildSiweMessage }
+export {
+  clearNonceCookie,
+  buildSessionCookie,
+  isValidSiwe,
+  issueNonceCookie,
+  buildSiweMessage,
+};

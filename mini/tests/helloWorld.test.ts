@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import request from "supertest";
 
-import { fromVercel } from './setup';
+import { fromVercel } from "./setup";
 import handler from "../api/hello";
 
-describe('HelloWorld', () => {
-  it('Hello World', () => {
+describe("HelloWorld", () => {
+  it("Hello World", () => {
     expect(1 + 1).toBe(2);
   });
 });

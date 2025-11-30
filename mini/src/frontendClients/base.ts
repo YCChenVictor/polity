@@ -4,7 +4,10 @@ import { injected } from "@wagmi/connectors";
 
 import wagmiConfig from "../wagmiConfig";
 
-type EnsuredAccount = { address: `0x${string}`; chainId: number };
+interface EnsuredAccount {
+  address: `0x${string}`;
+  chainId: number;
+}
 
 const mode = import.meta.env.MODE ?? "development";
 const isTest = mode === "test";
@@ -61,7 +64,13 @@ const checkTx = async () => {
     hash: "0x398def97215a287e8d4c60fc6aeb1bfb30644798a59ce6ba0ed8ce78f46fad5c" as Hash,
   });
 
-  return tx
+  return tx;
 };
 
-export const base = { checkTx, ensurePublicClient, getCurrentBlock, ensureAccount, mineBlocks } 
+export const base = {
+  checkTx,
+  ensurePublicClient,
+  getCurrentBlock,
+  ensureAccount,
+  mineBlocks,
+};

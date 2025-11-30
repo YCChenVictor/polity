@@ -1,9 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { SiweMessage } from "siwe";
-import {  parse } from "cookie";
+import { parse } from "cookie";
 import { config } from "dotenv";
-import { buildSessionCookie, clearNonceCookie, isValidSiwe } from "../../lib/auth";
-
+import {
+  buildSessionCookie,
+  clearNonceCookie,
+  isValidSiwe,
+} from "../../lib/auth";
 
 const NONCE_NAME = "__Host-siwe-nonce";
 
@@ -51,23 +54,23 @@ const handler = async (req: VercelRequest, res: VercelResponse) => {
   }
 
   try {
-  const siwe = new SiweMessage(rawMessage);
+    const siwe = new SiweMessage(rawMessage);
 
-  const secure = (req.headers["x-forwarded-proto"] ?? "https") === "https";
+    const secure = (req.headers["x-forwarded-proto"] ?? "https") === "https";
 
-  const sessionCookie = buildSessionCookie({
-    address: siwe.address as `0x${string}`,
-    chainId: siwe.chainId,
-    secure,
-  });
+    const sessionCookie = buildSessionCookie({
+      address: siwe.address as `0x${string}`,
+      chainId: siwe.chainId,
+      secure,
+    });
 
-  res.setHeader("Set-Cookie", [sessionCookie, clearNonceCookie()]);
-  res.status(200).json({ ok: true, address: siwe.address });
-  return;
-} catch {
-  res.status(400).json({ ok: false, reason: "invalid_siwe_message" });
-  return;
-}
+    res.setHeader("Set-Cookie", [sessionCookie, clearNonceCookie()]);
+    res.status(200).json({ ok: true, address: siwe.address });
+    return;
+  } catch {
+    res.status(400).json({ ok: false, reason: "invalid_siwe_message" });
+    return;
+  }
 };
 
 export default handler;

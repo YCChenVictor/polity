@@ -11,9 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       : "file.bin";
 
   const dir =
-    typeof dirParam === "string" && dirParam.length > 0
-      ? dirParam
-      : "/uploads";
+    typeof dirParam === "string" && dirParam.length > 0 ? dirParam : "/uploads";
 
   if (req.method === "POST") {
     try {
@@ -72,24 +70,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // if (req.method === "PUT") {
-    //   // update (only if exists)
-    //   const name = req.query.name as string;
-    //   if (!name) return res.status(400).send("Missing name");
+  //   // update (only if exists)
+  //   const name = req.query.name as string;
+  //   if (!name) return res.status(400).send("Missing name");
 
-    //   const base = dir.startsWith("/") ? dir : `/${dir}`;
-    //   const path = `${base}/${name.replace(/[/\\]/g, "_")}`;
+  //   const base = dir.startsWith("/") ? dir : `/${dir}`;
+  //   const path = `${base}/${name.replace(/[/\\]/g, "_")}`;
 
-    //   // 404 if file not found
-    //   await mfsStat(path).catch(() => {
-    //     return res.status(404).send("Not Found");
-    //   });
+  //   // 404 if file not found
+  //   await mfsStat(path).catch(() => {
+  //     return res.status(404).send("Not Found");
+  //   });
 
-    //   const body = req.body as string | Buffer;
-    //   const buf = Buffer.isBuffer(body) ? body : Buffer.from(body);
+  //   const body = req.body as string | Buffer;
+  //   const buf = Buffer.isBuffer(body) ? body : Buffer.from(body);
 
-    //   const result = await store(buf, name, buf.length, dir);
-    //   return res.status(200).json(result);
-    // }
+  //   const result = await store(buf, name, buf.length, dir);
+  //   return res.status(200).json(result);
+  // }
 
   res.status(405).send("Method Not Allowed");
 }
