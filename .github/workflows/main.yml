@@ -18,7 +18,7 @@ jobs:
       with:
         version: nightly
     - name: Build smart contracts
-      working-directory: ./smart-contracts
+      working-directory: ./contracts
       run: forge build
     - name: Install dependencies
       run: yarn install --frozen-lockfile
@@ -43,21 +43,20 @@ jobs:
         VITE_IPFS_API_URL: http://127.0.0.1:5001
         VITE_OPENAI_API_KEY: testing
         SESSION_SECRET: testing
-  smart-contracts:
+  contracts:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: ./smart-contracts
+        working-directory: ./contracts
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 22
-    - name: Install Foundry
-      uses: foundry-rs/foundry-toolchain@v1
-      with:
-        version: stable
-    - name: Lint Code
-      run: forge fmt --check
-    - name: Run tests
-      run: forge test
+      - uses: actions/checkout@v4
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Install deps
+        run: forge install
+      - name: Lint Code
+        run: forge fmt --check
+      - name: Run tests
+        run: forge test

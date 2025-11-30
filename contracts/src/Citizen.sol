@@ -51,7 +51,6 @@ contract Citizen is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     // In UUPS upgradeable contracts, the constructor never runs on the proxy, so you set things up in a public initialize() function that’s allowed to be called only once.
     function initialize(address initialOwner) public initializer {
         __Ownable_init(initialOwner);
-        __UUPSUpgradeable_init();
     }
 
     function _authorizeUpgrade(address) internal override onlyOwner {}

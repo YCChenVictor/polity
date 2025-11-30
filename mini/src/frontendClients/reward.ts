@@ -5,8 +5,8 @@ import {
 } from "@wagmi/core";
 import { getAddress } from "viem";
 import wagmiConfig from "../wagmiConfig";
-import VoteJson from "../../../smart-contracts/out/Vote.sol/Vote.json";
-import AgoraJson from "../../../smart-contracts/out/Agora.sol/Agora.json";
+import VoteJson from "../../../contracts/out/Vote.sol/Vote.json";
+import AgoraJson from "../../../contracts/out/Agora.sol/Agora.json";
 import { base } from "./base";
 import type { Hash } from "viem";
 
