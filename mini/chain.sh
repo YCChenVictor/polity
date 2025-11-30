@@ -5,7 +5,7 @@ TARGET_ENV="${2:-local}"
 QA_USER="${3:-}"
 CHAIN_ID="${4:-31337}"
 RPC_URL="http://127.0.0.1:${RPC_PORT}"
-CONTRACTS_DIR="../smart-contracts"
+CONTRACTS_DIR="../contracts"
 FRONTEND_FILE="src/contracts.${TARGET_ENV}.ts"
 
 echo "RPC_URL       = ${RPC_URL}"
