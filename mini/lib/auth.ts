@@ -1,19 +1,15 @@
 import { generateNonce, SiweMessage } from "siwe";
 import { serialize } from "cookie";
-import { config } from "dotenv";
 import jwt from "jsonwebtoken";
-
-const reactAppSessionSecret = process.env.SESSION_SECRET;
-
-if (!reactAppSessionSecret) {
-  throw Error("No SESSION_SECRET");
-}
+import { VercelRequest } from "@vercel/node";
+import cookie from "cookie";
 
 const NONCE_MAX_AGE = 300;
 const NONCE_NAME = "__Host-siwe-nonce";
 
-if (process.env.NODE_ENV === "dev") {
-  config({ path: ".env.local" });
+const reactAppSessionSecret = process.env.SESSION_SECRET;
+if (!reactAppSessionSecret) {
+  throw Error("No SESSION_SECRET");
 }
 
 interface BuildSiweParams {
@@ -122,7 +118,25 @@ const clearNonceCookie = (sameSite: "lax" | "none" | "strict" = "lax") => {
   });
 };
 
+const getSessionFromRequest = (req: VercelRequest) => {
+  const isProd = process.env.NODE_ENV === "production";
+  const name = isProd ? "__Host-polity-session" : "polity-session";
+
+  const header = req.headers.cookie ?? "";
+  const cookies = req.cookies ?? (header ? cookie.parse(header) : {});
+
+  const token = cookies[name];
+  if (!token) return null;
+
+  try {
+    return jwt.verify(token, reactAppSessionSecret);
+  } catch {
+    return null;
+  }
+};
+
 export {
+  getSessionFromRequest,
   clearNonceCookie,
   buildSessionCookie,
   isValidSiwe,

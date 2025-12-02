@@ -1,6 +1,6 @@
 import { readContract, writeContract, getPublicClient } from "@wagmi/core";
-import wagmiConfig from "../wagmiConfig";
-import AgoraJson from "../../../contracts/out/Agora.sol/Agora.json";
+import wagmiConfig from "./wagmiConfig";
+import AgoraJson from "../../contracts/out/Agora.sol/Agora.json";
 import { base } from "./base";
 
 const GOVERNOR_STATES = [

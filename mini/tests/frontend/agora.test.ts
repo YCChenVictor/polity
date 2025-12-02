@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import * as wagmiCore from "@wagmi/core";
 
-import { agora } from "../../src/frontendClients/agora";
+import { agora } from "../../src/agora";
 
 vi.mock("@wagmi/core", async (importActual) => {
   const actual = await importActual<typeof import("@wagmi/core")>();

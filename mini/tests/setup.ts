@@ -6,6 +6,7 @@ import { http } from "@wagmi/core";
 import { privateKeyToAccount } from "viem/accounts";
 import { config } from "dotenv";
 import path from "node:path";
+import { buildSessionCookie } from "../lib/auth";
 
 const env = process.env.NODE_ENV ?? "development";
 const envFile = `.env.${env}`;
@@ -78,4 +79,18 @@ const walletClient = createWalletClient({
   transport: http("http://127.0.0.1:8546"),
 });
 
-export { fromVercel, publicClient, walletClient };
+const makeAuthCookie = () => {
+  const { token } = buildSessionCookie({
+    address: "0x0000000000000000000000000000000000000001",
+    chainId: 1,
+    ttlSec: 3600,
+  });
+
+  const isProd = process.env.NODE_ENV === "production";
+  const name = isProd ? "__Host-polity-session" : "polity-session";
+
+  // For *request* cookies you only send name=value
+  return `${name}=${token}`;
+};
+
+export { fromVercel, publicClient, walletClient, makeAuthCookie };
