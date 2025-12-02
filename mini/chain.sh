@@ -56,14 +56,28 @@ else
   ENV_FILE=".env"
 fi
 
-cat > "$ENV_FILE" <<EOF
-VITE_AGORA_ADDRESS=${AGORA_ADDR}
-VITE_CITIZEN_ADDRESS=${CITIZEN_ADDR}
-VITE_VOTE_ADDRESS=${VOTE_ADDR}
-VITE_TIMELOCK_ADDRESS=${TIMELOCK_ADDR}
-VITE_REWARD_ADDRESS=${REWARD_ADDR}
-EOF
+touch "$ENV_FILE"
 
+set_env_var() {
+  local key="$1"
+  local value="$2"
+
+  if grep -q "^${key}=" "$ENV_FILE"; then
+    # update existing line
+    sed -i.bak "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+  else
+    # append new line
+    echo "${key}=${value}" >> "$ENV_FILE"
+  fi
+}
+
+set_env_var "VITE_AGORA_ADDRESS"    "${AGORA_ADDR}"
+set_env_var "VITE_CITIZEN_ADDRESS"  "${CITIZEN_ADDR}"
+set_env_var "VITE_VOTE_ADDRESS"     "${VOTE_ADDR}"
+set_env_var "VITE_TIMELOCK_ADDRESS" "${TIMELOCK_ADDR}"
+set_env_var "VITE_REWARD_ADDRESS"   "${REWARD_ADDR}"
+
+echo "Updated ${ENV_FILE}"
 echo "Wrote ${FRONTEND_FILE}"
 echo "Deploy done. Anvil is still running on ${RPC_URL}. Press Ctrl+C to stop."
 wait "${ANVIL_PID}"

@@ -7,13 +7,13 @@ import handler from "../../api/ipfs";
 describe("IPFS files API", () => {
   it("stores a file and then lists it", async () => {
     const app = fromVercel(handler);
-    const dir = "/perm/users/1/files";
     const fileName = "test.txt";
-    const fileContent = "hello world";
+    const dir = "/uploads";
+    const fileContent = "hi";
 
     // POST store
     const uploadRes = await request(app)
-      .post("/")
+      .post("/api/ipfs")
       .query({ name: fileName, dir })
       .set("Content-Type", "application/octet-stream")
       .send(Buffer.from(fileContent));

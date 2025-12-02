@@ -2,18 +2,89 @@
 
 This is a basic concept in my mind, which can possible improve current politics situation. The basic flow would be
 
+## Start local development
+
+```bash
+cd mini
+
+yarn vercel:dev # new tab
+yarn chain:dev # new tab
+yarn ipfs:dev # new tab
+```
+
+## Usual flow
+
+In browser console,
+
 ```JS
-await auth.login()
+// 0) Auth + voting power setup
+await auth.login();
 
-// Add rule and content for AI checkings
-await ipfs.add(new File(["rule"], "rule.txt"))
-await ipfs.add(new File(["content"], "content.txt"))
-await ipfs.list()
+// helper
+// await base.getCurrentBlock()
+// await base.mineBlocks()
 
-await ai.check({type: "judge", ruleCid: "QmR5dzZnje3nFzHF1tMuaupJbyTGwEvMzDebvXuHLcLHn2", contentCid: "QmcE6b3XdECyDSCWfTGMnCxg17XBUDmbyNmF6MPwuLyWgg"})
+const myAddress = (await window.ethereum.request({
+  method: "eth_requestAccounts",
+}))[0];
 
-await agora.create({})
-await agora.vote()
+// (optional) make sure I actually have voting power
+await reward.delegateSelf(); // delegate votes to self
+// await reward.getMyVotes(myAddress, 13n);
+// await reward.fetchProposalVotingPower(
+//   72380676904461645790063851811608348709253202756502912104745171844450372884334n,
+//   myAddress,
+// );
+
+// 1) Upload rule + content to IPFS
+const ruleFile = new File(["rule text..."], "rule.txt");
+const contentFile = new File(["law article text..."], "article-1.txt");
+
+const { cid: ruleCid } = await ipfs.add(ruleFile);
+const { cid: contentCid } = await ipfs.add(contentFile);
+
+console.log("ruleCid", ruleCid);
+console.log("contentCid", contentCid);
+
+// (optional) see what's on IPFS for debugging
+await ipfs.list();
+
+// 2) AI judge check *before* creating proposal
+const judgeResult = await ai.check({
+  type: "judge",
+  ruleCid,
+  contentCid,
+});
+
+if (!judgeResult.ok) {
+  throw new Error("AI rejected proposal: " + judgeResult.reason);
+}
+
+// 3) Create proposal in Agora (returns proposalId)
+const { proposalId } = await agora.create({
+  ruleCid,
+  contentCid,
+  // other metadata: title, tags, category, etc.
+});
+console.log("proposalId", proposalId);
+
+// (optional) fetch proposals for UI
+await agora.list();
+
+// 4) Start / participate in voting
+// support: 0 = Against, 1 = For, 2 = Abstain (Governor-style)
+// Sometimes the nonce in user browser is too high, remember to remove the history
+await agora.vote( proposalId, support );
+
+await agora.listProposalsWithVotes()
+
+// 5) After voting period ends → if Succeeded, execute
+await agora.getProposalState(proposalId);
+
+// Mine the blocks
+
+// 6) After execution, read on-chain result from Citizen
+const events = await citizen.getAllApprovedEvents();
 ```
 
 ## Contribution
@@ -36,56 +107,3 @@ await agora.vote()
 	•	Delete branch, maybe tag release / update changelog.
 
 loop: Issue → Branch → PR → Merge → Issue closed.
-
-## Mini
-
-### Run test
-
-Start ipfs
-
-```
-docker compose -f docker-compose.ipfs-test.yml up ipfs-test
-```
-
-```
-yarn test
-```
-
-### Frontend
-
-```bash
-yarn start
-```
-
-### Backend
-
-```bash
-docker compose up --build
-```
-
-### Contracts
-
-```
-anvil
-```
-
-## 1) Prepare Base Law v0.1 (no repo file required)
-
-```bash
-CID=$(curl -sX POST "http://127.0.0.1:5001/api/v0/add" -F file=@constitution.md | jq -r .Hash)
-
-# SHA-256 of EXACT bytes you pinned
-export LAW_SHA256=0x$(printf '%b' "$LAW_TEXT" | openssl dgst -sha256 -binary | xxd -p -c256)
-
-# CIDv1 string -> bytes hex (for constructor)
-export LAW_CID_BYTES=$(node -e 'import{CID}from"multiformats/cid"; console.log("0x"+Buffer.from(CID.parse(process.argv[1]).bytes).toString("hex"))' "$CID")
-
-export LAW_MIME="text/markdown"
-```
-
-## 2) Deploy
-
-```bash
-export PRIVATE_KEY=0xYOUR_KEY
-forge script scripts/DeployPolity.s.sol:DeployPolity --rpc-url http://127.0.0.1:8545 --broadcast -vv
-```

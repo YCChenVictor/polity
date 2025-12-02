@@ -36,17 +36,7 @@ contract Citizen is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     mapping(address => bool) public isCitizen;
 
     event CitizenAdded(address indexed citizen);
-    event CitizenRemoved(address indexed citizen);
-    event ProposalMade(address indexed proposer, address indexed target, uint256 totalCitizens);
-    event PollSet(address indexed oldPoll, address indexed newPoll);
-
-    error OnlyPoll();
-    error AlreadySet();
-    error ZeroAddress();
-    error NoChange();
-    error NotContract();
-    error BootstrapOnly();
-    error AgoraOnly();
+    event EventApproved(bytes32 indexed cidHash, address proposer, uint64 timestamp);
 
     // In UUPS upgradeable contracts, the constructor never runs on the proxy, so you set things up in a public initialize() function that’s allowed to be called only once.
     function initialize(address initialOwner) public initializer {
@@ -71,8 +61,10 @@ contract Citizen is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return _count;
     }
 
-    function recordApprovedEvent(address proposer, string calldata cid) external {
+    function recordApprovedEvent(address proposer, string calldata cid) external onlyOwner {
         bytes32 cidHash = keccak256(bytes(cid));
         passedEvents[cidHash] = EventMeta(proposer, uint64(block.timestamp));
+
+        emit EventApproved(cidHash, proposer, uint64(block.timestamp));
     }
 }

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { judgeCheck } from "../../lib/llm";
+import { readRawBody } from "../../lib/helper";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -9,9 +10,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { ruleCid, contentCid } = req.body as {
-      ruleCid: string;
-      contentCid: string;
+    // 🔹 read & parse JSON
+    const raw = await readRawBody(req);
+    let body = {};
+    if (raw.length) {
+      try {
+        body = JSON.parse(raw.toString("utf8"));
+      } catch {
+        res.status(400).json({ error: "Invalid JSON" });
+        return;
+      }
+    }
+
+    const { ruleCid, contentCid } = body as {
+      ruleCid?: string;
+      contentCid?: string;
     };
 
     if (!ruleCid || !contentCid) {

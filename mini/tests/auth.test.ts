@@ -62,8 +62,8 @@ describe("verify", () => {
         signature: "dummy_sig", // 🔹 ignored by mocked isValidSiwe
       });
 
-    expect(isValidSiwe).toHaveBeenCalledTimes(1);
     expect(res.status).toBe(200);
+    expect(isValidSiwe).toHaveBeenCalledTimes(1);
     expect(res.headers["set-cookie"]).toBeDefined();
   });
 });

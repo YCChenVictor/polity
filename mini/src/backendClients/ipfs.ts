@@ -1,11 +1,9 @@
 const add = async (file: File, dir = "/uploads") => {
   const res = await fetch(
-    `/api/ipfs?name=${encodeURIComponent(file.name)}&dir=${encodeURIComponent(
-      dir,
-    )}`,
+    `/api/ipfs?name=${encodeURIComponent(file.name)}&dir=${encodeURIComponent(dir)}`,
     {
       method: "POST",
-      body: file,
+      body: file, // File(["hi"], "test.txt")
     },
   );
 

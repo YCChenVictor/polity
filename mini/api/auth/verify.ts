@@ -7,6 +7,7 @@ import {
   clearNonceCookie,
   isValidSiwe,
 } from "../../lib/auth";
+import { readRawBody } from "../../lib/helper";
 
 const NONCE_NAME = "__Host-siwe-nonce";
 
@@ -21,8 +22,17 @@ const handler = async (req: VercelRequest, res: VercelResponse) => {
     return;
   }
 
-  const body =
-    typeof req.body === "string" ? JSON.parse(req.body) : (req.body ?? {});
+  // 🔹 read + parse JSON
+  const raw = await readRawBody(req);
+  let body = {};
+  if (raw.length) {
+    try {
+      body = JSON.parse(raw.toString("utf8"));
+    } catch {
+      res.status(400).json({ ok: false, reason: "invalid_json" });
+      return;
+    }
+  }
 
   const rawMessage = body.message as string | undefined;
   const signature = body.signature as string | undefined;
@@ -55,7 +65,6 @@ const handler = async (req: VercelRequest, res: VercelResponse) => {
 
   try {
     const siwe = new SiweMessage(rawMessage);
-
     const secure = (req.headers["x-forwarded-proto"] ?? "https") === "https";
 
     const sessionCookie = buildSessionCookie({
