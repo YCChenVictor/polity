@@ -1,7 +1,7 @@
 import { getPublicClient } from "@wagmi/core";
 
 import CitizenJson from "../../../contracts/out/Citizen.sol/Citizen.json";
-import wagmiConfig from "../wagmiConfig";
+import wagmiConfig from "./wagmiConfig";
 
 const pc = getPublicClient(wagmiConfig);
 

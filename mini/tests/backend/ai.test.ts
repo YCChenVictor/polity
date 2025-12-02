@@ -3,7 +3,7 @@ import request from "supertest";
 
 import handler from "../../api/ai/judge";
 
-import { fromVercel } from "../setup";
+import { fromVercel, makeAuthCookie } from "../setup";
 
 import { storeText, UploadResult } from "../../lib/ipfs";
 
@@ -26,10 +26,12 @@ describe("/api/judge", () => {
   });
 
   it("returns 200 when judgeCheck returns truthy", async () => {
+    const authCookie = makeAuthCookie();
     const app = fromVercel(handler);
 
     const response = await request(app)
       .post("/")
+      .set("Cookie", authCookie)
       .send({ contentCid: content.cid, ruleCid: rule.cid });
 
     expect(response.status).toBe(200);

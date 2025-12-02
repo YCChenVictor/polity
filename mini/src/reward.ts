@@ -4,7 +4,7 @@ import {
   waitForTransactionReceipt,
 } from "@wagmi/core";
 import { getAddress } from "viem";
-import wagmiConfig from "../wagmiConfig";
+import wagmiConfig from "./wagmiConfig";
 import VoteJson from "../../../contracts/out/Vote.sol/Vote.json";
 import AgoraJson from "../../../contracts/out/Agora.sol/Agora.json";
 import { base } from "./base";

@@ -1,12 +1,12 @@
-import { ipfs } from "./backendClients/ipfs";
+import { ipfs } from "./ipfs";
 import { getPublicClient } from "@wagmi/core";
 
-import { ai } from "./backendClients/ai";
 import { auth } from "./auth";
-import { base } from "./frontendClients/base";
-import { agora } from "./frontendClients/agora";
-import { reward } from "./frontendClients/reward";
-import { citizen } from "./frontendClients/citizen";
+import { ai } from "./ai";
+import { base } from "./base";
+import { agora } from "./agora";
+import { reward } from "./reward";
+import { citizen } from "./citizen";
 
 import wagmiConfig from "./wagmiConfig";
 

@@ -2,7 +2,7 @@ import { connect, getAccount, getPublicClient } from "@wagmi/core";
 import { PublicClient, Hash } from "viem";
 import { injected } from "@wagmi/connectors";
 
-import wagmiConfig from "../wagmiConfig";
+import wagmiConfig from "./wagmiConfig";
 
 interface EnsuredAccount {
   address: `0x${string}`;

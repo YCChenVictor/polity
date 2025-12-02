@@ -1,9 +1,8 @@
-// vitest.config.ts
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), ".env.test");
+  const env = loadEnv(mode, process.cwd(), "");
 
   Object.assign(process.env, env);
 

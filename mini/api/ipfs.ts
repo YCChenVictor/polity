@@ -1,8 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { store, list } from "../lib/ipfs";
 import { readRawBody } from "../lib/helper";
+import { getSessionFromRequest } from "../lib/auth";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const session = getSessionFromRequest(req);
+  if (!session) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+
   const nameParam = req.query.name;
   const dirParam = req.query.dir;
 
