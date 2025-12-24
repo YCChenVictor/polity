@@ -6,6 +6,7 @@ import { http } from "@wagmi/core";
 import { privateKeyToAccount } from "viem/accounts";
 import { config } from "dotenv";
 import path from "node:path";
+
 import { buildSessionCookie } from "../lib/auth";
 
 const env = process.env.NODE_ENV ?? "development";
@@ -17,10 +18,6 @@ export type VercelHandler = (
   req: VercelRequest,
   res: VercelResponse,
 ) => void | Promise<void>;
-
-const account = privateKeyToAccount(
-  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" as `0x${string}`,
-);
 
 const fromVercel = (handler: VercelHandler) => {
   return (req: IncomingMessage, res: ServerResponse) => {
@@ -68,17 +65,6 @@ const fromVercel = (handler: VercelHandler) => {
   };
 };
 
-const publicClient = createPublicClient({
-  chain: hardhat,
-  transport: http("http://127.0.0.1:8546"),
-});
-
-const walletClient = createWalletClient({
-  account,
-  chain: hardhat,
-  transport: http("http://127.0.0.1:8546"),
-});
-
 const makeAuthCookie = () => {
   const { token } = buildSessionCookie({
     address: "0x0000000000000000000000000000000000000001",
@@ -93,4 +79,4 @@ const makeAuthCookie = () => {
   return `${name}=${token}`;
 };
 
-export { fromVercel, publicClient, walletClient, makeAuthCookie };
+export { fromVercel, makeAuthCookie };

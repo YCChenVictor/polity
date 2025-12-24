@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "vercel:dev": "npx vercel dev",
+    "vercel:dev": "vercel dev",
+    "dev": "react-scripts start",
     "build": "vite build",
     "chain:dev": "bash -c 'source .env.local && bash chain.sh'",
     "ipfs:dev": "ipfs daemon",
